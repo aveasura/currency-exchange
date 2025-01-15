@@ -47,9 +47,4 @@ public class DatasourceConnection {
             System.out.println("Ошибка подключения: " + e.getMessage());
         }
     }
-
-    public static void main(String[] args) {
-        DatasourceConnection db = new DatasourceConnection();
-        db.connect();
-    }
 }
