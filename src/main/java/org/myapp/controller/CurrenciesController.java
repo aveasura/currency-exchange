@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.myapp.dto.CurrencyDto;
 import org.myapp.model.Currency;
 import org.myapp.service.CurrenciesService;
 
@@ -36,19 +37,37 @@ public class CurrenciesController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Currency currency = objectMapper.readValue(req.getReader(), Currency.class);
+        CurrencyDto dto = extractCurrencyDto(req);
 
-
-
-
-        int generatedId = service.addCurrency(currency);
-        if (generatedId > 0) {
-            currency.setId(generatedId);
+        Currency currency = service.addCurrency(dto);
+        if (currency == null) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("{\"error\": \"Invalid input\"}");
+            return;
         }
 
+        if ("application/json".equalsIgnoreCase(req.getContentType())) {
+            sendJsonResponse(resp, currency);
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/");
+        }
+    }
+
+    private void sendJsonResponse(HttpServletResponse resp, Currency currency) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         resp.setStatus(HttpServletResponse.SC_CREATED);
         objectMapper.writeValue(resp.getWriter(), currency);
+    }
+
+    private CurrencyDto extractCurrencyDto(HttpServletRequest req) throws IOException {
+        if ("application/json".equalsIgnoreCase(req.getContentType())) {
+            return objectMapper.readValue(req.getReader(), CurrencyDto.class);
+        }
+        CurrencyDto dto = new CurrencyDto();
+        dto.setCode(req.getParameter("code"));
+        dto.setFullName(req.getParameter("fullName"));
+        dto.setSign(req.getParameter("sign"));
+        return dto;
     }
 }

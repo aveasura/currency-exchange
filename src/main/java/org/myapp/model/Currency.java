@@ -12,6 +12,12 @@ public class Currency {
     public Currency() {
     }
 
+    public Currency(String code, String fullName, String sign) {
+        this.code = code;
+        this.fullName = fullName;
+        this.sign = sign;
+    }
+
     public Currency(@JsonProperty("id") int id,
                     @JsonProperty("code") String code,
                     @JsonProperty("full_name") String fullName,

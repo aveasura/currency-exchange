@@ -1,4 +1,4 @@
-package org.myapp.datasource;
+package org.myapp.config;
 
 import java.io.File;
 import java.sql.Connection;

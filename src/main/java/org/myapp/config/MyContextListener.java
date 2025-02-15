@@ -1,9 +1,8 @@
-package org.myapp.listener;
+package org.myapp.config;
 
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.myapp.datasource.DatasourceConnection;
 import org.myapp.dao.CurrenciesDAO;
 import org.myapp.service.CurrenciesService;
 
