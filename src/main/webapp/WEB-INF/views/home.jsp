@@ -16,7 +16,16 @@
 
 <a href="${pageContext.request.contextPath}/currencies">GET currencies JSON</a>
 <br>
+<br>
 <a href="${pageContext.request.contextPath}/curr.jsp">POST add currency form</a>
+<hr/>
+
+<form action="${pageContext.request.contextPath}/currency/" method="GET">
+    <a>fast check currency by id</a>
+    <label for="curr"></label>
+    <input type="text" id="curr" name="id" placeholder="select currency id" required>
+    <button type="submit">apply</button>
+</form>
 
 </body>
 </html>
