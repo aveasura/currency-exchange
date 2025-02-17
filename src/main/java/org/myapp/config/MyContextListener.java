@@ -3,7 +3,7 @@ package org.myapp.config;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.myapp.dao.CurrenciesDAO;
+import org.myapp.dao.CurrenciesDaoImpl;
 import org.myapp.service.CurrenciesService;
 
 import java.sql.Connection;
@@ -17,8 +17,8 @@ public class MyContextListener implements ServletContextListener {
         try {
             DatasourceConnection datasourceConnection = new DatasourceConnection();
             Connection connection = datasourceConnection.connect();
-            CurrenciesDAO currenciesDAO = new CurrenciesDAO(connection);
-            CurrenciesService service = new CurrenciesService(currenciesDAO);
+            CurrenciesDaoImpl currenciesDaoImpl = new CurrenciesDaoImpl(connection);
+            CurrenciesService service = new CurrenciesService(currenciesDaoImpl);
 
             sce.getServletContext().setAttribute("service", service);
         } catch (SQLException e) {

@@ -6,14 +6,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrenciesDAO {
+public class CurrenciesDaoImpl implements CurrenciesDao {
     private final Connection connection;
 
-    public CurrenciesDAO(Connection connection) {
+    public CurrenciesDaoImpl(Connection connection) {
         this.connection = connection;
     }
 
-    public int addCurrency(Currency currency) {
+    @Override
+    public int save(Currency currency) {
         String sql = "INSERT INTO Currencies (code, full_name, sign) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, currency.getCode());
@@ -36,7 +37,30 @@ public class CurrenciesDAO {
         return -1;
     }
 
-    public List<Currency> getCurrencies() {
+    @Override
+    public Currency findById(int id) {
+        String sql = "SELECT * FROM Currencies WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setInt(1, id);
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                return new Currency(
+                        rs.getInt("id"),
+                        rs.getString("code"),
+                        rs.getString("full_name"),
+                        rs.getString("sign")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Ошибка при выгрузке id currency " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    @Override
+    public List<Currency> findAll() {
         List<Currency> currencies = new ArrayList<>();
 
         String sql = "SELECT * FROM Currencies";
