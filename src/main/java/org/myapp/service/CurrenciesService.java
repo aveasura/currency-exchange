@@ -43,4 +43,20 @@ public class CurrenciesService {
 
         return CurrencyMapper.toDto(currencies);
     }
+
+    public boolean isJson(String acceptHeader) {
+        return acceptHeader != null && acceptHeader.toLowerCase().contains("application/json");
+    }
+
+    public boolean isList(Object object) {
+        return object instanceof List<?>;
+    }
+
+    public CurrencyDto createCurrencyDto(String code, String name, String sign) {
+        return new CurrencyDto(code, name, sign);
+    }
+
+    public boolean isValidPath(String pathInfo) {
+        return pathInfo != null && pathInfo.length() > 1;
+    }
 }

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.myapp.dto.CurrencyDto;
+import org.myapp.mapper.CurrencyMapper;
 import org.myapp.model.Currency;
 import org.myapp.service.CurrenciesService;
 
@@ -15,6 +16,7 @@ import java.util.List;
 
 @WebServlet("/currencies")
 public class CurrenciesController extends HttpServlet {
+    private static final String JSON_CONTENT_TYPE = "application/json";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private CurrenciesService service;
@@ -29,11 +31,8 @@ public class CurrenciesController extends HttpServlet {
         List<CurrencyDto> currencies = service.getCurrencies();
         String acceptHeader = req.getHeader("Accept");
 
-        if (acceptHeader != null && acceptHeader.contains("application/json")) {
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
-            resp.setStatus(HttpServletResponse.SC_OK);
-            objectMapper.writeValue(resp.getWriter(), currencies);
+        if (service.isJson(acceptHeader)) {
+            sendJsonResponse(resp, currencies);
         } else {
             req.setAttribute("currList", currencies);
             req.getRequestDispatcher("/WEB-INF/views/currencyList.jsp").forward(req, resp);
@@ -43,36 +42,41 @@ public class CurrenciesController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         CurrencyDto dto = extractCurrencyDto(req);
-
         Currency currency = service.addCurrency(dto);
+
         if (currency == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write("{\"error\": \"Invalid input\"}");
             return;
         }
 
-        if ("application/json".equalsIgnoreCase(req.getContentType())) {
-            sendJsonResponse(resp, currency);
+        if (JSON_CONTENT_TYPE.equalsIgnoreCase(req.getContentType())) {
+            sendJsonResponse(resp, CurrencyMapper.toDto(currency));
         } else {
             resp.sendRedirect(req.getContextPath() + "/");
         }
     }
 
-    private void sendJsonResponse(HttpServletResponse resp, Currency currency) throws IOException {
-        resp.setContentType("application/json");
+    private void sendJsonResponse(HttpServletResponse resp, Object responseObject) throws IOException {
+        resp.setContentType(JSON_CONTENT_TYPE);
         resp.setCharacterEncoding("UTF-8");
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        objectMapper.writeValue(resp.getWriter(), currency);
+
+        if (service.isList(responseObject)) {
+            resp.setStatus(HttpServletResponse.SC_OK); // для списка
+        } else {
+            resp.setStatus(HttpServletResponse.SC_CREATED); // для одного объектиа
+        }
+
+        objectMapper.writeValue(resp.getWriter(), responseObject);
     }
 
     private CurrencyDto extractCurrencyDto(HttpServletRequest req) throws IOException {
-        if ("application/json".equalsIgnoreCase(req.getContentType())) {
+        if (JSON_CONTENT_TYPE.equalsIgnoreCase(req.getContentType())) {
             return objectMapper.readValue(req.getReader(), CurrencyDto.class);
         }
-        CurrencyDto dto = new CurrencyDto();
-        dto.setCode(req.getParameter("code"));
-        dto.setFullName(req.getParameter("fullName"));
-        dto.setSign(req.getParameter("sign"));
-        return dto;
+        String code = req.getParameter("code");
+        String name = req.getParameter("fullName");
+        String sign = req.getParameter("sign");
+        return service.createCurrencyDto(code, name, sign);
     }
 }
