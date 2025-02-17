@@ -14,14 +14,14 @@
 
 <h1>welcome</h1>
 
-<a href="${pageContext.request.contextPath}/currencies">GET currencies JSON</a>
+<a href="${pageContext.request.contextPath}/currencies">GET currencies (jsp)</a>
 <br>
 <br>
-<a href="${pageContext.request.contextPath}/curr.jsp">POST add currency form</a>
+<a href="${pageContext.request.contextPath}/addCurrency.jsp">POST add currency (jsp)</a>
 <hr/>
 
 <form action="${pageContext.request.contextPath}/currency/" method="GET">
-    <a>fast check currency by id</a>
+    <a>fast check currency by id (jsp)</a>
     <label for="curr"></label>
     <input type="text" id="curr" name="id" placeholder="select currency id" required>
     <button type="submit">apply</button>

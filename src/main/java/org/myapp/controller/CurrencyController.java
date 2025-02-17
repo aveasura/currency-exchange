@@ -1,5 +1,6 @@
 package org.myapp.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,7 +13,6 @@ import java.io.IOException;
 
 @WebServlet("/currency/*")
 public class CurrencyController extends HttpServlet {
-
     private CurrenciesService service;
 
     @Override
@@ -31,11 +31,32 @@ public class CurrencyController extends HttpServlet {
             currencyId = req.getParameter("id"); // Берем id из queryпараметра
         }
 
-        if (currencyId != null) {
-            CurrencyDto currency = service.getCurrency(currencyId);
-            req.setAttribute("currency", currency);
+        if (currencyId == null) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Код валюты отсутствует в адресе");
+            return;
         }
 
-        req.getRequestDispatcher("/WEB-INF/views/currency.jsp").forward(req, resp);
+        CurrencyDto currency = service.getCurrency(currencyId);
+        if (currency == null) {
+            resp.setContentType("application/json");
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.getWriter().write("{\"message\": \"Валюта не найдена\"}");
+            return;
+        }
+
+        String acceptHeader = req.getHeader("Accept");
+        if (acceptHeader != null && acceptHeader.contains("application/json")) {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            String json = String.format(
+                    "{\"id\": %d, \"name\": \"%s\", \"code\": \"%s\", \"sign\": \"%s\"}",
+                    currency.getId(), currency.getFullName(), currency.getCode(), currency.getSign()
+            );
+
+            resp.getWriter().write(json);
+        } else {
+            req.setAttribute("currency", currency);
+            req.getRequestDispatcher("/WEB-INF/views/currency.jsp").forward(req, resp);
+        }
     }
 }

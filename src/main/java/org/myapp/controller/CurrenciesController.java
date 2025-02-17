@@ -26,13 +26,18 @@ public class CurrenciesController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Currency> currencies = service.getCurrencies();
+        List<CurrencyDto> currencies = service.getCurrencies();
+        String acceptHeader = req.getHeader("Accept");
 
-        resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        resp.setStatus(HttpServletResponse.SC_OK);
-
-        objectMapper.writeValue(resp.getWriter(), currencies);
+        if (acceptHeader != null && acceptHeader.contains("application/json")) {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            resp.setStatus(HttpServletResponse.SC_OK);
+            objectMapper.writeValue(resp.getWriter(), currencies);
+        } else {
+            req.setAttribute("currList", currencies);
+            req.getRequestDispatcher("/WEB-INF/views/currencyList.jsp").forward(req, resp);
+        }
     }
 
     @Override

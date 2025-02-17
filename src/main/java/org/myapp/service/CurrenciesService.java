@@ -37,8 +37,10 @@ public class CurrenciesService {
         return CurrencyMapper.toDto(currency);
     }
 
-    public List<Currency> getCurrencies() {
+    public List<CurrencyDto> getCurrencies() {
         // можно сделать проверку на пустоту списка итд
-        return dao.findAll();
+        List<Currency> currencies = dao.findAll();
+
+        return CurrencyMapper.toDto(currencies);
     }
 }
