@@ -38,11 +38,7 @@ public class DatasourceConnection {
                     """;
 
             statement.execute(createCurrenciesTable);
-            System.out.println("Таблица Currency создана.");
-
             statement.execute(createExchangeRatesTable);
-            System.out.println("Таблица ExchangeRates создана");
-
         } catch (SQLException e) {
             System.out.println("Ошибка при работе с базой данных: " + e.getMessage());
             throw e;

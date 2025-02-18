@@ -21,29 +21,33 @@ public class CurrencyController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String acceptHeader = req.getHeader("Accept");
         String pathInfo = req.getPathInfo(); // получить часть после /currency/
-        String currencyId = null;
+        String code;
 
         if (service.isValidPath(pathInfo)) {
-            currencyId = pathInfo.substring(1); // Убираем первый слэш
+            code = pathInfo.substring(1); // Убираем первый слэш
         } else {
-            currencyId = req.getParameter("id"); // Берем id из queryпараметра
+            code = req.getParameter("code"); // Берем код валюты из query параметра
         }
 
-        if (currencyId == null) {
+        if (code == null) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Код валюты отсутствует в адресе");
             return;
         }
 
-        CurrencyDto currency = service.getCurrency(currencyId);
+        CurrencyDto currency = service.getCurrency(code);
         if (currency == null) {
-            resp.setContentType("application/json");
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write("{\"message\": \"Валюта не найдена\"}");
+            if (service.isJson(acceptHeader)) {
+                resp.setContentType("application/json");
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().write("{\"message\": \"Валюта не найдена\"}");
+            } else {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Указанная валюта не существует");
+            }
             return;
         }
 
-        String acceptHeader = req.getHeader("Accept");
         if (service.isJson(acceptHeader)) {
             jsonResponse(resp, currency);
         } else {

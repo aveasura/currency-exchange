@@ -84,4 +84,26 @@ public class CurrenciesDaoImpl implements CurrenciesDao {
 
         return currencies;
     }
+
+    @Override
+    public Currency findByCode(String currencyCode) {
+        final String sql = "SELECT * FROM Currencies WHERE code = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1, currencyCode);
+            ResultSet rs = statement.executeQuery();
+
+            if (rs.next()) {
+                return new Currency(
+                        rs.getInt("id"),
+                        rs.getString("code"),
+                        rs.getString("full_name"),
+                        rs.getString("sign"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Ошибка при получении валюты по её коду " + e.getMessage());
+        }
+
+        return null;
+    }
 }

@@ -21,9 +21,9 @@
 <hr/>
 
 <form action="${pageContext.request.contextPath}/currency/" method="GET">
-    <a>fast check currency by id (jsp)</a>
-    <label for="curr"></label>
-    <input type="text" id="curr" name="id" placeholder="select currency id" required>
+    <a>fast check currency by code (jsp)</a>
+    <label for="currency"></label>
+    <input type="text" id="currency" name="code" placeholder="select currency id" required>
     <button type="submit">apply</button>
 </form>
 

@@ -1,6 +1,6 @@
 package org.myapp.service;
 
-import org.myapp.dao.CurrenciesDaoImpl;
+import org.myapp.dao.CurrenciesDao;
 import org.myapp.dto.CurrencyDto;
 import org.myapp.mapper.CurrencyMapper;
 import org.myapp.model.Currency;
@@ -9,9 +9,9 @@ import java.util.List;
 
 public class CurrenciesService {
 
-    private final CurrenciesDaoImpl dao;
+    private final CurrenciesDao dao;
 
-    public CurrenciesService(CurrenciesDaoImpl dao) {
+    public CurrenciesService(CurrenciesDao dao) {
         this.dao = dao;
     }
 
@@ -30,9 +30,17 @@ public class CurrenciesService {
         return currency;
     }
 
-    public CurrencyDto getCurrency(String currencyId) {
-        int id = Integer.parseInt(currencyId);
-        Currency currency = dao.findById(id);
+    public CurrencyDto getCurrency(String code) {
+        Currency currency;
+        if (code.matches("\\d+")) {
+            int id = Integer.parseInt(code);
+            currency = dao.findById(id);
+        } else {
+            currency = dao.findByCode(code);
+        }
+
+        if (currency == null)
+            return null;
 
         return CurrencyMapper.toDto(currency);
     }

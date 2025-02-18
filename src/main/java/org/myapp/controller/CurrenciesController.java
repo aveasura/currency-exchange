@@ -74,9 +74,10 @@ public class CurrenciesController extends HttpServlet {
         if (JSON_CONTENT_TYPE.equalsIgnoreCase(req.getContentType())) {
             return objectMapper.readValue(req.getReader(), CurrencyDto.class);
         }
-        String code = req.getParameter("code");
-        String name = req.getParameter("fullName");
-        String sign = req.getParameter("sign");
-        return service.createCurrencyDto(code, name, sign);
+
+        return service.createCurrencyDto(
+                req.getParameter("code"),
+                req.getParameter("fullName"),
+                req.getParameter("sign"));
     }
 }
