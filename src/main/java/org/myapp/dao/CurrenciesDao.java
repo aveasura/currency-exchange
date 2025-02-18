@@ -11,4 +11,6 @@ public interface CurrenciesDao {
     List<Currency> findAll();
 
     Currency findByCode(String code);
+
+    void update(Currency currency);
 }

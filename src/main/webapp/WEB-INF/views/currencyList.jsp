@@ -13,6 +13,13 @@
     <title>html currency list</title>
 </head>
 <body>
+
+<br/>
+<a href="${pageContext.request.contextPath}/">back</a>
+<br/>
+<a href="${pageContext.request.contextPath}/currencyUpdate.jsp">go to currency update page</a>
+<hr/>
+
 <h2>all currencies:</h2>
 <ul>
     <c:forEach var="currency" items="${currList}">

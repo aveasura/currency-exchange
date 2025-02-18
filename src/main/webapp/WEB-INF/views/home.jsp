@@ -18,6 +18,8 @@
 <br>
 <br>
 <a href="${pageContext.request.contextPath}/addCurrency.jsp">POST add currency (jsp)</a>
+<br/>
+<a href="${pageContext.request.contextPath}/currencyUpdate.jsp">Currency update (jsp)</a>
 <hr/>
 
 <form action="${pageContext.request.contextPath}/currency/" method="GET">

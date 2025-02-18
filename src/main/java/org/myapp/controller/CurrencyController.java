@@ -56,6 +56,26 @@ public class CurrencyController extends HttpServlet {
         }
     }
 
+    // todo добавить json ответ
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String choose = req.getParameter("choose");
+
+        if (choose == null || choose.isBlank()) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "need to choose currency id or code");
+            return;
+        }
+
+        CurrencyDto dto = new CurrencyDto(req.getParameter("code"), req.getParameter("name"), req.getParameter("sign"));
+        boolean success = service.updateCurrency(dto, choose);
+        if (!success) {
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "this currency is not exist");
+            return;
+        }
+
+        resp.sendRedirect(req.getContextPath() + "/currencies");
+    }
+
     private static void jsonResponse(HttpServletResponse resp, CurrencyDto currency) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");

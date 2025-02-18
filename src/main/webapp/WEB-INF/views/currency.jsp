@@ -9,9 +9,10 @@
 
 <html>
 <head>
-    <title>choose currency id</title>
+    <title>Currency</title>
 </head>
 <body>
+
 <h1>Currency Details</h1>
 
 <% CurrencyDto currency = (CurrencyDto) request.getAttribute("currency"); %>
@@ -29,5 +30,9 @@
 <p>Currency not found</p>
 <% } %>
 
+<br/>
+<a href="${pageContext.request.contextPath}/">back</a>
+<br/>
+<a href="${pageContext.request.contextPath}/currencyUpdate.jsp">go to currency update page</a>
 </body>
 </html>

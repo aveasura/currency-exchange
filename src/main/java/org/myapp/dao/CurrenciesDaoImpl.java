@@ -15,7 +15,7 @@ public class CurrenciesDaoImpl implements CurrenciesDao {
 
     @Override
     public int save(Currency currency) {
-        String sql = "INSERT INTO Currencies (code, full_name, sign) VALUES (?, ?, ?)";
+        final String sql = "INSERT INTO Currencies (code, full_name, sign) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, currency.getCode());
             statement.setString(2, currency.getFullName());
@@ -39,8 +39,8 @@ public class CurrenciesDaoImpl implements CurrenciesDao {
 
     @Override
     public Currency findById(int id) {
-        String sql = "SELECT * FROM Currencies WHERE id = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
+        final String sql = "SELECT * FROM Currencies WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
             ResultSet rs = statement.executeQuery();
 
@@ -63,8 +63,8 @@ public class CurrenciesDaoImpl implements CurrenciesDao {
     public List<Currency> findAll() {
         List<Currency> currencies = new ArrayList<>();
 
-        String sql = "SELECT * FROM Currencies";
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
+        final String sql = "SELECT * FROM Currencies";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             ResultSet rs = statement.executeQuery();
 
             // Обработка результата запроса
@@ -88,7 +88,7 @@ public class CurrenciesDaoImpl implements CurrenciesDao {
     @Override
     public Currency findByCode(String currencyCode) {
         final String sql = "SELECT * FROM Currencies WHERE code = ?";
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, currencyCode);
             ResultSet rs = statement.executeQuery();
 
@@ -105,5 +105,21 @@ public class CurrenciesDaoImpl implements CurrenciesDao {
         }
 
         return null;
+    }
+
+    @Override
+    public void update(Currency currency) {
+        String sql = "UPDATE Currencies SET code=?, full_name=?, sign=? WHERE id=?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, currency.getCode());
+            statement.setString(2, currency.getFullName());
+            statement.setString(3, currency.getSign());
+            statement.setInt(4, currency.getId());
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Ошибка во время обновления валюты " + e.getMessage());
+        }
     }
 }

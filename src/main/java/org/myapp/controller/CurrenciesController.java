@@ -53,7 +53,7 @@ public class CurrenciesController extends HttpServlet {
         if (JSON_CONTENT_TYPE.equalsIgnoreCase(req.getContentType())) {
             sendJsonResponse(resp, CurrencyMapper.toDto(currency));
         } else {
-            resp.sendRedirect(req.getContextPath() + "/");
+            resp.sendRedirect(req.getContextPath() + "/currencies");
         }
     }
 
