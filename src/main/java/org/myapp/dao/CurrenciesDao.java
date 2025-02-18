@@ -10,4 +10,7 @@ public interface CurrenciesDao {
     Currency findById(int id);
     List<Currency> findAll();
 
+    Currency findByCode(String code);
+
+    void update(Currency currency);
 }

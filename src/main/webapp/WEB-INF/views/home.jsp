@@ -18,12 +18,14 @@
 <br>
 <br>
 <a href="${pageContext.request.contextPath}/addCurrency.jsp">POST add currency (jsp)</a>
+<br/>
+<a href="${pageContext.request.contextPath}/currencyUpdate.jsp">Currency update (jsp)</a>
 <hr/>
 
 <form action="${pageContext.request.contextPath}/currency/" method="GET">
-    <a>fast check currency by id (jsp)</a>
-    <label for="curr"></label>
-    <input type="text" id="curr" name="id" placeholder="select currency id" required>
+    <a>fast check currency by code (jsp)</a>
+    <label for="currency"></label>
+    <input type="text" id="currency" name="code" placeholder="select currency id" required>
     <button type="submit">apply</button>
 </form>
 

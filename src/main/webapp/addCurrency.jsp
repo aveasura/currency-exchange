@@ -11,6 +11,10 @@
     <title>Curr</title>
 </head>
 <body>
+
+<a href="${pageContext.request.contextPath}/">back</a>
+<hr/>
+
 <h1>add currency</h1>
 
 <form action="${pageContext.request.contextPath}/currencies" method="post">
