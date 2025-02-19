@@ -20,7 +20,12 @@
 <a href="${pageContext.request.contextPath}/addCurrency.jsp">POST add currency (jsp)</a>
 <br/>
 <a href="${pageContext.request.contextPath}/currencyUpdate.jsp">Currency update (jsp)</a>
+<br/>
+<a href="${pageContext.request.contextPath}/addExchangeRate.jsp">add exchange rate (jsp)</a>
+<br/>
+<a href="${pageContext.request.contextPath}/exchangeRates">exchange list (jsp)</a>
 <hr/>
+
 
 <form action="${pageContext.request.contextPath}/currency/" method="GET">
     <a>fast check currency by code (jsp)</a>

@@ -3,9 +3,10 @@ package org.myapp.config;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.myapp.dao.CurrenciesDao;
-import org.myapp.dao.CurrenciesDaoImpl;
+import org.myapp.dao.*;
+import org.myapp.model.Currency;
 import org.myapp.service.CurrenciesService;
+import org.myapp.service.ExchangeRateService;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,10 +18,14 @@ public class MyContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         try {
             Connection connection = new DatasourceConnection().connect();
-            CurrenciesDao currenciesDao = new CurrenciesDaoImpl(connection);
-            CurrenciesService service = new CurrenciesService(currenciesDao);
+            CurrencyDao currencyDao = new CurrencyDaoImpl(connection);
+            ExchangeRateDao exchangeRateDao = new ExchangeRateDaoImpl(connection);
+
+            CurrenciesService service = new CurrenciesService(currencyDao);
+            ExchangeRateService exchangeRateService = new ExchangeRateService(exchangeRateDao, currencyDao);
 
             sce.getServletContext().setAttribute("service", service);
+            sce.getServletContext().setAttribute("ExchangeRatesService", exchangeRateService);
         } catch (SQLException e) {
             System.out.println("Ошибка подключения или работы с базой данных: " + e.getMessage());
         } catch (ClassNotFoundException e) {

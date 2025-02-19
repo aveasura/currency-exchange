@@ -6,10 +6,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CurrenciesDaoImpl implements CurrenciesDao {
+public class CurrencyDaoImpl implements CurrencyDao {
     private final Connection connection;
 
-    public CurrenciesDaoImpl(Connection connection) {
+    public CurrencyDaoImpl(Connection connection) {
         this.connection = connection;
     }
 
