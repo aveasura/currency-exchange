@@ -1,6 +1,6 @@
 package org.myapp.service;
 
-import org.myapp.dao.CurrenciesDao;
+import org.myapp.dao.Dao;
 import org.myapp.dto.CurrencyDto;
 import org.myapp.mapper.CurrencyMapper;
 import org.myapp.model.Currency;
@@ -9,9 +9,9 @@ import java.util.List;
 
 public class CurrenciesService {
 
-    private final CurrenciesDao dao;
+    private final Dao<Currency> dao;
 
-    public CurrenciesService(CurrenciesDao dao) {
+    public CurrenciesService(Dao<Currency> dao) {
         this.dao = dao;
     }
 
