@@ -32,7 +32,13 @@ public class CurrenciesController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        CurrencyDto dto = extractCurrencyDto(req);
+//        CurrencyDto dto = extractCurrencyDto(req); // json
+        CurrencyDto dto = currenciesService.createDto(
+                req.getParameter("code"),
+                req.getParameter("name"),
+                req.getParameter(
+                "sign"));
+
         OperationResult result = currenciesService.addCurrency(dto);
 
         if (!result.isSuccess()) {

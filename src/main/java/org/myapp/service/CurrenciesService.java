@@ -1,6 +1,6 @@
 package org.myapp.service;
 
-import org.myapp.dao.Dao;
+import org.myapp.dao.CurrencyDao;
 import org.myapp.dto.CurrencyDto;
 import org.myapp.error.OperationResult;
 import org.myapp.mapper.CurrencyMapper;
@@ -11,10 +11,14 @@ import java.util.List;
 
 public class CurrenciesService {
 
-    private final Dao<Currency> dao;
+    private final CurrencyDao dao;
 
-    public CurrenciesService(Dao<Currency> dao) {
+    public CurrenciesService(CurrencyDao dao) {
         this.dao = dao;
+    }
+
+    public CurrencyDto createDto(String code, String name, String sign) {
+        return new CurrencyDto(code, name, sign);
     }
 
     public OperationResult addCurrency(CurrencyDto dto) {
@@ -59,32 +63,6 @@ public class CurrenciesService {
         }
     }
 
-    public boolean updateCurrency(CurrencyDto dto, String choose) {
-        if (isDtoNullable(dto))
-            return false;
-
-        Currency currency = findByIdOrCode(choose);
-        if (currency == null) {
-            System.out.println("Валюта не найдена");
-            return false; // потом будем возвращать bool чтобы контроллер давал json ответ "валюта не найдена"
-        }
-
-        // обновить поля которые переданы
-        if (dto.getCode() != null && !dto.getCode().isEmpty()) {
-            currency.setCode(dto.getCode());
-        }
-
-        if (dto.getFullName() != null && !dto.getFullName().isEmpty()) {
-            currency.setFullName(dto.getFullName());
-        }
-        if (dto.getSign() != null && !dto.getSign().isEmpty()) {
-            currency.setSign(dto.getSign());
-        }
-
-        dao.update(currency);
-        return true;
-    }
-
     private boolean isDtoNullable(CurrencyDto dto) {
         return dto == null || dto.getCode() == null || dto.getFullName() == null || dto.getSign() == null;
     }
@@ -106,5 +84,24 @@ public class CurrenciesService {
             currency = dao.findByCode(code);
         }
         return currency;
+    }
+
+    public OperationResult patchCurrency(String code, CurrencyDto dto) {
+
+        Currency currency = findByIdOrCode(code);
+        if (currency == null) {
+            return new OperationResult(false, "Currency not found");
+        }
+
+        if (dto.getFullName() != null) {
+            currency.setFullName(dto.getFullName());
+        }
+
+        if (dto.getSign() != null) {
+            currency.setSign(dto.getSign());
+        }
+
+        dao.update(currency);
+        return new OperationResult(true, "Currency successfully updated");
     }
 }
