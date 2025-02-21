@@ -2,6 +2,7 @@ package org.myapp.service;
 
 import org.myapp.dao.Dao;
 import org.myapp.dto.CurrencyDto;
+import org.myapp.error.OperationResult;
 import org.myapp.mapper.CurrencyMapper;
 import org.myapp.model.Currency;
 
@@ -15,26 +16,25 @@ public class CurrenciesService {
         this.dao = dao;
     }
 
-    public Currency addCurrency(CurrencyDto dto) {
-        // Если данные некорректные, просто возвращаем null
-        if (isDtoNullable(dto))
-            return null;
+    public OperationResult addCurrency(CurrencyDto dto) {
+        if (isDtoNullable(dto)) {
+            return new OperationResult(false, "Invalid input");
+        }
 
         Currency currency = CurrencyMapper.toEntity(dto);
         int generatedId = dao.save(currency);
-        if (generatedId > 0) {
-            currency.setId(generatedId);
+
+        if (generatedId <= 0) {
+            return new OperationResult(false, "Failed to save currency");
         }
 
-        return currency;
+        currency.setId(generatedId);
+        return new OperationResult(true, "Currency added successfully", CurrencyMapper.toDto(currency));
     }
 
     public CurrencyDto getCurrency(String code) {
         Currency currency = findByIdOrCode(code);
-
-        if (currency == null)
-            return null;
-
+        if (currency == null) return null;
         return CurrencyMapper.toDto(currency);
     }
 
