@@ -6,6 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.myapp.dto.ExchangeRateDto;
 import org.myapp.model.ExchangeRate;
 import org.myapp.service.CurrenciesService;
 import org.myapp.service.ExchangeRateService;
@@ -28,7 +29,7 @@ public class ExchangeRateController extends HttpServlet {
     // TODO dto
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<ExchangeRate> exchangeRateList = exchangeRateService.getExchangeRates();
+        List<ExchangeRateDto> exchangeRateList = exchangeRateService.getExchangeRates();
         sendJsonResponse(resp, exchangeRateList, HttpServletResponse.SC_OK);
     }
 
