@@ -6,6 +6,7 @@ import org.myapp.error.OperationResult;
 import org.myapp.mapper.CurrencyMapper;
 import org.myapp.model.Currency;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CurrenciesService {
@@ -39,13 +40,20 @@ public class CurrenciesService {
     }
 
     public List<CurrencyDto> getCurrencies() {
-        // можно сделать проверку на пустоту списка итд
-        List<Currency> currencies = dao.findAll();
+        try {
+            List<Currency> currencies = dao.findAll();
 
-        return CurrencyMapper.toDto(currencies);
+            if (currencies == null || currencies.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            return CurrencyMapper.toDto(currencies);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
-    // todo json boolean
     public boolean updateCurrency(CurrencyDto dto, String choose) {
         if (isDtoNullable(dto))
             return false;
@@ -72,20 +80,12 @@ public class CurrenciesService {
         return true;
     }
 
-    public CurrencyDto createCurrencyDto(String code, String name, String sign) {
-        return new CurrencyDto(code, name, sign);
-    }
-
     private boolean isDtoNullable(CurrencyDto dto) {
         return dto == null || dto.getCode() == null || dto.getFullName() == null || dto.getSign() == null;
     }
 
     public boolean isJson(String acceptHeader) {
         return acceptHeader != null && acceptHeader.toLowerCase().contains("application/json");
-    }
-
-    public boolean isList(Object object) {
-        return object instanceof List<?>;
     }
 
     public boolean isValidPath(String pathInfo) {
