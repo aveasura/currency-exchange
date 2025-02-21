@@ -3,10 +3,13 @@ package org.myapp.service;
 import org.myapp.dao.CurrencyDao;
 import org.myapp.dao.ExchangeRateDao;
 import org.myapp.dto.CurrencyDto;
+import org.myapp.dto.ExchangeRateDto;
+import org.myapp.mapper.ExchangeRateMapper;
 import org.myapp.model.Currency;
 import org.myapp.model.ExchangeRate;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExchangeRateService {
@@ -30,9 +33,13 @@ public class ExchangeRateService {
         return exchangeRateDao.saveExchangeRate(from, to, exchangeRate);
     }
 
-    public List<ExchangeRate> getExchangeRates() {
-        List<ExchangeRate> list = exchangeRateDao.findAll();
+    public List<ExchangeRateDto> getExchangeRates() {
+        List<ExchangeRate> exchangeRatesList = exchangeRateDao.findAll();
 
-        return list;
+        if (exchangeRatesList == null || exchangeRatesList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return ExchangeRateMapper.toDto(exchangeRatesList, currencyDao);
     }
 }
