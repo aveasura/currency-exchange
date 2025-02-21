@@ -17,26 +17,26 @@ import java.util.List;
 public class CurrenciesController extends HttpServlet {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private CurrenciesService service;
+    private CurrenciesService currenciesService;
 
     @Override
     public void init() throws ServletException {
-        service = (CurrenciesService) getServletContext().getAttribute("service");
+        currenciesService = (CurrenciesService) getServletContext().getAttribute("currenciesService");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<CurrencyDto> currencies = service.getCurrencies();
+        List<CurrencyDto> currencies = currenciesService.getCurrencies();
         sendJsonResponse(resp, currencies, HttpServletResponse.SC_OK);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         CurrencyDto dto = extractCurrencyDto(req);
-        OperationResult result = service.addCurrency(dto);
+        OperationResult result = currenciesService.addCurrency(dto);
 
         if (!result.isSuccess()) {
-            sendJsonResponse(resp, result, HttpServletResponse.SC_BAD_REQUEST);
+            sendJsonResponse(resp, result.getMessage(), HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 

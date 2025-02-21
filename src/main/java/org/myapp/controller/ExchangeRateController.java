@@ -5,7 +5,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.myapp.dto.CurrencyDto;
 import org.myapp.model.ExchangeRate;
 import org.myapp.service.CurrenciesService;
 import org.myapp.service.ExchangeRateService;
@@ -17,18 +16,18 @@ import java.util.List;
 @WebServlet("/exchangeRates")
 public class ExchangeRateController extends HttpServlet {
 
-    private ExchangeRateService service;
+    private ExchangeRateService exchangeRateService;
     private CurrenciesService currencyService;
 
     @Override
     public void init() throws ServletException {
-        service = (ExchangeRateService) getServletContext().getAttribute("ExchangeRatesService");
-        currencyService = (CurrenciesService) getServletContext().getAttribute("service");
+        exchangeRateService = (ExchangeRateService) getServletContext().getAttribute("exchangeRatesService");
+        currencyService = (CurrenciesService) getServletContext().getAttribute("currencyService");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<ExchangeRate> exchangeRateList = service.getExchangeRates();
+        List<ExchangeRate> exchangeRateList = exchangeRateService.getExchangeRates();
 
         req.setAttribute("ratesList", exchangeRateList);
         req.getRequestDispatcher("/WEB-INF/views/exchangeList.jsp").forward(req, resp);
@@ -40,12 +39,12 @@ public class ExchangeRateController extends HttpServlet {
         String targetCurrId = req.getParameter("to");
         String rate = req.getParameter("rate");
 
-        CurrencyDto from = currencyService.getCurrency(baseCurrId);
-        CurrencyDto to = currencyService.getCurrency(targetCurrId);
+//        CurrencyDto from = currencyService.getCurrency(baseCurrId);
+//        CurrencyDto to = currencyService.getCurrency(targetCurrId);
 
         try {
             BigDecimal exchangeRate = new BigDecimal(rate);
-            service.addExchangeRate(from, to, exchangeRate);
+//            service.addExchangeRate(from, to, exchangeRate);
             resp.sendRedirect(req.getContextPath() + "/exchangeRates");
         } catch (NumberFormatException e) {
             req.setAttribute("error", "Ошибка: курс валют должен быть числом.");

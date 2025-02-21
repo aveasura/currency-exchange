@@ -1,88 +1,60 @@
 package org.myapp.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.myapp.dto.CurrencyDto;
+import org.myapp.error.OperationResult;
 import org.myapp.service.CurrenciesService;
 
 import java.io.IOException;
 
 @WebServlet("/currency/*")
 public class CurrencyController extends HttpServlet {
-    private CurrenciesService service;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private CurrenciesService currenciesService;
 
     @Override
     public void init() throws ServletException {
-        service = (CurrenciesService) getServletContext().getAttribute("service");
+        currenciesService = (CurrenciesService) getServletContext().getAttribute("currenciesService");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String acceptHeader = req.getHeader("Accept");
-        String pathInfo = req.getPathInfo(); // получить часть после /currency/
-        String code;
+        String pathInfo = req.getPathInfo();
 
-        if (service.isValidPath(pathInfo)) {
-            code = pathInfo.substring(1); // Убираем первый слэш
-        } else {
-            code = req.getParameter("code"); // Берем код валюты из query параметра
-        }
-
-        if (code == null) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Код валюты отсутствует в адресе");
+        if (!isPathValid(pathInfo)) {
+            sendJsonResponse(resp, new OperationResult(false, "Currency code is missing").getMessage(),
+                    HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        CurrencyDto currency = service.getCurrency(code);
-        if (currency == null) {
-            if (service.isJson(acceptHeader)) {
-                resp.setContentType("application/json");
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                resp.getWriter().write("{\"message\": \"Валюта не найдена\"}");
-            } else {
-                resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Указанная валюта не существует");
-            }
+        String code = pathInfo.replaceFirst("/", "").toUpperCase();
+        OperationResult result = currenciesService.getCurrency(code);
+
+        if (!result.isSuccess()) {
+            sendJsonResponse(resp, result.getMessage(), HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        if (service.isJson(acceptHeader)) {
-            jsonResponse(resp, currency);
-        } else {
-            req.setAttribute("currency", currency);
-            req.getRequestDispatcher("/WEB-INF/views/currency.jsp").forward(req, resp);
-        }
+        sendJsonResponse(resp, result, HttpServletResponse.SC_OK);
     }
 
-    // todo добавить json ответ
+    // TODO реализовать post
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String choose = req.getParameter("choose");
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {}
 
-        if (choose == null || choose.isBlank()) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "need to choose currency id or code");
-            return;
-        }
-
-        CurrencyDto dto = new CurrencyDto(req.getParameter("code"), req.getParameter("name"), req.getParameter("sign"));
-        boolean success = service.updateCurrency(dto, choose);
-        if (!success) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "this currency is not exist");
-            return;
-        }
-
-        resp.sendRedirect(req.getContextPath() + "/currencies");
+    private boolean isPathValid(String pathInfo) {
+        return pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/");
     }
 
-    private static void jsonResponse(HttpServletResponse resp, CurrencyDto currency) throws IOException {
+    private void sendJsonResponse(HttpServletResponse resp, Object responseObject, int status) throws IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        String json = String.format(
-                "{\"id\": %d, \"name\": \"%s\", \"code\": \"%s\", \"sign\": \"%s\"}",
-                currency.getId(), currency.getFullName(), currency.getCode(), currency.getSign()
-        );
-        resp.getWriter().write(json);
+        resp.setStatus(status);
+
+        objectMapper.writeValue(resp.getWriter(), responseObject);
     }
 }

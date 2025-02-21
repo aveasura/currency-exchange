@@ -26,17 +26,21 @@ public class CurrenciesService {
         int generatedId = dao.save(currency);
 
         if (generatedId <= 0) {
-            return new OperationResult(false, "Failed to save currency");
+            return new OperationResult(false, "Currency already exist");
         }
 
         currency.setId(generatedId);
         return new OperationResult(true, "Currency added successfully", CurrencyMapper.toDto(currency));
     }
 
-    public CurrencyDto getCurrency(String code) {
+    public OperationResult getCurrency(String code) {
         Currency currency = findByIdOrCode(code);
-        if (currency == null) return null;
-        return CurrencyMapper.toDto(currency);
+
+        if (currency == null) {
+            return new OperationResult(false, "Currency not found or does not exist");
+        }
+
+        return new OperationResult(true, "Currency find", CurrencyMapper.toDto(currency));
     }
 
     public List<CurrencyDto> getCurrencies() {
@@ -48,6 +52,7 @@ public class CurrenciesService {
             }
 
             return CurrencyMapper.toDto(currencies);
+
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
