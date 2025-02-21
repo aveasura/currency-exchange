@@ -24,8 +24,8 @@ public class MyContextListener implements ServletContextListener {
             CurrenciesService service = new CurrenciesService(currencyDao);
             ExchangeRateService exchangeRateService = new ExchangeRateService(exchangeRateDao, currencyDao);
 
-            sce.getServletContext().setAttribute("service", service);
-            sce.getServletContext().setAttribute("ExchangeRatesService", exchangeRateService);
+            sce.getServletContext().setAttribute("currenciesService", service);
+            sce.getServletContext().setAttribute("exchangeRatesService", exchangeRateService);
         } catch (SQLException e) {
             System.out.println("Ошибка подключения или работы с базой данных: " + e.getMessage());
         } catch (ClassNotFoundException e) {
