@@ -11,4 +11,6 @@ public interface ExchangeRateDao {
     int saveExchangeRate(Currency currencyFrom, Currency currencyTo, BigDecimal exchangeRate);
 
     List<ExchangeRate> findAll();
+
+    ExchangeRate findById(int var1, int var2);
 }

@@ -42,4 +42,14 @@ public class ExchangeRateService {
 
         return ExchangeRateMapper.toDto(exchangeRatesList, currencyDao);
     }
+
+    public ExchangeRateDto getExchangeRate(List<CurrencyDto> currencies) {
+        ExchangeRate rate = exchangeRateDao.findById(currencies.get(0).getId(), currencies.get(1).getId());
+
+        if (rate == null) {
+            throw new RuntimeException("Exchange rate not found for given currencies.");
+        }
+
+        return ExchangeRateMapper.toDto(rate, currencyDao);
+    }
 }

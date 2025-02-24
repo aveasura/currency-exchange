@@ -66,4 +66,29 @@ public class ExchangeRateDaoImpl implements ExchangeRateDao {
 
         return rates;
     }
+
+    @Override
+    public ExchangeRate findById(int baseCurrencyId, int targetCurrencyId) {
+        String sql = "SELECT * FROM ExchangeRates WHERE base_currency_id = ? AND target_currency_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, baseCurrencyId);
+            stmt.setInt(2, targetCurrencyId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new ExchangeRate(
+                        rs.getInt("id"),
+                        rs.getInt("base_currency_id"),
+                        rs.getInt("target_currency_id"),
+                        rs.getBigDecimal("rate")
+                );
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Ошибка при получении курса между валютами: " + e.getMessage());
+        }
+
+        // мб потом сделать optional
+        return null;
+    }
 }

@@ -55,11 +55,9 @@ public class CurrencyController extends HttpServlet {
             return;
         }
 
-        // Извлекаем код валюты из pathInfo
         String code = pathInfo.split("/")[1].toUpperCase();
         CurrencyDto dto = extractCurrencyDto(req);
 
-        // Обновляем только те поля, которые были переданы в запросе
         OperationResult result = currenciesService.patchCurrency(code, dto);
 
         if (!result.isSuccess()) {
