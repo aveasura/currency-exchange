@@ -4,6 +4,7 @@ import org.myapp.dao.CurrencyDao;
 import org.myapp.dao.ExchangeRateDao;
 import org.myapp.dto.CurrencyDto;
 import org.myapp.dto.ExchangeRateDto;
+import org.myapp.error.OperationResult;
 import org.myapp.mapper.ExchangeRateMapper;
 import org.myapp.model.Currency;
 import org.myapp.model.ExchangeRate;
@@ -51,5 +52,17 @@ public class ExchangeRateService {
         }
 
         return ExchangeRateMapper.toDto(rate, currencyDao);
+    }
+
+    public OperationResult editExchangeRate(List<CurrencyDto> currencies, BigDecimal rate) {
+        ExchangeRate currentRate = exchangeRateDao.findById(currencies.get(0).getId(), currencies.get(1).getId());
+
+        if (currentRate == null) {
+            return new OperationResult(false, "Exchange rate not found for given currencies");
+        }
+
+        currentRate.setRate(rate);
+        exchangeRateDao.update(currentRate, rate);
+        return new OperationResult(true, "rate updated");
     }
 }

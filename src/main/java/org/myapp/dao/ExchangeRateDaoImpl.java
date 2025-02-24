@@ -91,4 +91,20 @@ public class ExchangeRateDaoImpl implements ExchangeRateDao {
         // мб потом сделать optional
         return null;
     }
+
+    @Override
+    public void update(ExchangeRate currentRate, BigDecimal rate) {
+        String sql = "UPDATE ExchangeRates SET base_currency_id=?, target_currency_id=?, rate=? WHERE id=?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setInt(1, currentRate.getBaseCurrencyId());
+            stmt.setInt(2, currentRate.getTargetCurrencyId());
+            stmt.setBigDecimal(3, rate);
+            stmt.setInt(4, currentRate.getId());
+
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Ошибка обновления rate " + e.getMessage());
+        }
+    }
 }

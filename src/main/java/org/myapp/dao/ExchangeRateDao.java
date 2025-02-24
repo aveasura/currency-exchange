@@ -13,4 +13,6 @@ public interface ExchangeRateDao {
     List<ExchangeRate> findAll();
 
     ExchangeRate findById(int var1, int var2);
+
+    void update(ExchangeRate currentRate, BigDecimal rate);
 }
