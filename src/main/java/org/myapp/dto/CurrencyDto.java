@@ -60,4 +60,14 @@ public class CurrencyDto {
     public void setId(int id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "CurrencyDto{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", sign='" + sign + '\'' +
+                '}';
+    }
 }

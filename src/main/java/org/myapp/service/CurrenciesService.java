@@ -2,9 +2,11 @@ package org.myapp.service;
 
 import org.myapp.dao.CurrencyDao;
 import org.myapp.dto.CurrencyDto;
+import org.myapp.dto.ExchangeRateDto;
 import org.myapp.error.OperationResult;
 import org.myapp.mapper.CurrencyMapper;
 import org.myapp.model.Currency;
+import org.myapp.model.ExchangeRate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,5 +105,25 @@ public class CurrenciesService {
 
         dao.update(currency);
         return new OperationResult(true, "Currency successfully updated");
+    }
+
+    public List<CurrencyDto> getCurrenciesByPath(String path) {
+        List<Currency> currencies = new ArrayList<>();
+
+        String baseCurrencyCode = path.substring(0, 3);
+        String targetCurrencyCode = path.substring(3, 6);
+
+        // Чек на существование валют в бд
+        Currency from = findByIdOrCode(baseCurrencyCode);
+        Currency to = findByIdOrCode(targetCurrencyCode);
+
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("One or both currencies not found: " + baseCurrencyCode + ", " + targetCurrencyCode);
+        }
+
+        currencies.add(from);
+        currencies.add(to);
+
+        return CurrencyMapper.toDto(currencies);
     }
 }
