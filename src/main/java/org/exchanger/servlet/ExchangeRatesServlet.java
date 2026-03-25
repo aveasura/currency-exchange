@@ -10,24 +10,25 @@ import org.exchanger.service.ExchangeRateService;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.List;
 
-@WebServlet("/exchangeRate/*")
-public class ExchangeRateServlet extends HttpServlet {
+// todo
+@WebServlet("/exchangeRates")
+public class ExchangeRatesServlet extends HttpServlet {
 
     private ExchangeRateService exchangeRateService;
     private ObjectMapper objectMapper;
 
     @Override
     public void init() throws ServletException {
-        Object service = getServletContext().getAttribute("exchangeRateService");
+        Object exchangeRate = getServletContext().getAttribute("exchangeRateService");
         Object mapper = getServletContext().getAttribute("objectMapper");
-
-        if (!(service instanceof ExchangeRateService exchangeRateService)) {
-            throw new ServletException("CurrencyService not initialized");
+        if (!(exchangeRate instanceof ExchangeRateService exchangeRateService)) {
+            throw new RuntimeException("aaaaaaaaaa");
         }
 
         if (!(mapper instanceof ObjectMapper objectMapper)) {
-            throw new ServletException("ObjectMapper not initialized");
+            throw new RuntimeException("bbbbbbbbb");
         }
 
         this.exchangeRateService = exchangeRateService;
@@ -39,11 +40,7 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String pathInfo = request.getPathInfo();
-        String pair = pathInfo.substring(1);
-
-        ExchangeRate exchangeRate =  exchangeRateService.get(pair);
-        response.setStatus(HttpServletResponse.SC_OK);
-        objectMapper.writeValue(response.getWriter(), exchangeRate);
+        List<ExchangeRate> exchangeRates = exchangeRateService.getAll();
+        objectMapper.writeValue(response.getWriter(), exchangeRates);
     }
 }

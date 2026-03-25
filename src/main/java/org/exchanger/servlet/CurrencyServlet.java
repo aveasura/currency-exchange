@@ -11,7 +11,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-@WebServlet("/currency")
+@WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
 
     private CurrencyService currencyService;
@@ -39,10 +39,12 @@ public class CurrencyServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String code = request.getParameter("code");
+        String pathInfo = request.getPathInfo();
+        String code = pathInfo.substring(1);
+
         Currency currency = currencyService.getCurrency(code);
 
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(200);
         objectMapper.writeValue(response.getWriter(), currency);
     }
 }

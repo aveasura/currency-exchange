@@ -58,6 +58,7 @@ public class CurrenciesServlet extends HttpServlet {
         Currency currency = new Currency(name, code, sign);
 
         currencyService.createCurrency(currency);
+
         response.setStatus(HttpServletResponse.SC_CREATED);
         objectMapper.writeValue(response.getWriter(), currency);
     }
