@@ -1,7 +1,7 @@
 package org.exchanger.service;
 
-import org.exchanger.dto.request.CreateCurrencyRequest;
-import org.exchanger.dto.response.CreateCurrencyResponse;
+import org.exchanger.dto.request.CurrencyRequest;
+import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.model.Currency;
 import org.exchanger.repository.CurrencyRepository;
 
@@ -14,27 +14,33 @@ public class CurrencyService extends AbstractCurrencyService {
         super(currencyRepository);
     }
 
-    public CreateCurrencyResponse get(String code) {
+    public CurrencyResponse get(String code) {
         Currency currency = getCurrency(code);
 
         //todo mapper
-        CreateCurrencyResponse dto =
-                new CreateCurrencyResponse(currency.getId(),
+        CurrencyResponse dto =
+                new CurrencyResponse(
+                        currency.getId(),
                         currency.getFullName(),
                         currency.getCode(),
-                        currency.getSign());
+                        currency.getSign()
+                );
 
         return dto;
     }
 
-    public List<CreateCurrencyResponse> getAll() {
+    public List<CurrencyResponse> getAll() {
         List<Currency> currencies = currencyRepository.findAll();
 
         // todo mapper
-        List<CreateCurrencyResponse> responseDto = new ArrayList<>();
+        List<CurrencyResponse> responseDto = new ArrayList<>();
         for (Currency currency : currencies) {
-            CreateCurrencyResponse dto
-                    = new CreateCurrencyResponse(currency.getId(), currency.getFullName(), currency.getCode(), currency.getSign());
+            CurrencyResponse dto = new CurrencyResponse(
+                    currency.getId(),
+                    currency.getFullName(),
+                    currency.getCode(),
+                    currency.getSign()
+            );
 
             responseDto.add(dto);
         }
@@ -42,9 +48,22 @@ public class CurrencyService extends AbstractCurrencyService {
         return responseDto;
     }
 
-    public void createCurrency(CreateCurrencyRequest dto) {
-        Currency currency = new Currency(dto.name(), dto.code(), dto.sign());
+    public CurrencyResponse createCurrency(CurrencyRequest dto) {
+        Currency currency = new Currency(
+                dto.name(),
+                dto.code(),
+                dto.sign()
+        );
 
-        currencyRepository.create(currency);
+        Long currencyId = currencyRepository.create(currency);
+
+        CurrencyResponse responseDto = new CurrencyResponse(
+                currencyId,
+                currency.getFullName(),
+                currency.getCode(),
+                currency.getSign()
+        );
+
+        return responseDto;
     }
 }

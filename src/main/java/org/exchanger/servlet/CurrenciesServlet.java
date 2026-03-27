@@ -3,8 +3,8 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.dto.request.CreateCurrencyRequest;
-import org.exchanger.dto.response.CreateCurrencyResponse;
+import org.exchanger.dto.request.CurrencyRequest;
+import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class CurrenciesServlet extends AbstractApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        List<CreateCurrencyResponse> currencies = currencyService.getAll();
+        List<CurrencyResponse> currencies = currencyService.getAll();
         sendJsonResponse(response, currencies, HttpServletResponse.SC_OK);
     }
 
@@ -32,9 +32,9 @@ public class CurrenciesServlet extends AbstractApiServlet {
         String code = request.getParameter("code");
         String sign = request.getParameter("sign");
 
-        CreateCurrencyRequest currency = new CreateCurrencyRequest(name, code, sign);
-        currencyService.createCurrency(currency);
+        CurrencyRequest requestDto = new CurrencyRequest(name, code, sign);
+        CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
 
-        sendJsonResponse(response, currency, HttpServletResponse.SC_CREATED);
+        sendJsonResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 }

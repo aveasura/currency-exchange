@@ -3,6 +3,7 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
 
@@ -23,5 +24,21 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         List<ExchangeRateResponse> exchangeRates = exchangeRateService.getAll();
         sendJsonResponse(response, exchangeRates, HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+        String baseCurrencyCode = request.getParameter("baseCurrencyCode");
+        String targetCurrencyCode = request.getParameter("targetCurrencyCode");
+        String rate = request.getParameter("rate");
+
+        ExchangeRateRequest requestDto = new ExchangeRateRequest(
+                baseCurrencyCode,
+                targetCurrencyCode,
+                rate
+        );
+
+        ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
+        sendJsonResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 }

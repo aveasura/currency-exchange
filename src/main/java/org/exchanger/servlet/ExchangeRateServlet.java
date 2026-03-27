@@ -23,7 +23,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
         String pathInfo = request.getPathInfo();
         String pair = pathInfo.substring(1);
 
-        ExchangeRateResponse exchangeRate = exchangeRateService.get(pair);
-        sendJsonResponse(response, exchangeRate, HttpServletResponse.SC_OK);
+        ExchangeRateResponse responseDto = exchangeRateService.get(pair);
+        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }

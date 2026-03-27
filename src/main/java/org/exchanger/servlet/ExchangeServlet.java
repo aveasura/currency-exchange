@@ -3,6 +3,7 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.service.ExchangeService;
 
@@ -23,7 +24,9 @@ public class ExchangeServlet extends AbstractApiServlet {
         String to = request.getParameter("to");
         String amount = request.getParameter("amount");
 
-        ExchangeResponse exchangeDto = exchangeService.convert(from, to, amount);
-        sendJsonResponse(response, exchangeDto, HttpServletResponse.SC_OK);
+        ExchangeRequest requestDto = new ExchangeRequest(from, to, amount);
+
+        ExchangeResponse responseDto = exchangeService.convert(requestDto);
+        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }

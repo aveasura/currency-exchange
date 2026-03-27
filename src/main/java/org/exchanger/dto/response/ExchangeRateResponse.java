@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 @JsonPropertyOrder({"id", "baseCurrency", "targetCurrency", "rate"})
 public record ExchangeRateResponse(
         Long id,
-        CreateCurrencyResponse baseCurrency,
-        CreateCurrencyResponse targetCurrency,
+        CurrencyResponse baseCurrency,
+        CurrencyResponse targetCurrency,
         BigDecimal rate
 ) {
 }

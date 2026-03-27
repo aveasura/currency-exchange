@@ -1,7 +1,6 @@
 package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
-import org.exchanger.config.DataBaseManager;
 import org.exchanger.model.Currency;
 
 import java.sql.Connection;
@@ -12,13 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencyRepository {
+
     private static final String INSERT_SQL = """
             INSERT INTO currencies (code, full_name, sign)
             VALUES (?, ?, ?)
+            RETURNING id
             """;
-    private static final String SELECT_BY_CODE_SQL = "\nSELECT id, code, full_name, sign FROM currencies WHERE code = ?";
 
-    private static final String SELECT_ALL_SQL = "SELECT * FROM currencies";
+    private static final String SELECT_BY_CODE_SQL = """
+            SELECT id, code, full_name, sign
+            FROM currencies
+            WHERE code = ?""";
+
+    private static final String SELECT_ALL_SQL = """
+            SELECT *
+            FROM currencies""";
 
     private final ConnectionProvider connectionProvider;
 
@@ -73,18 +80,22 @@ public class CurrencyRepository {
         }
     }
 
-    public void create(Currency currency) {
+    public Long create(Currency currency) {
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
             preparedStatement.setString(1, currency.getCode());
             preparedStatement.setString(2, currency.getFullName());
             preparedStatement.setString(3, currency.getSign());
 
-            preparedStatement.execute();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("id");
+                }
+                throw new RuntimeException("ошибка получения id созданной валюты");
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при создании валюты: " + currency, e);
         }
-
     }
 }

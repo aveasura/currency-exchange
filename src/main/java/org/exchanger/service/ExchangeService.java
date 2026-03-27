@@ -1,6 +1,7 @@
 package org.exchanger.service;
 
-import org.exchanger.dto.response.CreateCurrencyResponse;
+import org.exchanger.dto.request.ExchangeRequest;
+import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
@@ -19,14 +20,14 @@ public class ExchangeService extends AbstractCurrencyService {
     }
 
     // todo reverse
-    public ExchangeResponse convert(String from, String to, String amount) {
-        Currency base = getCurrency(from);
-        Currency target = getCurrency(to);
+    public ExchangeResponse convert(ExchangeRequest dto) {
+        Currency base = getCurrency(dto.from());
+        Currency target = getCurrency(dto.to());
+        BigDecimal quantity = new BigDecimal(dto.amount());
 
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
 
         BigDecimal rate = exchangeRate.getRate();
-        BigDecimal quantity = new BigDecimal(amount);
 
 //        if (rate == null) {
 //            ExchangeRate reverse = exchangeRateRepository.find(target.getId(), base.getId());
@@ -38,22 +39,27 @@ public class ExchangeService extends AbstractCurrencyService {
         BigDecimal convertedAmount = quantity.multiply(rate);
 
         // todo mapper
-        CreateCurrencyResponse baseCurrencyDto = new CreateCurrencyResponse(
+        CurrencyResponse baseCurrencyDto = new CurrencyResponse(
                 base.getId(),
                 base.getFullName(),
                 base.getCode(),
                 base.getSign()
         );
 
-        CreateCurrencyResponse targetCurrencyDto = new CreateCurrencyResponse(
+        CurrencyResponse targetCurrencyDto = new CurrencyResponse(
                 target.getId(),
                 target.getFullName(),
                 target.getCode(),
                 target.getSign()
         );
 
-        ExchangeResponse dto = new ExchangeResponse(baseCurrencyDto, targetCurrencyDto, rate, quantity, convertedAmount);
+        ExchangeResponse responseDto = new ExchangeResponse(
+                baseCurrencyDto,
+                targetCurrencyDto,
+                rate,
+                quantity,
+                convertedAmount);
 
-        return dto;
+        return responseDto;
     }
 }

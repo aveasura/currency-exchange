@@ -30,7 +30,17 @@ public class ExchangeRateRepository {
             JOIN currencies target ON er.target_currency_id = target.id
             """;
 
-    private static final String GET_PAIR_RATES_SQL = GET_ALL_EXISTING_RATES_SQL + "WHERE baseId = ? AND targetId = ?";
+    private static final String GET_PAIR_RATES_SQL =
+            GET_ALL_EXISTING_RATES_SQL + """
+                    WHERE er.base_currency_id = ?
+                    AND er.target_currency_id = ?
+                    """;
+
+    private static final String INSERT_INTO_EXCHANGE_RATES = """
+            INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate)
+            VALUES(?, ?, ?)
+            RETURNING id
+            """;
 
     private final ConnectionProvider connectionProvider;
 
@@ -79,6 +89,9 @@ public class ExchangeRateRepository {
             preparedStatement.setLong(2, targetCurrencyId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.next()) {
+                throw new RuntimeException("не найден exchange rate");
+            }
             long id = resultSet.getLong("id");
             BigDecimal rate = resultSet.getBigDecimal("rate");
 
@@ -100,6 +113,24 @@ public class ExchangeRateRepository {
             return exchangeRate;
         } catch (SQLException e) {
             throw new RuntimeException("ошибка поиска пары", e);
+        }
+    }
+
+    public Long create(Currency base, Currency target, BigDecimal rate) {
+        try (Connection connection = connectionProvider.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTO_EXCHANGE_RATES)) {
+            preparedStatement.setLong(1, base.getId());
+            preparedStatement.setLong(2, target.getId());
+            preparedStatement.setBigDecimal(3, rate);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong("id");
+                }
+                throw new RuntimeException("Не удалось получить id созданного exchange rate");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при создании exchange rate", e);
         }
     }
 }

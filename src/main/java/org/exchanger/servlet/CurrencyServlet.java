@@ -3,7 +3,7 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.dto.response.CreateCurrencyResponse;
+import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
 
 @WebServlet("/currency/*")
@@ -24,7 +24,7 @@ public class CurrencyServlet extends AbstractApiServlet {
         String pathInfo = request.getPathInfo();
         String code = pathInfo.substring(1);
 
-        CreateCurrencyResponse currency = currencyService.get(code);
-        sendJsonResponse(response, currency, HttpServletResponse.SC_OK);
+        CurrencyResponse responseDto = currencyService.get(code);
+        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }

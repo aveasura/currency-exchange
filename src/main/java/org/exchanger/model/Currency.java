@@ -14,7 +14,6 @@ public class Currency {
         this.sign = sign;
     }
 
-    // todo: null?
     public Currency(String fullName, String code, String sign) {
         this(null, fullName, code, sign);
     }
