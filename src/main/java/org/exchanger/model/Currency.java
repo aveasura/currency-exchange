@@ -1,20 +1,16 @@
 package org.exchanger.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-@JsonPropertyOrder({"id", "name", "code", "sign"})
 public class Currency {
 
-    private final Integer id;
+    private final Long id;
     private final String fullName;
     private final String code;
     private final String sign;
 
-    public Currency(Integer id, String fullName, String code, String sign) {
+    public Currency(Long id, String fullName, String code, String sign) {
         this.id = id;
         this.fullName = fullName;
-        this.code = code.toUpperCase();
+        this.code = code;
         this.sign = sign;
     }
 
@@ -23,11 +19,10 @@ public class Currency {
         this(null, fullName, code, sign);
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    @JsonProperty("name")
     public String getFullName() {
         return fullName;
     }

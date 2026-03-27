@@ -16,7 +16,7 @@ public class CurrencyRepository {
             INSERT INTO currencies (code, full_name, sign)
             VALUES (?, ?, ?)
             """;
-    private static final String SELECT_BY_CODE_SQL = "SELECT id, code, full_name, sign FROM currencies WHERE code = ?";
+    private static final String SELECT_BY_CODE_SQL = "\nSELECT id, code, full_name, sign FROM currencies WHERE code = ?";
 
     private static final String SELECT_ALL_SQL = "SELECT * FROM currencies";
 
@@ -29,12 +29,11 @@ public class CurrencyRepository {
     public Currency findCurrency(String code) {
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_CODE_SQL)) {
-
             preparedStatement.setString(1, code);
 
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
-                    int id = rs.getInt("id");
+                    long id = rs.getLong("id");
                     String fullName = rs.getString("full_name");
                     String currencyCode = rs.getString("code");
                     String sign = rs.getString("sign");
@@ -57,7 +56,7 @@ public class CurrencyRepository {
 
             List<Currency> currencies = new ArrayList<>();
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
+                long id = resultSet.getLong("id");
                 String fullName = resultSet.getString("full_name");
                 String code = resultSet.getString("code");
                 String sign = resultSet.getString("sign");

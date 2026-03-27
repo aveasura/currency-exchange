@@ -46,15 +46,15 @@ public class ExchangeRateRepository {
             ResultSet resultSet = preparedStatement.executeQuery();
             List<ExchangeRate> exchangeRates = new ArrayList<>();
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
+                long id = resultSet.getLong("id");
                 BigDecimal rate = resultSet.getBigDecimal("rate");
 
-                int baseId = resultSet.getInt("baseId");
+                long baseId = resultSet.getLong("baseId");
                 String baseCode = resultSet.getString("baseCode");
                 String baseFullName = resultSet.getString("baseFullName");
                 String baseSign = resultSet.getString("baseSign");
 
-                int targetId = resultSet.getInt("targetId");
+                long targetId = resultSet.getLong("targetId");
                 String targetCode = resultSet.getString("targetCode");
                 String targetFullName = resultSet.getString("targetFullName");
                 String targetSign = resultSet.getString("targetSign");
@@ -72,22 +72,22 @@ public class ExchangeRateRepository {
         }
     }
 
-    public ExchangeRate find(Integer baseCurrencyId, Integer targetCurrencyId) {
+    public ExchangeRate find(Long baseCurrencyId, Long targetCurrencyId) {
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(GET_PAIR_RATES_SQL)) {
-            preparedStatement.setInt(1, baseCurrencyId);
-            preparedStatement.setInt(2, targetCurrencyId);
+            preparedStatement.setLong(1, baseCurrencyId);
+            preparedStatement.setLong(2, targetCurrencyId);
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            int id = resultSet.getInt("id");
+            long id = resultSet.getLong("id");
             BigDecimal rate = resultSet.getBigDecimal("rate");
 
-            int baseId = resultSet.getInt("baseId");
+            long baseId = resultSet.getLong("baseId");
             String baseFullName = resultSet.getString("baseFullName");
             String baseCode = resultSet.getString("baseCode");
             String baseSign = resultSet.getString("baseSign");
 
-            int targetId = resultSet.getInt("targetId");
+            long targetId = resultSet.getLong("targetId");
             String targetFullName = resultSet.getString("targetFullName");
             String targetCode = resultSet.getString("targetCode");
             String targetSign = resultSet.getString("targetSign");

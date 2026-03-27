@@ -1,49 +1,29 @@
 package org.exchanger.servlet;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.model.ExchangeRate;
+import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
-import tools.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 
 @WebServlet("/exchangeRate/*")
-public class ExchangeRateServlet extends HttpServlet {
+public class ExchangeRateServlet extends BaseServlet {
 
     private ExchangeRateService exchangeRateService;
-    private ObjectMapper objectMapper;
 
     @Override
-    public void init() throws ServletException {
-        Object service = getServletContext().getAttribute("exchangeRateService");
-        Object mapper = getServletContext().getAttribute("objectMapper");
-
-        if (!(service instanceof ExchangeRateService exchangeRateService)) {
-            throw new ServletException("CurrencyService not initialized");
-        }
-
-        if (!(mapper instanceof ObjectMapper objectMapper)) {
-            throw new ServletException("ObjectMapper not initialized");
-        }
-
-        this.exchangeRateService = exchangeRateService;
-        this.objectMapper = objectMapper;
+    public void init() {
+        super.init();
+        exchangeRateService = getService("exchangeRateService", ExchangeRateService.class);
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+        // todo path parser
         String pathInfo = request.getPathInfo();
         String pair = pathInfo.substring(1);
 
-        ExchangeRate exchangeRate =  exchangeRateService.get(pair);
-        response.setStatus(HttpServletResponse.SC_OK);
-        objectMapper.writeValue(response.getWriter(), exchangeRate);
+        ExchangeRateResponse exchangeRate = exchangeRateService.get(pair);
+        sendJsonResponse(response, exchangeRate, HttpServletResponse.SC_OK);
     }
 }
