@@ -10,14 +10,13 @@ import org.exchanger.repository.ExchangeRateRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExchangeRateService {
+public class ExchangeRateService extends AbstractCurrencyService {
 
     private final ExchangeRateRepository exchangeRateRepository;
-    private final CurrencyRepository currencyRepository;
 
-    public ExchangeRateService(ExchangeRateRepository exchangeRateRepository, CurrencyRepository currencyRepository) {
+    public ExchangeRateService(CurrencyRepository currencyRepository, ExchangeRateRepository exchangeRateRepository) {
+        super(currencyRepository);
         this.exchangeRateRepository = exchangeRateRepository;
-        this.currencyRepository = currencyRepository;
     }
 
     public List<ExchangeRateResponse> getAll() {
@@ -58,8 +57,8 @@ public class ExchangeRateService {
         String baseCurrencyCode = pair.substring(0, 3);
         String targetCurrencyCode = pair.substring(3, 6);
 
-        Currency base = currencyRepository.findCurrency(baseCurrencyCode);
-        Currency target = currencyRepository.findCurrency(targetCurrencyCode);
+        Currency base = getCurrency(baseCurrencyCode);
+        Currency target = getCurrency(targetCurrencyCode);
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
 
         // todo mapper

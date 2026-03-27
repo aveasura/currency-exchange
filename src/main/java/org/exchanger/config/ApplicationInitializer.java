@@ -27,7 +27,7 @@ public class ApplicationInitializer implements ServletContextListener {
         ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(connectionProvider);
         sce.getServletContext().setAttribute("exchangeRateRepository", exchangeRateRepository);
 
-        ExchangeRateService exchangeRateService = new ExchangeRateService(exchangeRateRepository, currencyRepository);
+        ExchangeRateService exchangeRateService = new ExchangeRateService(currencyRepository, exchangeRateRepository);
         sce.getServletContext().setAttribute("exchangeRateService", exchangeRateService);
 
         ExchangeService exchangeService = new ExchangeService(currencyRepository, exchangeRateRepository);

@@ -9,7 +9,7 @@ import org.exchanger.service.ExchangeRateService;
 import java.util.List;
 
 @WebServlet("/exchangeRates")
-public class ExchangeRatesServlet extends BaseServlet {
+public class ExchangeRatesServlet extends AbstractApiServlet {
 
     private ExchangeRateService exchangeRateService;
 

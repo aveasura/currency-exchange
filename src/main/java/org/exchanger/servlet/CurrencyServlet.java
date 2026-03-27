@@ -7,7 +7,7 @@ import org.exchanger.dto.response.CreateCurrencyResponse;
 import org.exchanger.service.CurrencyService;
 
 @WebServlet("/currency/*")
-public class CurrencyServlet extends BaseServlet {
+public class CurrencyServlet extends AbstractApiServlet {
 
     private CurrencyService currencyService;
 
@@ -24,7 +24,7 @@ public class CurrencyServlet extends BaseServlet {
         String pathInfo = request.getPathInfo();
         String code = pathInfo.substring(1);
 
-        CreateCurrencyResponse currency = currencyService.getCurrency(code);
+        CreateCurrencyResponse currency = currencyService.get(code);
         sendJsonResponse(response, currency, HttpServletResponse.SC_OK);
     }
 }

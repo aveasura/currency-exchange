@@ -9,20 +9,19 @@ import org.exchanger.repository.ExchangeRateRepository;
 
 import java.math.BigDecimal;
 
-public class ExchangeService {
+public class ExchangeService extends AbstractCurrencyService {
 
-    private final CurrencyRepository currencyRepository;
     private final ExchangeRateRepository exchangeRateRepository;
 
     public ExchangeService(CurrencyRepository currencyRepository, ExchangeRateRepository exchangeRateRepository) {
-        this.currencyRepository = currencyRepository;
+        super(currencyRepository);
         this.exchangeRateRepository = exchangeRateRepository;
     }
 
     // todo reverse
     public ExchangeResponse convert(String from, String to, String amount) {
-        Currency base = currencyRepository.findCurrency(from);
-        Currency target = currencyRepository.findCurrency(to);
+        Currency base = getCurrency(from);
+        Currency target = getCurrency(to);
 
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
 

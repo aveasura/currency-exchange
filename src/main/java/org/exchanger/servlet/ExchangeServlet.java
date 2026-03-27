@@ -7,7 +7,7 @@ import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.service.ExchangeService;
 
 @WebServlet("/exchange")
-public class ExchangeServlet extends BaseServlet {
+public class ExchangeServlet extends AbstractApiServlet {
 
     private ExchangeService exchangeService;
 

@@ -10,7 +10,7 @@ import org.exchanger.service.CurrencyService;
 import java.util.List;
 
 @WebServlet("/currencies")
-public class CurrenciesServlet extends BaseServlet {
+public class CurrenciesServlet extends AbstractApiServlet {
 
     private CurrencyService currencyService;
 

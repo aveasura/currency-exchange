@@ -8,17 +8,14 @@ import org.exchanger.repository.CurrencyRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-// todo
-public class CurrencyService {
-
-    private final CurrencyRepository currencyRepository;
+public class CurrencyService extends AbstractCurrencyService {
 
     public CurrencyService(CurrencyRepository currencyRepository) {
-        this.currencyRepository = currencyRepository;
+        super(currencyRepository);
     }
 
-    public CreateCurrencyResponse getCurrency(String code) {
-        Currency currency = currencyRepository.findCurrency(code);
+    public CreateCurrencyResponse get(String code) {
+        Currency currency = getCurrency(code);
 
         //todo mapper
         CreateCurrencyResponse dto =

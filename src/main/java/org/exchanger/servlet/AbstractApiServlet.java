@@ -6,7 +6,10 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public abstract class BaseServlet extends HttpServlet {
+public abstract class AbstractApiServlet extends HttpServlet {
+
+    private static final String CONTENT_TYPE = "application/json";
+    private static final String CHARACTER_ENCODING = "UTF-8";
 
     protected ObjectMapper objectMapper;
 
@@ -21,8 +24,8 @@ public abstract class BaseServlet extends HttpServlet {
 
     protected void sendJsonResponse(HttpServletResponse response, Object body, int status) {
         try {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
+            response.setContentType(CONTENT_TYPE);
+            response.setCharacterEncoding(CHARACTER_ENCODING);
             response.setStatus(status);
 
             objectMapper.writeValue(response.getWriter(), body);
