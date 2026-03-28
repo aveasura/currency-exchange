@@ -1,6 +1,7 @@
 package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
+import org.exchanger.exception.DataAccessException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class BaseJdbcRepository {
 
@@ -17,7 +19,12 @@ public abstract class BaseJdbcRepository {
         this.connectionProvider = connectionProvider;
     }
 
-    protected <T> T executeSingleResult(String sql, PreparedStatementSetter statementSetter, RowMapper<T> rowMapper) {
+    protected <T> T executeSingleResult(
+            String sql, PreparedStatementSetter
+            statementSetter,
+            RowMapper<T> rowMapper,
+            Supplier<? extends RuntimeException> failException
+    ) {
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -29,12 +36,12 @@ public abstract class BaseJdbcRepository {
                 if (resultSet.next()) {
                     return rowMapper.mapRow(resultSet);
                 }
+
+                throw failException.get();
             }
 
-            throw new RuntimeException("Expected single result, but got none");
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 

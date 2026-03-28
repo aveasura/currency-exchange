@@ -1,6 +1,8 @@
 package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
+import org.exchanger.exception.DataAccessException;
+import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 
@@ -85,8 +87,10 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                                 resultSet.getString("targetCode"),
                                 resultSet.getString("targetSign")
                         ),
-                        resultSet.getBigDecimal("rate")
-                )
+                        resultSet.getBigDecimal("rate")),
+
+                // todo возможно нужно перенести в service ( .orElseThrow через Optional )
+                () -> new ExchangeRateNotFoundException("валюта_1", "валюта_2")
         );
 
         return exchangeRate;
@@ -100,8 +104,8 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                     preparedStatement.setLong(2, target.getId());
                     preparedStatement.setBigDecimal(3, rate);
                 },
-                resultSet -> resultSet.getLong("id")
-        );
+                resultSet -> resultSet.getLong("id"),
+                () -> new DataAccessException("Create exchange rate error, failed assign id"));
 
         return id;
     }

@@ -1,6 +1,8 @@
 package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
+import org.exchanger.exception.CurrencyNotFoundException;
+import org.exchanger.exception.DataAccessException;
 import org.exchanger.model.Currency;
 
 import java.util.List;
@@ -28,16 +30,14 @@ public class CurrencyRepository extends BaseJdbcRepository {
     public Currency findCurrency(String code) {
         Currency currency = executeSingleResult(
                 SELECT_BY_CODE_SQL,
-                preparedStatement -> {
-                    preparedStatement.setString(1, code);
-                },
+                preparedStatement -> preparedStatement.setString(1, code),
                 resultSet -> new Currency(
                         resultSet.getLong("id"),
                         resultSet.getString("full_name"),
                         resultSet.getString("code"),
                         resultSet.getString("sign")
-                )
-        );
+                ),
+                () -> new CurrencyNotFoundException(code));
 
         return currency;
     }
@@ -64,7 +64,8 @@ public class CurrencyRepository extends BaseJdbcRepository {
                     preparedStatement.setString(2, currency.getFullName());
                     preparedStatement.setString(3, currency.getSign());
                 },
-                resultSet -> resultSet.getLong("id")
+                resultSet -> resultSet.getLong("id"),
+                () -> new DataAccessException("Create currency error, failed to assign id")
         );
 
         return id;

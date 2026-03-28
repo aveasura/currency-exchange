@@ -3,6 +3,8 @@ package org.exchanger.service;
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.exception.CurrencyNotFoundException;
+import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
@@ -11,6 +13,7 @@ import org.exchanger.repository.ExchangeRateRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateService extends AbstractCurrencyService {
 
@@ -61,8 +64,8 @@ public class ExchangeRateService extends AbstractCurrencyService {
 
         Currency base = getCurrency(baseCurrencyCode);
         Currency target = getCurrency(targetCurrencyCode);
-        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
 
+        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
         // todo mapper
         CurrencyResponse baseCurrencyDto = new CurrencyResponse(
                 base.getId(),
