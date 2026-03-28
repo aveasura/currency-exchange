@@ -11,14 +11,15 @@ public class CurrencyRepository extends BaseJdbcRepository {
             VALUES (?, ?, ?)
             RETURNING id
             """;
+
     private static final String SELECT_BY_CODE_SQL = """
             SELECT id, code, full_name, sign
             FROM currencies
             WHERE code = ?""";
+
     private static final String SELECT_ALL_SQL = """
             SELECT *
             FROM currencies""";
-
 
     public CurrencyRepository(ConnectionProvider connectionProvider) {
         super(connectionProvider);
@@ -44,7 +45,6 @@ public class CurrencyRepository extends BaseJdbcRepository {
     public List<Currency> findAll() {
         List<Currency> currencies = executeList(
                 SELECT_ALL_SQL,
-                preparedStatement -> {},
                 resultSet -> new Currency(
                         resultSet.getLong("id"),
                         resultSet.getString("full_name"),

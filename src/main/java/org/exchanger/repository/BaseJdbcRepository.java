@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public abstract class BaseJdbcRepository {
 
     protected final ConnectionProvider connectionProvider;
@@ -60,6 +59,10 @@ public abstract class BaseJdbcRepository {
         } catch (SQLException e) {
             throw new RuntimeException("b");
         }
+    }
+
+    protected <T> List<T> executeList(String sql, RowMapper<T> rowMapper) {
+        return executeList(sql, null, rowMapper);
     }
 
     @FunctionalInterface

@@ -19,23 +19,14 @@ public class ExchangeService extends AbstractCurrencyService {
         this.exchangeRateRepository = exchangeRateRepository;
     }
 
-    // todo reverse
+    // todo reverse convert
     public ExchangeResponse convert(ExchangeRequest dto) {
         Currency base = getCurrency(dto.from());
         Currency target = getCurrency(dto.to());
         BigDecimal quantity = new BigDecimal(dto.amount());
 
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
-
         BigDecimal rate = exchangeRate.getRate();
-
-//        if (rate == null) {
-//            ExchangeRate reverse = exchangeRateRepository.find(target.getId(), base.getId());
-//            BigDecimal newRate = reverse.getRate();
-//            BigDecimal converted = BigDecimal.ONE.divide(newRate, 2, RoundingMode.HALF_UP);
-//            return new ExchangeResponse(base, target, newRate, quantity, converted);
-//        }
-
         BigDecimal convertedAmount = quantity.multiply(rate);
 
         // todo mapper
