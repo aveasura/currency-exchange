@@ -3,20 +3,17 @@ package org.exchanger.config;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.exchanger.dto.request.CurrencyRequest;
-import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.mapper.CurrencyMapper;
 import org.exchanger.mapper.ExchangeRateMapper;
-import org.exchanger.mapper.RequestMapper;
 import org.exchanger.mapper.ResponseMapper;
-import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.service.ExchangeService;
+import org.exchanger.servlet.parser.CodeParser;
 import tools.jackson.databind.ObjectMapper;
 
 @WebListener
@@ -24,6 +21,9 @@ public class ApplicationInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        CodeParser codeParser = new CodeParser();
+        sce.getServletContext().setAttribute("codeParser", codeParser);
+
         CurrencyMapper currencyMapper = new CurrencyMapper();
 
         ResponseMapper<ExchangeRate, ExchangeRateResponse> responseExchangeRateMapper

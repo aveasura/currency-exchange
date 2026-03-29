@@ -20,8 +20,8 @@ public abstract class BaseJdbcRepository {
     }
 
     protected <T> T executeSingleResult(
-            String sql, PreparedStatementSetter
-            statementSetter,
+            String sql,
+            PreparedStatementSetter statementSetter,
             RowMapper<T> rowMapper,
             Supplier<? extends RuntimeException> failException
     ) {

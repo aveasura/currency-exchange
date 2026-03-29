@@ -11,7 +11,11 @@ public abstract class AbstractCurrencyService {
     }
 
     protected Currency getCurrency(String code) {
-        Currency currency = currencyRepository.findCurrency(code);
-        return currency;
+        String normalizedCode = normalize(code);
+        return currencyRepository.findCurrency(normalizedCode);
+    }
+
+    private String normalize(String code) {
+        return code.toUpperCase();
     }
 }

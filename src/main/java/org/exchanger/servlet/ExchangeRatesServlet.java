@@ -39,6 +39,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
         );
 
         ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
+
         sendJsonResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 }

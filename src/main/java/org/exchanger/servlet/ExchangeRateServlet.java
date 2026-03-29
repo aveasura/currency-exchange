@@ -7,6 +7,7 @@ import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
+import org.exchanger.servlet.parser.CodeParser;
 
 import java.io.IOException;
 
@@ -14,50 +15,34 @@ import java.io.IOException;
 public class ExchangeRateServlet extends AbstractApiServlet {
 
     private ExchangeRateService exchangeRateService;
+    private CodeParser parser;
 
     @Override
     public void init() {
         super.init();
         exchangeRateService = getService("exchangeRateService", ExchangeRateService.class);
+        parser = getService("codeParser", CodeParser.class);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        // todo path parser
-        String pathInfo = request.getPathInfo();
-        String pair = pathInfo.substring(1);
+        String currencyPair = parser.parse(request);
+        ExchangeRateResponse responseDto = exchangeRateService.get(currencyPair);
 
-        ExchangeRateResponse responseDto = exchangeRateService.get(pair);
         sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 
-
-    // todo ref
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String cleanPath = parser.parse(request);
 
-        String pathInfo = request.getPathInfo();
-        String pair = pathInfo.substring(1);
-
-        String base = pair.substring(0, 3);
-        String target = pair.substring(3, 6);
-
-        String rate = extractRate(request);
+        String base = parser.extractCode(cleanPath, 0, 3);
+        String target = parser.extractCode(cleanPath, 3, 6);
+        String rate = parser.extractRate(request);
 
         UpdateExchangeRateRequest updateRequest = new UpdateExchangeRateRequest(base, target, rate);
-
         UpdateExchangeRateResponse responseDto = exchangeRateService.patchExchangeRate(updateRequest);
-        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
-    }
 
-    private String extractRate(HttpServletRequest request) throws IOException {
-        String body = request.getReader().readLine();
-        if (body == null || !body.startsWith("rate=")) {
-            return null;
-        }
-        return java.net.URLDecoder.decode(
-                body.substring("rate=".length()),
-                java.nio.charset.StandardCharsets.UTF_8
-        );
+        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }

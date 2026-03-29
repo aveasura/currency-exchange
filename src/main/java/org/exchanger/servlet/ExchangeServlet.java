@@ -25,8 +25,8 @@ public class ExchangeServlet extends AbstractApiServlet {
         String amount = request.getParameter("amount");
 
         ExchangeRequest requestDto = new ExchangeRequest(from, to, amount);
-
         ExchangeResponse responseDto = exchangeService.convert(requestDto);
+
         sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }
