@@ -3,7 +3,7 @@ package org.exchanger.model;
 import java.math.BigDecimal;
 
 public class ExchangeRate {
-    private final Long id;
+    private Long id;
     private final Currency baseCurrency;
     private final Currency targetCurrency;
     private BigDecimal rate;
@@ -15,8 +15,16 @@ public class ExchangeRate {
         this.rate = rate;
     }
 
+    public ExchangeRate(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
+        this(null, baseCurrency, targetCurrency, rate);
+    }
+
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Currency getBaseCurrency() {

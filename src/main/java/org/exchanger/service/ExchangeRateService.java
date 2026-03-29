@@ -1,10 +1,8 @@
 package org.exchanger.service;
 
 import org.exchanger.dto.request.ExchangeRateRequest;
-import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
-import org.exchanger.exception.CurrencyNotFoundException;
-import org.exchanger.exception.ExchangeRateNotFoundException;
+import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
@@ -13,51 +11,33 @@ import org.exchanger.repository.ExchangeRateRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ExchangeRateService extends AbstractCurrencyService {
 
     private final ExchangeRateRepository exchangeRateRepository;
+    private final ResponseMapper<ExchangeRate, ExchangeRateResponse> responseMapper;
 
-    public ExchangeRateService(CurrencyRepository currencyRepository, ExchangeRateRepository exchangeRateRepository) {
+    public ExchangeRateService(CurrencyRepository currencyRepository,
+                               ExchangeRateRepository exchangeRateRepository,
+                               ResponseMapper<ExchangeRate, ExchangeRateResponse> responseMapper) {
         super(currencyRepository);
         this.exchangeRateRepository = exchangeRateRepository;
+        this.responseMapper = responseMapper;
     }
 
     public List<ExchangeRateResponse> getAll() {
         List<ExchangeRate> exchangeRates = exchangeRateRepository.findAll();
 
-        // todo mapper
-        List<ExchangeRateResponse> exchangeRatesDto = new ArrayList<>();
+        List<ExchangeRateResponse> response = new ArrayList<>();
         for (ExchangeRate rate : exchangeRates) {
-            CurrencyResponse baseCurrencyDto = new CurrencyResponse(
-                    rate.getBaseCurrency().getId(),
-                    rate.getBaseCurrency().getFullName(),
-                    rate.getBaseCurrency().getCode(),
-                    rate.getBaseCurrency().getSign()
-            );
-
-            CurrencyResponse targetCurrencyDto = new CurrencyResponse(
-                    rate.getTargetCurrency().getId(),
-                    rate.getTargetCurrency().getFullName(),
-                    rate.getTargetCurrency().getCode(),
-                    rate.getTargetCurrency().getSign()
-            );
-
-            ExchangeRateResponse exchangeRateDto = new ExchangeRateResponse(
-                    rate.getId(),
-                    baseCurrencyDto,
-                    targetCurrencyDto,
-                    rate.getRate()
-            );
-
-            exchangeRatesDto.add(exchangeRateDto);
+            ExchangeRateResponse dto = responseMapper.toDto(rate);
+            response.add(dto);
         }
 
-        return exchangeRatesDto;
+        return response;
     }
 
-    // todo парсим по 3 символа в две карренси
+    // todo parser
     public ExchangeRateResponse get(String pair) {
         String baseCurrencyCode = pair.substring(0, 3);
         String targetCurrencyCode = pair.substring(3, 6);
@@ -66,60 +46,21 @@ public class ExchangeRateService extends AbstractCurrencyService {
         Currency target = getCurrency(targetCurrencyCode);
 
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
-        // todo mapper
-        CurrencyResponse baseCurrencyDto = new CurrencyResponse(
-                base.getId(),
-                base.getFullName(),
-                base.getCode(),
-                base.getSign()
-        );
 
-        CurrencyResponse targetCurrencyDto = new CurrencyResponse(
-                target.getId(),
-                target.getFullName(),
-                target.getCode(),
-                target.getSign()
-        );
-
-        ExchangeRateResponse exchangeRateDto = new ExchangeRateResponse(
-                exchangeRate.getId(),
-                baseCurrencyDto,
-                targetCurrencyDto,
-                exchangeRate.getRate()
-        );
-
+        ExchangeRateResponse exchangeRateDto = responseMapper.toDto(exchangeRate);
         return exchangeRateDto;
     }
 
-    public ExchangeRateResponse addExchangeRate(ExchangeRateRequest dto) {
-        Currency base = getCurrency(dto.baseCurrencyCode());
-        Currency target = getCurrency(dto.targetCurrencyCode());
-        BigDecimal rate = new BigDecimal(dto.rate());
+    public ExchangeRateResponse addExchangeRate(ExchangeRateRequest request) {
+        Currency base = getCurrency(request.baseCurrencyCode());
+        Currency target = getCurrency(request.targetCurrencyCode());
+        BigDecimal rate = new BigDecimal(request.rate());
 
-        Long exchangeRateId = exchangeRateRepository.create(base, target, rate);
+        ExchangeRate exchangeRate = new ExchangeRate(base, target, rate);
 
-        // todo mapper
-        CurrencyResponse baseCurrencyDto = new CurrencyResponse(
-                base.getId(),
-                base.getFullName(),
-                base.getCode(),
-                base.getSign()
-        );
+        Long createdId = exchangeRateRepository.create(base, target, rate);
+        exchangeRate.setId(createdId);
 
-        CurrencyResponse targetCurrencyDto = new CurrencyResponse(
-                target.getId(),
-                target.getFullName(),
-                target.getCode(),
-                target.getSign()
-        );
-
-        ExchangeRateResponse exchangeRateDto = new ExchangeRateResponse(
-                exchangeRateId,
-                baseCurrencyDto,
-                targetCurrencyDto,
-                rate
-        );
-
-        return exchangeRateDto;
+        return responseMapper.toDto(exchangeRate);
     }
 }

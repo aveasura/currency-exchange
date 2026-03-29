@@ -3,8 +3,7 @@ package org.exchanger.service;
 import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeResponse;
-import org.exchanger.exception.CurrencyNotFoundException;
-import org.exchanger.exception.ExchangeRateNotFoundException;
+import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
@@ -15,45 +14,36 @@ import java.math.BigDecimal;
 public class ExchangeService extends AbstractCurrencyService {
 
     private final ExchangeRateRepository exchangeRateRepository;
+    private final ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper;
 
-    public ExchangeService(CurrencyRepository currencyRepository, ExchangeRateRepository exchangeRateRepository) {
+    public ExchangeService(CurrencyRepository currencyRepository,
+                           ExchangeRateRepository exchangeRateRepository,
+                           ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper) {
         super(currencyRepository);
         this.exchangeRateRepository = exchangeRateRepository;
+        this.currencyResponseMapper = currencyResponseMapper;
     }
 
-    // todo reverse convert
-    public ExchangeResponse convert(ExchangeRequest dto) {
-        Currency base = getCurrency(dto.from());
-        Currency target = getCurrency(dto.to());
-        BigDecimal quantity = new BigDecimal(dto.amount());
+    // todo reverse / cross rate
+    public ExchangeResponse convert(ExchangeRequest request) {
+        Currency base = getCurrency(request.from());
+        Currency target = getCurrency(request.to());
+        BigDecimal amount = new BigDecimal(request.amount());
 
+        // todo orElseThrow
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
 
         BigDecimal rate = exchangeRate.getRate();
-        BigDecimal convertedAmount = quantity.multiply(rate);
+        BigDecimal convertedAmount = amount.multiply(rate);
 
-        // todo mapper
-        CurrencyResponse baseCurrencyDto = new CurrencyResponse(
-                base.getId(),
-                base.getFullName(),
-                base.getCode(),
-                base.getSign()
-        );
+        CurrencyResponse baseCurrencyDto = currencyResponseMapper.toDto(base);
+        CurrencyResponse targetCurrencyDto = currencyResponseMapper.toDto(target);
 
-        CurrencyResponse targetCurrencyDto = new CurrencyResponse(
-                target.getId(),
-                target.getFullName(),
-                target.getCode(),
-                target.getSign()
-        );
-
-        ExchangeResponse responseDto = new ExchangeResponse(
+        return new ExchangeResponse(
                 baseCurrencyDto,
                 targetCurrencyDto,
                 rate,
-                quantity,
+                amount,
                 convertedAmount);
-
-        return responseDto;
     }
 }

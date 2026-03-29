@@ -10,10 +10,8 @@ public abstract class AbstractCurrencyService {
         this.currencyRepository = currencyRepository;
     }
 
-    // todo null exception
     protected Currency getCurrency(String code) {
         Currency currency = currencyRepository.findCurrency(code);
-
         return currency;
     }
 }
