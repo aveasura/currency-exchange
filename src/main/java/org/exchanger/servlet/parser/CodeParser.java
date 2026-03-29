@@ -9,7 +9,7 @@ public class CodeParser {
     private static final String REGEX = "[^a-zA-Z]";
     private static final String EMPTY = "";
 
-    public String parse(HttpServletRequest request) {
+    public String getCleanPath(HttpServletRequest request) {
         String pathInfo = request.getPathInfo();
         return normalize(pathInfo);
     }
@@ -30,6 +30,6 @@ public class CodeParser {
     }
 
     private String normalize(String string) {
-        return string.replaceAll(REGEX, EMPTY).toUpperCase();
+        return string.trim().replaceAll(REGEX, EMPTY).toUpperCase();
     }
 }

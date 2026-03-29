@@ -40,7 +40,7 @@ public class CurrencyRepository extends BaseJdbcRepository {
         );
     }
 
-    public Currency findCurrency(String code) {
+    public Currency find(String code) {
         return executeSingleResult(
                 SELECT_BY_CODE_SQL,
                 preparedStatement -> preparedStatement.setString(1, code),

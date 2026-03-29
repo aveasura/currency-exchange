@@ -22,7 +22,7 @@ public class CurrencyServlet extends AbstractApiServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
-        String code = parser.parse(request);
+        String code = parser.getCleanPath(request);
         // todo validate(code);
 
         CurrencyResponse responseDto = currencyService.get(code);

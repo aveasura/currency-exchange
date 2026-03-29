@@ -26,6 +26,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
         sendJsonResponse(response, exchangeRates, HttpServletResponse.SC_OK);
     }
 
+    // todo parser ExchangeRateRequest
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         String baseCurrencyCode = request.getParameter("baseCurrencyCode");

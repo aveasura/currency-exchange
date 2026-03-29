@@ -41,11 +41,7 @@ public class ExchangeRateService extends AbstractCurrencyService {
         return response;
     }
 
-    // todo parser
-    public ExchangeRateResponse get(String pair) {
-        String baseCurrencyCode = pair.substring(0, 3);
-        String targetCurrencyCode = pair.substring(3, 6);
-
+    public ExchangeRateResponse get(String baseCurrencyCode, String targetCurrencyCode) {
         Currency base = getCurrency(baseCurrencyCode);
         Currency target = getCurrency(targetCurrencyCode);
 
@@ -77,10 +73,17 @@ public class ExchangeRateService extends AbstractCurrencyService {
 
         BigDecimal rate = new BigDecimal(request.rate());
 
-        exchangeRateRepository.patch(exchangeRate.getId(), rate);
+        exchangeRateRepository.update(exchangeRate.getId(), rate);
         exchangeRate.setRate(rate);
 
-        // todo mapper
+        return toDto(base, target, exchangeRate, rate);
+    }
+
+    // todo mapper?
+    private UpdateExchangeRateResponse toDto(Currency base,
+                                             Currency target,
+                                             ExchangeRate exchangeRate,
+                                             BigDecimal rate) {
         CurrencyResponse baseDto = new CurrencyResponse(
                 base.getId(),
                 base.getFullName(),
@@ -100,6 +103,6 @@ public class ExchangeRateService extends AbstractCurrencyService {
                 baseDto,
                 targetDto,
                 rate
-                );
+        );
     }
 }

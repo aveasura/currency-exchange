@@ -26,7 +26,7 @@ public class CurrenciesServlet extends AbstractApiServlet {
         sendJsonResponse(response, currencies, HttpServletResponse.SC_OK);
     }
 
-
+    // todo parser CurrencyRequest
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         String name = request.getParameter("name");
         String code = request.getParameter("code");

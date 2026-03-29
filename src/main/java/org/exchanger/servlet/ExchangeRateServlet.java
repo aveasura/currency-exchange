@@ -24,17 +24,22 @@ public class ExchangeRateServlet extends AbstractApiServlet {
         parser = getService("codeParser", CodeParser.class);
     }
 
+    // todo parser ExchangeRateRequest
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        String currencyPair = parser.parse(request);
-        ExchangeRateResponse responseDto = exchangeRateService.get(currencyPair);
+        String cleanPath = parser.getCleanPath(request);
+        String baseCurrencyCode = parser.extractCode(cleanPath, 0, 3);
+        String targetCurrencyCode = parser.extractCode(cleanPath, 3, 6);
+
+        ExchangeRateResponse responseDto = exchangeRateService.get(baseCurrencyCode, targetCurrencyCode);
 
         sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 
+    // todo parser ExchangeRateRequest
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String cleanPath = parser.parse(request);
+        String cleanPath = parser.getCleanPath(request);
 
         String base = parser.extractCode(cleanPath, 0, 3);
         String target = parser.extractCode(cleanPath, 3, 6);

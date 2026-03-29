@@ -18,6 +18,7 @@ public class ExchangeServlet extends AbstractApiServlet {
         exchangeService = getService("exchangeService", ExchangeService.class);
     }
 
+    // todo parser ExchangeRequest
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         String from = request.getParameter("from");
