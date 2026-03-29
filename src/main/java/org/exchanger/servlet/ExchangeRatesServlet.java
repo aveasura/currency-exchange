@@ -3,8 +3,10 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.dto.ErrorResponse;
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.exception.AppException;
 import org.exchanger.service.ExchangeRateService;
 
 import java.util.List;
@@ -22,8 +24,12 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        List<ExchangeRateResponse> exchangeRates = exchangeRateService.getAll();
-        sendResponse(response, exchangeRates, HttpServletResponse.SC_OK);
+        try {
+            List<ExchangeRateResponse> exchangeRates = exchangeRateService.getAll();
+            sendResponse(response, exchangeRates, HttpServletResponse.SC_OK);
+        } catch (AppException e) {
+            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
+        }
     }
 
     // todo parser ExchangeRateRequest

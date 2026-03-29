@@ -8,11 +8,6 @@ public class AppException extends RuntimeException {
         this.status = status;
     }
 
-    public AppException(String message, Throwable cause, int status) {
-        super(message, cause);
-        this.status = status;
-    }
-
     public int getStatus() {
         return status;
     }

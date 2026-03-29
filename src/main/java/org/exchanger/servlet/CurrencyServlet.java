@@ -29,7 +29,7 @@ public class CurrencyServlet extends AbstractApiServlet {
             String code = parser.getCleanPath(request);
             // todo validate(code);
             if (code == null || code.isEmpty()) {
-                throw new BadRequestException("Field 'code' is required");
+                throw new BadRequestException("Field 'code' is required. Example: USD");
             }
 
             CurrencyResponse responseDto = currencyService.get(code);

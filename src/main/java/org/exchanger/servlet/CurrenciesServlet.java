@@ -3,8 +3,10 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.dto.ErrorResponse;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.exception.AppException;
 import org.exchanger.service.CurrencyService;
 
 import java.util.List;
@@ -22,8 +24,12 @@ public class CurrenciesServlet extends AbstractApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        List<CurrencyResponse> currencies = currencyService.getAll();
-        sendResponse(response, currencies, HttpServletResponse.SC_OK);
+        try {
+            List<CurrencyResponse> currencies = currencyService.getAll();
+            sendResponse(response, currencies, HttpServletResponse.SC_OK);
+        } catch (AppException e) {
+            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
+        }
     }
 
     // todo parser CurrencyRequest
