@@ -3,7 +3,10 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.dto.ErrorResponse;
 import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.exception.AppException;
+import org.exchanger.exception.BadRequestException;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.servlet.parser.CodeParser;
 
@@ -22,10 +25,17 @@ public class CurrencyServlet extends AbstractApiServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
-        String code = parser.getCleanPath(request);
-        // todo validate(code);
+        try {
+            String code = parser.getCleanPath(request);
+            // todo validate(code);
+            if (code == null || code.isEmpty()) {
+                throw new BadRequestException("Field 'code' is required");
+            }
 
-        CurrencyResponse responseDto = currencyService.get(code);
-        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
+            CurrencyResponse responseDto = currencyService.get(code);
+            sendResponse(response, responseDto, HttpServletResponse.SC_OK);
+        } catch (AppException e) {
+            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
+        }
     }
 }

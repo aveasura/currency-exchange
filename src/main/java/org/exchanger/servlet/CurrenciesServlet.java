@@ -23,7 +23,7 @@ public class CurrenciesServlet extends AbstractApiServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         List<CurrencyResponse> currencies = currencyService.getAll();
-        sendJsonResponse(response, currencies, HttpServletResponse.SC_OK);
+        sendResponse(response, currencies, HttpServletResponse.SC_OK);
     }
 
     // todo parser CurrencyRequest
@@ -35,6 +35,6 @@ public class CurrenciesServlet extends AbstractApiServlet {
         CurrencyRequest requestDto = new CurrencyRequest(name, code, sign);
         CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
 
-        sendJsonResponse(response, responseDto, HttpServletResponse.SC_CREATED);
+        sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 }

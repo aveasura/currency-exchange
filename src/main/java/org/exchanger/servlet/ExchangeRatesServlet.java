@@ -23,7 +23,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         List<ExchangeRateResponse> exchangeRates = exchangeRateService.getAll();
-        sendJsonResponse(response, exchangeRates, HttpServletResponse.SC_OK);
+        sendResponse(response, exchangeRates, HttpServletResponse.SC_OK);
     }
 
     // todo parser ExchangeRateRequest
@@ -41,6 +41,6 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
 
         ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
 
-        sendJsonResponse(response, responseDto, HttpServletResponse.SC_CREATED);
+        sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 }

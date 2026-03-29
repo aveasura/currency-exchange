@@ -33,7 +33,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
 
         ExchangeRateResponse responseDto = exchangeRateService.get(baseCurrencyCode, targetCurrencyCode);
 
-        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
+        sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 
     // todo parser ExchangeRateRequest
@@ -48,6 +48,6 @@ public class ExchangeRateServlet extends AbstractApiServlet {
         UpdateExchangeRateRequest updateRequest = new UpdateExchangeRateRequest(base, target, rate);
         UpdateExchangeRateResponse responseDto = exchangeRateService.patchExchangeRate(updateRequest);
 
-        sendJsonResponse(response, responseDto, HttpServletResponse.SC_OK);
+        sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }

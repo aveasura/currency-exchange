@@ -22,15 +22,19 @@ public abstract class AbstractApiServlet extends HttpServlet {
         return serviceClass.cast(getServletContext().getAttribute(attribute));
     }
 
-    protected void sendJsonResponse(HttpServletResponse response, Object body, int status) {
+    protected void sendResponse(HttpServletResponse response, Object body, int status) {
         try {
-            response.setContentType(CONTENT_TYPE);
-            response.setCharacterEncoding(CHARACTER_ENCODING);
-            response.setStatus(status);
+            configureResponse(response, status);
 
             objectMapper.writeValue(response.getWriter(), body);
         } catch (IOException e) {
             throw new RuntimeException("Error when try mapping JSON", e);
         }
+    }
+
+    private void configureResponse(HttpServletResponse response, int status) {
+        response.setContentType(CONTENT_TYPE);
+        response.setCharacterEncoding(CHARACTER_ENCODING);
+        response.setStatus(status);
     }
 }
