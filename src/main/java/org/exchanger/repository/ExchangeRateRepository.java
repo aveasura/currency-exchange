@@ -38,6 +38,13 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
             RETURNING id
             """;
 
+    private static final String PATCH_SQL = """
+            UPDATE exchange_rates
+            SET (rate) = ?
+            WHERE id = ?
+            RETURNING rate
+            """;
+
     public ExchangeRateRepository(ConnectionProvider connectionProvider) {
         super(connectionProvider);
     }
@@ -100,6 +107,20 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                         ),
                         resultSet.getBigDecimal("rate")
                 )
+        );
+    }
+
+    public void patch(Long exchangeRateId, BigDecimal rate) {
+        executeSingleResult(
+                PATCH_SQL,
+                preparedStatement -> {
+                    preparedStatement.setBigDecimal(1, rate);
+                    System.out.println("repo rate" + rate);
+                    preparedStatement.setLong(2, exchangeRateId);
+                    System.out.println("id ex: " + exchangeRateId);
+                },
+                resultSet -> resultSet.getBigDecimal("rate"),
+                () -> new DataAccessException("Update exchange rate error")
         );
     }
 }

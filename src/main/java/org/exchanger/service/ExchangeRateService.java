@@ -1,7 +1,10 @@
 package org.exchanger.service;
 
 import org.exchanger.dto.request.ExchangeRateRequest;
+import org.exchanger.dto.request.UpdateExchangeRateRequest;
+import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
@@ -63,5 +66,40 @@ public class ExchangeRateService extends AbstractCurrencyService {
         exchangeRate.setId(createdId);
 
         return responseMapper.toDto(exchangeRate);
+    }
+
+    public UpdateExchangeRateResponse patchExchangeRate(UpdateExchangeRateRequest request) {
+        Currency base = getCurrency(request.baseCurrencyCode());
+        Currency target = getCurrency(request.targetCurrencyCode());
+
+        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
+                .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
+
+        BigDecimal rate = new BigDecimal(request.rate());
+
+        exchangeRateRepository.patch(exchangeRate.getId(), rate);
+        exchangeRate.setRate(rate);
+
+        // todo mapper
+        CurrencyResponse baseDto = new CurrencyResponse(
+                base.getId(),
+                base.getFullName(),
+                base.getCode(),
+                base.getSign()
+        );
+
+        CurrencyResponse targetDto = new CurrencyResponse(
+                target.getId(),
+                target.getFullName(),
+                target.getCode(),
+                target.getSign()
+        );
+
+        return new UpdateExchangeRateResponse(
+                exchangeRate.getId(),
+                baseDto,
+                targetDto,
+                rate
+                );
     }
 }
