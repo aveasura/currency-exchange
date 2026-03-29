@@ -2,15 +2,15 @@ package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
 import org.exchanger.exception.DataAccessException;
-import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateRepository extends BaseJdbcRepository {
-    private static final String GET_ALL_EXISTING_RATES_SQL = """
+    private static final String SELECT_ALL_SQL = """
             SELECT er.id AS id,
             er.rate AS rate,
             base.id AS baseId,
@@ -26,13 +26,13 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
             JOIN currencies target ON er.target_currency_id = target.id
             """;
 
-    private static final String GET_PAIR_RATES_SQL =
-            GET_ALL_EXISTING_RATES_SQL + """
+    private static final String SELECT_BY_CURRENCIES_ID_SQL =
+            SELECT_ALL_SQL + """
                     WHERE er.base_currency_id = ?
                     AND er.target_currency_id = ?
                     """;
 
-    private static final String INSERT_INTO_EXCHANGE_RATES = """
+    private static final String INSERT_SQL = """
             INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate)
             VALUES(?, ?, ?)
             RETURNING id
@@ -42,33 +42,23 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
         super(connectionProvider);
     }
 
-    public List<ExchangeRate> findAll() {
-        List<ExchangeRate> exchangeRates = executeList(
-                GET_ALL_EXISTING_RATES_SQL,
-                resultSet -> new ExchangeRate(
-                        resultSet.getLong("id"),
-                        new Currency(
-                                resultSet.getLong("baseId"),
-                                resultSet.getString("baseFullName"),
-                                resultSet.getString("baseCode"),
-                                resultSet.getString("baseSign")
-                        ),
-                        new Currency(
-                                resultSet.getLong("targetId"),
-                                resultSet.getString("targetFullName"),
-                                resultSet.getString("targetCode"),
-                                resultSet.getString("targetSign")
-                        ),
-                        resultSet.getBigDecimal("rate")
-                )
-        );
+    public Long create(Currency base, Currency target, BigDecimal rate) {
+        Long id = executeSingleResult(
+                INSERT_SQL,
+                preparedStatement -> {
+                    preparedStatement.setLong(1, base.getId());
+                    preparedStatement.setLong(2, target.getId());
+                    preparedStatement.setBigDecimal(3, rate);
+                },
+                resultSet -> resultSet.getLong("id"),
+                () -> new DataAccessException("Create exchange rate error, failed assign id"));
 
-        return exchangeRates;
+        return id;
     }
 
-    public ExchangeRate find(Long baseCurrencyId, Long targetCurrencyId) {
-        ExchangeRate exchangeRate = executeSingleResult(
-                GET_PAIR_RATES_SQL,
+    public Optional<ExchangeRate> find(Long baseCurrencyId, Long targetCurrencyId) {
+        List<ExchangeRate> result = executeList(
+                SELECT_BY_CURRENCIES_ID_SQL,
                 preparedStatement -> {
                     preparedStatement.setLong(1, baseCurrencyId);
                     preparedStatement.setLong(2, targetCurrencyId);
@@ -87,26 +77,31 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                                 resultSet.getString("targetCode"),
                                 resultSet.getString("targetSign")
                         ),
-                        resultSet.getBigDecimal("rate")),
-
-                // todo возможно нужно перенести в service ( .orElseThrow через Optional )
-                () -> new ExchangeRateNotFoundException("валюта_1", "валюта_2")
+                        resultSet.getBigDecimal("rate"))
         );
 
-        return exchangeRate;
+        return result.stream().findFirst();
     }
 
-    public Long create(Currency base, Currency target, BigDecimal rate) {
-        Long id = executeSingleResult(
-                INSERT_INTO_EXCHANGE_RATES,
-                preparedStatement -> {
-                    preparedStatement.setLong(1, base.getId());
-                    preparedStatement.setLong(2, target.getId());
-                    preparedStatement.setBigDecimal(3, rate);
-                },
-                resultSet -> resultSet.getLong("id"),
-                () -> new DataAccessException("Create exchange rate error, failed assign id"));
-
-        return id;
+    public List<ExchangeRate> findAll() {
+        return executeList(
+                SELECT_ALL_SQL,
+                resultSet -> new ExchangeRate(
+                        resultSet.getLong("id"),
+                        new Currency(
+                                resultSet.getLong("baseId"),
+                                resultSet.getString("baseFullName"),
+                                resultSet.getString("baseCode"),
+                                resultSet.getString("baseSign")
+                        ),
+                        new Currency(
+                                resultSet.getLong("targetId"),
+                                resultSet.getString("targetFullName"),
+                                resultSet.getString("targetCode"),
+                                resultSet.getString("targetSign")
+                        ),
+                        resultSet.getBigDecimal("rate")
+                )
+        );
     }
 }

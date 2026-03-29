@@ -2,6 +2,7 @@ package org.exchanger.service;
 
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
@@ -45,10 +46,10 @@ public class ExchangeRateService extends AbstractCurrencyService {
         Currency base = getCurrency(baseCurrencyCode);
         Currency target = getCurrency(targetCurrencyCode);
 
-        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
+        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
+                .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
 
-        ExchangeRateResponse exchangeRateDto = responseMapper.toDto(exchangeRate);
-        return exchangeRateDto;
+        return responseMapper.toDto(exchangeRate);
     }
 
     public ExchangeRateResponse addExchangeRate(ExchangeRateRequest request) {

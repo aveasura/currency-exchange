@@ -3,6 +3,7 @@ package org.exchanger.service;
 import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeResponse;
+import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
@@ -30,8 +31,8 @@ public class ExchangeService extends AbstractCurrencyService {
         Currency target = getCurrency(request.to());
         BigDecimal amount = new BigDecimal(request.amount());
 
-        // todo orElseThrow
-        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId());
+        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
+                .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
 
         BigDecimal rate = exchangeRate.getRate();
         BigDecimal convertedAmount = amount.multiply(rate);

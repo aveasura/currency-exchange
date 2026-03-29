@@ -41,11 +41,15 @@ public abstract class BaseJdbcRepository {
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Database error while executing single result query", e);
         }
     }
 
-    protected <T> List<T> executeList(String sql, PreparedStatementSetter statementSetter, RowMapper<T> rowMapper) {
+    protected <T> List<T> executeList(
+            String sql,
+            PreparedStatementSetter statementSetter,
+            RowMapper<T> rowMapper
+    ) {
         try (Connection connection = connectionProvider.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
@@ -59,12 +63,10 @@ public abstract class BaseJdbcRepository {
                     result.add(rowMapper.mapRow(resultSet));
                 }
                 return result;
-            } catch (SQLException e) {
-                throw new RuntimeException("Data base exception: " + e.getMessage());
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("b");
+            throw new DataAccessException("Database error while executing list query", e);
         }
     }
 
