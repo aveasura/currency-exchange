@@ -27,8 +27,21 @@ public class CurrencyRepository extends BaseJdbcRepository {
         super(connectionProvider);
     }
 
+    public Long create(String code, String name, String sign) {
+        return executeSingleResult(
+                INSERT_SQL,
+                preparedStatement -> {
+                    preparedStatement.setString(1, code);
+                    preparedStatement.setString(2, name);
+                    preparedStatement.setString(3, sign);
+                },
+                resultSet -> resultSet.getLong("id"),
+                () -> new DataAccessException("Create currency error, failed to assign id")
+        );
+    }
+
     public Currency findCurrency(String code) {
-        Currency currency = executeSingleResult(
+        return executeSingleResult(
                 SELECT_BY_CODE_SQL,
                 preparedStatement -> preparedStatement.setString(1, code),
                 resultSet -> new Currency(
@@ -38,12 +51,10 @@ public class CurrencyRepository extends BaseJdbcRepository {
                         resultSet.getString("sign")
                 ),
                 () -> new CurrencyNotFoundException(code));
-
-        return currency;
     }
 
     public List<Currency> findAll() {
-        List<Currency> currencies = executeList(
+        return executeList(
                 SELECT_ALL_SQL,
                 resultSet -> new Currency(
                         resultSet.getLong("id"),
@@ -52,22 +63,5 @@ public class CurrencyRepository extends BaseJdbcRepository {
                         resultSet.getString("sign")
                 )
         );
-
-        return currencies;
-    }
-
-    public Long create(Currency currency) {
-        Long id = executeSingleResult(
-                INSERT_SQL,
-                preparedStatement -> {
-                    preparedStatement.setString(1, currency.getCode());
-                    preparedStatement.setString(2, currency.getFullName());
-                    preparedStatement.setString(3, currency.getSign());
-                },
-                resultSet -> resultSet.getLong("id"),
-                () -> new DataAccessException("Create currency error, failed to assign id")
-        );
-
-        return id;
     }
 }

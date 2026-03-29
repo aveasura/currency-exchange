@@ -42,18 +42,16 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
         super(connectionProvider);
     }
 
-    public Long create(Currency base, Currency target, BigDecimal rate) {
-        Long id = executeSingleResult(
+    public Long create(Long baseCurrencyId, Long targetCurrencyId, BigDecimal rate) {
+        return executeSingleResult(
                 INSERT_SQL,
                 preparedStatement -> {
-                    preparedStatement.setLong(1, base.getId());
-                    preparedStatement.setLong(2, target.getId());
+                    preparedStatement.setLong(1, baseCurrencyId);
+                    preparedStatement.setLong(2, targetCurrencyId);
                     preparedStatement.setBigDecimal(3, rate);
                 },
                 resultSet -> resultSet.getLong("id"),
                 () -> new DataAccessException("Create exchange rate error, failed assign id"));
-
-        return id;
     }
 
     public Optional<ExchangeRate> find(Long baseCurrencyId, Long targetCurrencyId) {

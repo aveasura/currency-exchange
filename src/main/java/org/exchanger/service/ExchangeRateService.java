@@ -59,7 +59,7 @@ public class ExchangeRateService extends AbstractCurrencyService {
 
         ExchangeRate exchangeRate = new ExchangeRate(base, target, rate);
 
-        Long createdId = exchangeRateRepository.create(base, target, rate);
+        Long createdId = exchangeRateRepository.create(base.getId(), target.getId(), rate);
         exchangeRate.setId(createdId);
 
         return responseMapper.toDto(exchangeRate);

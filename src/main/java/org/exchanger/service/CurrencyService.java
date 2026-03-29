@@ -26,11 +26,10 @@ public class CurrencyService extends AbstractCurrencyService {
     public CurrencyResponse createCurrency(CurrencyRequest dto) {
         Currency currency = requestMapper.toEntity(dto);
 
-        Long id = currencyRepository.create(currency);
+        Long id = currencyRepository.create(currency.getCode(), currency.getFullName(), currency.getSign());
         currency.setId(id);
 
-        CurrencyResponse responseDto = responseMapper.toDto(currency);
-        return responseDto;
+        return responseMapper.toDto(currency);
     }
 
     public CurrencyResponse get(String code) {
