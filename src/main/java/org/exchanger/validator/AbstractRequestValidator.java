@@ -15,10 +15,10 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
     private static final String INVALID_CODE_MESSAGE =
             "Currency code should contain exactly 3 latin letters. Example: EUR";
 
-    protected void validateCodesAndPositiveNumber(String base, String target, String rate) {
+    protected void validateCodesAndPositiveNumber(String base, String target, String rawNumber) {
         validateCode(base);
         validateCode(target);
-        validateNumericValue(rate);
+        validateNumericValue(rawNumber);
     }
 
     protected void validateCode(String code) {
@@ -27,12 +27,12 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         }
     }
 
-    protected void validateNumericValue(String value) {
-        if (value == null || value.isBlank()) {
+    protected void validateNumericValue(String rawNumber) {
+        if (rawNumber == null || rawNumber.isBlank()) {
             throw new BadRequestException("Number is missing");
         }
 
-        String number = value.trim();
+        String number = rawNumber.trim();
 
         if (!NUMBER_PATTERN.matcher(number).matches()) {
             throw new BadRequestException("Invalid number format. Example: 0.86 or 1");
