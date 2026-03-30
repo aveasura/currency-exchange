@@ -6,6 +6,8 @@ import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,27 +25,23 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
             target.sign AS targetSign
             FROM exchange_rates er
             JOIN currencies base ON er.base_currency_id = base.id
-            JOIN currencies target ON er.target_currency_id = target.id
-            """;
+            JOIN currencies target ON er.target_currency_id = target.id""";
 
     private static final String SELECT_BY_CURRENCIES_ID_SQL =
             SELECT_ALL_SQL + """
                     WHERE er.base_currency_id = ?
-                    AND er.target_currency_id = ?
-                    """;
+                    AND er.target_currency_id = ?""";
 
     private static final String INSERT_SQL = """
             INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate)
             VALUES(?, ?, ?)
-            RETURNING id
-            """;
+            RETURNING id""";
 
     private static final String UPDATE_EXCHANGE_RATE_SQL = """
             UPDATE exchange_rates
             SET rate = ?
             WHERE id = ?
-            RETURNING rate
-            """;
+            RETURNING rate""";
 
     public ExchangeRateRepository(ConnectionProvider connectionProvider) {
         super(connectionProvider);
@@ -68,21 +66,7 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                     preparedStatement.setLong(1, baseCurrencyId);
                     preparedStatement.setLong(2, targetCurrencyId);
                 },
-                resultSet -> new ExchangeRate(
-                        resultSet.getLong("id"),
-                        new Currency(
-                                resultSet.getLong("baseId"),
-                                resultSet.getString("baseFullName"),
-                                resultSet.getString("baseCode"),
-                                resultSet.getString("baseSign")
-                        ),
-                        new Currency(
-                                resultSet.getLong("targetId"),
-                                resultSet.getString("targetFullName"),
-                                resultSet.getString("targetCode"),
-                                resultSet.getString("targetSign")
-                        ),
-                        resultSet.getBigDecimal("rate"))
+                this::mapExchangeRate
         );
         return result.stream().findFirst();
     }
@@ -90,22 +74,7 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
     public List<ExchangeRate> findAll() {
         return executeList(
                 SELECT_ALL_SQL,
-                resultSet -> new ExchangeRate(
-                        resultSet.getLong("id"),
-                        new Currency(
-                                resultSet.getLong("baseId"),
-                                resultSet.getString("baseFullName"),
-                                resultSet.getString("baseCode"),
-                                resultSet.getString("baseSign")
-                        ),
-                        new Currency(
-                                resultSet.getLong("targetId"),
-                                resultSet.getString("targetFullName"),
-                                resultSet.getString("targetCode"),
-                                resultSet.getString("targetSign")
-                        ),
-                        resultSet.getBigDecimal("rate")
-                )
+                this::mapExchangeRate
         );
     }
 
@@ -118,6 +87,25 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                 },
                 resultSet -> resultSet.getBigDecimal("rate"),
                 () -> new DataAccessException("Update exchange rate error")
+        );
+    }
+
+    private ExchangeRate mapExchangeRate(ResultSet resultSet) throws SQLException {
+        return new ExchangeRate(
+                resultSet.getLong("id"),
+                new Currency(
+                        resultSet.getLong("baseId"),
+                        resultSet.getString("baseFullName"),
+                        resultSet.getString("baseCode"),
+                        resultSet.getString("baseSign")
+                ),
+                new Currency(
+                        resultSet.getLong("targetId"),
+                        resultSet.getString("targetFullName"),
+                        resultSet.getString("targetCode"),
+                        resultSet.getString("targetSign")
+                ),
+                resultSet.getBigDecimal("rate")
         );
     }
 }
