@@ -12,7 +12,7 @@ public abstract class AbstractCurrencyService {
 
     protected Currency getCurrency(String code) {
         String normalizedCode = normalize(code);
-        return currencyRepository.find(normalizedCode);
+        return currencyRepository.findByCode(normalizedCode);
     }
 
     private String normalize(String code) {

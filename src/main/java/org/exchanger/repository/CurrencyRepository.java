@@ -19,12 +19,14 @@ public class CurrencyRepository extends BaseJdbcRepository {
     private static final String SELECT_BY_CODE_SQL = """
             SELECT id, code, full_name, sign
             FROM currencies
-            WHERE code = ?""";
+            WHERE code = ?
+            """;
 
     private static final String SELECT_ALL_SQL = """
             SELECT id, code, full_name, sign
             FROM currencies
-            ORDER BY id""";
+            ORDER BY id
+            """;
 
     public CurrencyRepository(ConnectionProvider connectionProvider) {
         super(connectionProvider);
@@ -39,11 +41,11 @@ public class CurrencyRepository extends BaseJdbcRepository {
                     preparedStatement.setString(3, sign);
                 },
                 resultSet -> resultSet.getLong("id"),
-                () -> new DataAccessException("Create currency error, failed to assign id")
+                () -> new DataAccessException("Create currency error: failed to assign id")
         );
     }
 
-    public Currency find(String code) {
+    public Currency findByCode(String code) {
         return executeSingleResult(
                 SELECT_BY_CODE_SQL,
                 preparedStatement -> preparedStatement.setString(1, code),
