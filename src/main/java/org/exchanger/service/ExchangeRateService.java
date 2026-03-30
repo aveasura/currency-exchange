@@ -45,7 +45,7 @@ public class ExchangeRateService extends AbstractCurrencyService {
         Currency base = getCurrency(baseCurrencyCode);
         Currency target = getCurrency(targetCurrencyCode);
 
-        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
+        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.getId(), target.getId())
                 .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
 
         return responseMapper.toDto(exchangeRate);
@@ -69,10 +69,10 @@ public class ExchangeRateService extends AbstractCurrencyService {
         Currency target = getCurrency(request.targetCurrencyCode());
         BigDecimal rate = request.rate();
 
-        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
+        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.getId(), target.getId())
                 .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
 
-        exchangeRateRepository.update(exchangeRate.getId(), rate);
+        exchangeRateRepository.updateRateById(exchangeRate.getId(), rate);
         exchangeRate.setRate(rate);
 
         return toDto(base, target, exchangeRate, rate);

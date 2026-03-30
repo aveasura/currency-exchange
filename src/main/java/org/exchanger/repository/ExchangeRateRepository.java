@@ -32,7 +32,7 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
             ORDER BY er.id
             """;
 
-    private static final String SELECT_BY_CURRENCIES_ID_SQL = BASE_SELECT_SQL + """
+    private static final String SELECT_BY_BASE_AND_TARGET_CURRENCY_IDS_SQL = BASE_SELECT_SQL + """
             WHERE er.base_currency_id = ?
             AND er.target_currency_id = ?
             """;
@@ -43,7 +43,7 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
             RETURNING id
             """;
 
-    private static final String UPDATE_EXCHANGE_RATE_SQL = """
+    private static final String UPDATE_RATE_BY_ID_SQL = """
             UPDATE exchange_rates
             SET rate = ?
             WHERE id = ?
@@ -66,16 +66,16 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
                 () -> new DataAccessException("Create exchange rate error, failed assign id"));
     }
 
-    public Optional<ExchangeRate> find(Long baseCurrencyId, Long targetCurrencyId) {
-        List<ExchangeRate> result = executeList(
-                SELECT_BY_CURRENCIES_ID_SQL,
+    public Optional<ExchangeRate> findByBaseCurrencyIdAndTargetCurrencyId(Long baseCurrencyId, Long targetCurrencyId) {
+        List<ExchangeRate> exchangeRates = executeList(
+                SELECT_BY_BASE_AND_TARGET_CURRENCY_IDS_SQL,
                 preparedStatement -> {
                     preparedStatement.setLong(1, baseCurrencyId);
                     preparedStatement.setLong(2, targetCurrencyId);
                 },
                 this::mapExchangeRate
         );
-        return result.stream().findFirst();
+        return exchangeRates.stream().findFirst();
     }
 
     public List<ExchangeRate> findAll() {
@@ -85,9 +85,9 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
         );
     }
 
-    public void update(Long exchangeRateId, BigDecimal rate) {
+    public void updateRateById(Long exchangeRateId, BigDecimal rate) {
         executeSingleResult(
-                UPDATE_EXCHANGE_RATE_SQL,
+                UPDATE_RATE_BY_ID_SQL,
                 preparedStatement -> {
                     preparedStatement.setBigDecimal(1, rate);
                     preparedStatement.setLong(2, exchangeRateId);

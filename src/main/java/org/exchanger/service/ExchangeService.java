@@ -54,12 +54,12 @@ public class ExchangeService extends AbstractCurrencyService {
             return BigDecimal.ONE;
         }
 
-        Optional<ExchangeRate> directRate = exchangeRateRepository.find(base.getId(), target.getId());
+        Optional<ExchangeRate> directRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.getId(), target.getId());
         if (directRate.isPresent()) {
             return directRate.get().getRate();
         }
 
-        Optional<ExchangeRate> reverseRate = exchangeRateRepository.find(target.getId(), base.getId());
+        Optional<ExchangeRate> reverseRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(target.getId(), base.getId());
 
         return reverseRate.map(exchangeRate -> BigDecimal.ONE.divide(exchangeRate.getRate(), 6, RoundingMode.HALF_UP))
                 .orElseGet(() -> findCrossRate(base, target));
@@ -68,8 +68,8 @@ public class ExchangeService extends AbstractCurrencyService {
     private BigDecimal findCrossRate(Currency base, Currency target) {
         Currency usd = getCurrency(CROSS_RATE_CURRENCY_CODE);
 
-        Optional<ExchangeRate> usdToBase = exchangeRateRepository.find(usd.getId(), base.getId());
-        Optional<ExchangeRate> usdToTarget = exchangeRateRepository.find(usd.getId(), target.getId());
+        Optional<ExchangeRate> usdToBase = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(usd.getId(), base.getId());
+        Optional<ExchangeRate> usdToTarget = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(usd.getId(), target.getId());
 
         if (usdToBase.isPresent() && usdToTarget.isPresent()) {
             return usdToTarget.get().getRate()
