@@ -2,7 +2,6 @@ package org.exchanger.servlet.parser;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.CurrencyRequest;
-import org.exchanger.exception.BadRequestException;
 
 public class CurrencyRequestParser extends AbstractRequestParser<CurrencyRequest> {
 

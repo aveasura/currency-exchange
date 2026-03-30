@@ -3,10 +3,8 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.exception.BadRequestException;
-import org.exchanger.exception.DataAccessException;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRequest> {
 

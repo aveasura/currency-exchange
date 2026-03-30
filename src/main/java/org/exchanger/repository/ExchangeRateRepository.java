@@ -79,10 +79,7 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
     }
 
     public List<ExchangeRate> findAll() {
-        return executeList(
-                SELECT_ALL_SQL,
-                this::mapExchangeRate
-        );
+        return executeList(SELECT_ALL_SQL, this::mapExchangeRate);
     }
 
     public void updateRateById(Long exchangeRateId, BigDecimal rate) {
