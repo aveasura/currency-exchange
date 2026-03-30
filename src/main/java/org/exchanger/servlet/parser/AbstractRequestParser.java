@@ -3,7 +3,6 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.exception.BadRequestException;
 
-import java.math.BigDecimal;
 import java.util.Locale;
 
 public abstract class AbstractRequestParser<T> implements RequestParser<T> {
@@ -38,13 +37,5 @@ public abstract class AbstractRequestParser<T> implements RequestParser<T> {
 
     protected String normalizeCode(String code) {
         return code.trim().toUpperCase(Locale.ROOT);
-    }
-
-    protected BigDecimal parseBigDecimal(String rawValue, String fieldName) {
-        try {
-            return new BigDecimal(rawValue);
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("Field '" + fieldName + "' should be numeric");
-        }
     }
 }

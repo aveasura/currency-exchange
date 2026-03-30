@@ -3,8 +3,6 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.ExchangeRequest;
 
-import java.math.BigDecimal;
-
 public class ExchangeRequestParser extends AbstractRequestParser<ExchangeRequest> {
 
     private static final String FROM_PARAM = "from";
@@ -19,8 +17,7 @@ public class ExchangeRequestParser extends AbstractRequestParser<ExchangeRequest
 
         String from = normalizeCode(rawFrom);
         String to = normalizeCode(rawTo);
-        BigDecimal amount = parseBigDecimal(rawAmount, AMOUNT_PARAM);
 
-        return new ExchangeRequest(from, to, amount);
+        return new ExchangeRequest(from, to, rawAmount);
     }
 }

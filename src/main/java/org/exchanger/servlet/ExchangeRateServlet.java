@@ -14,6 +14,8 @@ import org.exchanger.servlet.parser.CurrencyPairParser;
 import org.exchanger.servlet.parser.CurrencyPairRequest;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.servlet.parser.UpdateRateParser;
+import org.exchanger.validator.RequestValidator;
+import org.exchanger.validator.UpdateExchangeRateValidator;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends AbstractApiServlet {
@@ -21,6 +23,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
     private ExchangeRateService exchangeRateService;
     private RequestParser<CurrencyPairRequest> codeParser;
     private RequestParser<UpdateExchangeRateRequest> updateParser;
+    private RequestValidator<UpdateExchangeRateRequest> validator;
 
     @Override
     public void init() {
@@ -28,14 +31,13 @@ public class ExchangeRateServlet extends AbstractApiServlet {
         exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, ExchangeRateService.class);
         this.codeParser = new CurrencyPairParser();
         this.updateParser = new UpdateRateParser(codeParser);
+        this.validator = new UpdateExchangeRateValidator();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         try {
             CurrencyPairRequest pair = codeParser.parse(request);
-            // todo validate(pair)
-
             ExchangeRateResponse responseDto = exchangeRateService.get(pair.base(), pair.target());
 
             sendResponse(response, responseDto, HttpServletResponse.SC_OK);
@@ -48,7 +50,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) {
         try {
             UpdateExchangeRateRequest updateRequest = updateParser.parse(request);
-            // todo validate(updateRequest)
+            validator.validate(updateRequest);
 
             UpdateExchangeRateResponse responseDto = exchangeRateService.patchExchangeRate(updateRequest);
 

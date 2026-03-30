@@ -11,6 +11,8 @@ import org.exchanger.exception.AppException;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.servlet.parser.ExchangeRateParser;
 import org.exchanger.servlet.parser.RequestParser;
+import org.exchanger.validator.ExchangeRateRequestValidator;
+import org.exchanger.validator.RequestValidator;
 
 import java.util.List;
 
@@ -19,12 +21,14 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
 
     private ExchangeRateService exchangeRateService;
     private RequestParser<ExchangeRateRequest> parser;
+    private RequestValidator<ExchangeRateRequest> validator;
 
     @Override
     public void init() {
         super.init();
         exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, ExchangeRateService.class);
         this.parser = new ExchangeRateParser();
+        this.validator = new ExchangeRateRequestValidator();
     }
 
     @Override
@@ -37,12 +41,11 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
         }
     }
 
-    // todo parser ExchangeRateRequest
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         try {
             ExchangeRateRequest requestDto = parser.parse(request);
-            //todo validate(requestDto)
+            validator.validate(requestDto);
 
             ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
 

@@ -2,6 +2,7 @@ package org.exchanger.servlet.parser;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
+import org.exchanger.exception.BadRequestException;
 import org.exchanger.exception.DataAccessException;
 
 import java.io.IOException;
@@ -21,10 +22,9 @@ public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRe
     @Override
     public UpdateExchangeRateRequest parse(HttpServletRequest request) {
         CurrencyPairRequest codes = codeParser.parse(request);
-        String extractedRate = extractRate(request);
-        BigDecimal rate = parseBigDecimal(extractedRate, RATE_PARAM);
+        String rawRate = extractRate(request);
 
-        return new UpdateExchangeRateRequest(codes.base(), codes.target(), rate);
+        return new UpdateExchangeRateRequest(codes.base(), codes.target(), rawRate);
     }
 
     private String extractRate(HttpServletRequest request) {
@@ -32,10 +32,11 @@ public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRe
         try {
             body = request.getReader().readLine();
         } catch (IOException e) {
-            throw new DataAccessException("Fail read line when try extractRate");
+            // todo
+            throw new BadRequestException("Failed to read request body");
         }
         if (body == null || !body.startsWith(RATE_PREFIX)) {
-            return null;
+            throw new BadRequestException("Field 'rate' required");
         }
         return java.net.URLDecoder.decode(
                 body.substring(RATE_PREFIX.length()),

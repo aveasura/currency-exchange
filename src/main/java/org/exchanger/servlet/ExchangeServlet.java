@@ -11,26 +11,29 @@ import org.exchanger.exception.AppException;
 import org.exchanger.service.ExchangeService;
 import org.exchanger.servlet.parser.ExchangeRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
+import org.exchanger.validator.ExchangeRequestValidator;
+import org.exchanger.validator.RequestValidator;
 
 @WebServlet("/exchange")
 public class ExchangeServlet extends AbstractApiServlet {
 
     private ExchangeService exchangeService;
     private RequestParser<ExchangeRequest> parser;
+    private RequestValidator<ExchangeRequest> validator;
 
     @Override
     public void init() {
         super.init();
         exchangeService = getService(ContextAttributes.EXCHANGE_SERVICE, ExchangeService.class);
         this.parser = new ExchangeRequestParser();
+        this.validator = new ExchangeRequestValidator();
     }
 
-    // todo parser ExchangeRequest
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         try {
             ExchangeRequest requestDto = parser.parse(request);
-            // todo validate(requestDto)
+            validator.validate(requestDto);
 
             ExchangeResponse responseDto = exchangeService.convert(requestDto);
 

@@ -3,8 +3,6 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.ExchangeRateRequest;
 
-import java.math.BigDecimal;
-
 public class ExchangeRateParser extends AbstractRequestParser<ExchangeRateRequest> {
 
     private static final String BASE_CURRENCY_CODE_PARAM = "baseCurrencyCode";
@@ -13,11 +11,13 @@ public class ExchangeRateParser extends AbstractRequestParser<ExchangeRateReques
 
     @Override
     public ExchangeRateRequest parse(HttpServletRequest request) {
-        String baseCurrencyCode = getRequiredParameter(request, BASE_CURRENCY_CODE_PARAM);
-        String targetCurrencyCode = getRequiredParameter(request, TARGET_CURRENCY_CODE_PARAM);
+        String rawBase = getRequiredParameter(request, BASE_CURRENCY_CODE_PARAM);
+        String rawTarget = getRequiredParameter(request, TARGET_CURRENCY_CODE_PARAM);
         String rawRate = getRequiredParameter(request, RATE_PARAM);
-        BigDecimal rate = parseBigDecimal(rawRate, RATE_PARAM);
 
-        return new ExchangeRateRequest(baseCurrencyCode, targetCurrencyCode, rate);
+        String baseCurrencyCode = normalizeCode(rawBase);
+        String targetCurrencyCode = normalizeCode(rawTarget);
+
+        return new ExchangeRateRequest(baseCurrencyCode, targetCurrencyCode, rawRate);
     }
 }

@@ -3,6 +3,8 @@ package org.exchanger.service;
 import org.exchanger.model.Currency;
 import org.exchanger.repository.CurrencyRepository;
 
+import java.util.Locale;
+
 public abstract class AbstractCurrencyService {
     protected final CurrencyRepository currencyRepository;
 
@@ -16,6 +18,6 @@ public abstract class AbstractCurrencyService {
     }
 
     private String normalize(String code) {
-        return code.trim().toUpperCase();
+        return code.trim().toUpperCase(Locale.ROOT);
     }
 }

@@ -11,6 +11,8 @@ import org.exchanger.exception.AppException;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.servlet.parser.CurrencyRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
+import org.exchanger.validator.CurrencyRequestValidator;
+import org.exchanger.validator.RequestValidator;
 
 import java.util.List;
 
@@ -19,12 +21,14 @@ public class CurrenciesServlet extends AbstractApiServlet {
 
     private CurrencyService currencyService;
     private RequestParser<CurrencyRequest> parser;
+    private RequestValidator<CurrencyRequest> validator;
 
     @Override
     public void init() {
         super.init();
         currencyService = getService(ContextAttributes.CURRENCY_SERVICE, CurrencyService.class);
         this.parser = new CurrencyRequestParser();
+        this.validator = new CurrencyRequestValidator();
     }
 
     @Override
@@ -40,7 +44,7 @@ public class CurrenciesServlet extends AbstractApiServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         try {
             CurrencyRequest requestDto = parser.parse(request);
-            // todo validate(requestDto)
+            validator.validate(requestDto);
 
             CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
 
