@@ -4,6 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.exception.AppException;
 import tools.jackson.databind.ObjectMapper;
@@ -20,7 +21,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
 
     @Override
     public void init() {
-        this.objectMapper = (ObjectMapper) getServletContext().getAttribute("objectMapper");
+        this.objectMapper = (ObjectMapper) getServletContext().getAttribute(ContextAttributes.OBJECT_MAPPER);
     }
 
     @Override
