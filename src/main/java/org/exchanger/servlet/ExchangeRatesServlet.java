@@ -3,11 +3,13 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.dto.request.ExchangeRateRequest;
+import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.exception.AppException;
 import org.exchanger.service.ExchangeRateService;
+import org.exchanger.servlet.parser.ExchangeRateParser;
+import org.exchanger.servlet.parser.RequestParser;
 
 import java.util.List;
 
@@ -15,11 +17,13 @@ import java.util.List;
 public class ExchangeRatesServlet extends AbstractApiServlet {
 
     private ExchangeRateService exchangeRateService;
+    private RequestParser<ExchangeRateRequest> parser;
 
     @Override
     public void init() {
         super.init();
         exchangeRateService = getService("exchangeRateService", ExchangeRateService.class);
+        this.parser = new ExchangeRateParser();
     }
 
     @Override
@@ -35,18 +39,15 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     // todo parser ExchangeRateRequest
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
-        String baseCurrencyCode = request.getParameter("baseCurrencyCode");
-        String targetCurrencyCode = request.getParameter("targetCurrencyCode");
-        String rate = request.getParameter("rate");
+        try {
+            ExchangeRateRequest requestDto = parser.parse(request);
+            //todo validate(requestDto)
 
-        ExchangeRateRequest requestDto = new ExchangeRateRequest(
-                baseCurrencyCode,
-                targetCurrencyCode,
-                rate
-        );
+            ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
 
-        ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
-
-        sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
+            sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
+        } catch (AppException e) {
+            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
+        }
     }
 }

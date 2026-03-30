@@ -54,7 +54,7 @@ public class ExchangeRateService extends AbstractCurrencyService {
     public ExchangeRateResponse addExchangeRate(ExchangeRateRequest request) {
         Currency base = getCurrency(request.baseCurrencyCode());
         Currency target = getCurrency(request.targetCurrencyCode());
-        BigDecimal rate = new BigDecimal(request.rate());
+        BigDecimal rate = request.rate();
 
         ExchangeRate exchangeRate = new ExchangeRate(base, target, rate);
 
@@ -67,11 +67,10 @@ public class ExchangeRateService extends AbstractCurrencyService {
     public UpdateExchangeRateResponse patchExchangeRate(UpdateExchangeRateRequest request) {
         Currency base = getCurrency(request.baseCurrencyCode());
         Currency target = getCurrency(request.targetCurrencyCode());
+        BigDecimal rate = request.rate();
 
         ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
                 .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
-
-        BigDecimal rate = new BigDecimal(request.rate());
 
         exchangeRateRepository.update(exchangeRate.getId(), rate);
         exchangeRate.setRate(rate);

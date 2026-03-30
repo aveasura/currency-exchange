@@ -3,11 +3,13 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.exception.AppException;
 import org.exchanger.service.CurrencyService;
+import org.exchanger.servlet.parser.CurrencyRequestParser;
+import org.exchanger.servlet.parser.RequestParser;
 
 import java.util.List;
 
@@ -15,11 +17,13 @@ import java.util.List;
 public class CurrenciesServlet extends AbstractApiServlet {
 
     private CurrencyService currencyService;
+    private RequestParser<CurrencyRequest> parser;
 
     @Override
     public void init() {
         super.init();
         currencyService = getService("currencyService", CurrencyService.class);
+        this.parser = new CurrencyRequestParser();
     }
 
     @Override
@@ -32,15 +36,16 @@ public class CurrenciesServlet extends AbstractApiServlet {
         }
     }
 
-    // todo parser CurrencyRequest
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
-        String name = request.getParameter("name");
-        String code = request.getParameter("code");
-        String sign = request.getParameter("sign");
+        try {
+            CurrencyRequest requestDto = parser.parse(request);
+            // todo validate(requestDto)
 
-        CurrencyRequest requestDto = new CurrencyRequest(name, code, sign);
-        CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
+            CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
 
-        sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
+            sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
+        } catch (AppException e) {
+            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
+        }
     }
 }
