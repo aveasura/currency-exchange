@@ -71,8 +71,8 @@ public final class DatabaseManager {
     }
 
     public void initializeDatabase() {
-        try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
+        try (Connection connection = connectionProvider.getConnection();
+             Statement statement = connection.createStatement()) {
 
             statement.execute(CREATE_CURRENCIES_SQL);
             statement.execute(CREATE_CURRENCIES_CODE_INDEX_SQL);
