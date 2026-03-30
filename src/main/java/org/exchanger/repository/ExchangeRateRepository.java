@@ -12,36 +12,43 @@ import java.util.List;
 import java.util.Optional;
 
 public class ExchangeRateRepository extends BaseJdbcRepository {
-    private static final String SELECT_ALL_SQL = """
+    private static final String BASE_SELECT_SQL = """
             SELECT er.id AS id,
-            er.rate AS rate,
-            base.id AS baseId,
-            base.code AS baseCode,
-            base.full_name AS baseFullName,
-            base.sign AS baseSign,
-            target.id AS targetId,
-            target.code AS targetCode,
-            target.full_name AS targetFullName,
-            target.sign AS targetSign
+                    er.rate AS rate,
+                    base.id AS baseId,
+                    base.code AS baseCode,
+                    base.full_name AS baseFullName,
+                    base.sign AS baseSign,
+                    target.id AS targetId,
+                    target.code AS targetCode,
+                    target.full_name AS targetFullName,
+                    target.sign AS targetSign
             FROM exchange_rates er
             JOIN currencies base ON er.base_currency_id = base.id
-            JOIN currencies target ON er.target_currency_id = target.id""";
+            JOIN currencies target ON er.target_currency_id = target.id
+            """;
 
-    private static final String SELECT_BY_CURRENCIES_ID_SQL =
-            SELECT_ALL_SQL + """
-                    WHERE er.base_currency_id = ?
-                    AND er.target_currency_id = ?""";
+    private static final String SELECT_ALL_SQL = BASE_SELECT_SQL + """
+            ORDER BY er.id
+            """;
+
+    private static final String SELECT_BY_CURRENCIES_ID_SQL = BASE_SELECT_SQL + """
+            WHERE er.base_currency_id = ?
+            AND er.target_currency_id = ?
+            """;
 
     private static final String INSERT_SQL = """
             INSERT INTO exchange_rates(base_currency_id, target_currency_id, rate)
             VALUES(?, ?, ?)
-            RETURNING id""";
+            RETURNING id
+            """;
 
     private static final String UPDATE_EXCHANGE_RATE_SQL = """
             UPDATE exchange_rates
             SET rate = ?
             WHERE id = ?
-            RETURNING rate""";
+            RETURNING rate
+            """;
 
     public ExchangeRateRepository(ConnectionProvider connectionProvider) {
         super(connectionProvider);
