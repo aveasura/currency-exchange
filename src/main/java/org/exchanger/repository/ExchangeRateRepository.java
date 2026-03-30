@@ -40,8 +40,9 @@ public class ExchangeRateRepository extends BaseJdbcRepository {
 
     private static final String UPDATE_EXCHANGE_RATE_SQL = """
             UPDATE exchange_rates
-            SET (rate) = ?
+            SET rate = ?
             WHERE id = ?
+            RETURNING rate
             """;
 
     public ExchangeRateRepository(ConnectionProvider connectionProvider) {

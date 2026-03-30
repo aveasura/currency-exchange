@@ -11,8 +11,13 @@ import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Optional;
 
 public class ExchangeService extends AbstractCurrencyService {
+
+    // According to specification, cross-rate is calculated only through USD.
+    private static final String CROSS_RATE_CURRENCY_CODE = "USD";
 
     private final ExchangeRateRepository exchangeRateRepository;
     private final ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper;
@@ -25,16 +30,12 @@ public class ExchangeService extends AbstractCurrencyService {
         this.currencyResponseMapper = currencyResponseMapper;
     }
 
-    // todo reverse / cross rate
     public ExchangeResponse convert(ExchangeRequest request) {
         Currency base = getCurrency(request.from());
         Currency target = getCurrency(request.to());
         BigDecimal amount = new BigDecimal(request.amount());
 
-        ExchangeRate exchangeRate = exchangeRateRepository.find(base.getId(), target.getId())
-                .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
-
-        BigDecimal rate = exchangeRate.getRate();
+        BigDecimal rate = resolveRate(base, target);
         BigDecimal convertedAmount = amount.multiply(rate);
 
         CurrencyResponse baseCurrencyDto = currencyResponseMapper.toDto(base);
@@ -46,5 +47,35 @@ public class ExchangeService extends AbstractCurrencyService {
                 rate,
                 amount,
                 convertedAmount);
+    }
+
+    private BigDecimal resolveRate(Currency base, Currency target) {
+        if (base.getCode().equals(target.getCode())) {
+            return BigDecimal.ONE;
+        }
+
+        Optional<ExchangeRate> directRate = exchangeRateRepository.find(base.getId(), target.getId());
+        if (directRate.isPresent()) {
+            return directRate.get().getRate();
+        }
+
+        Optional<ExchangeRate> reverseRate = exchangeRateRepository.find(target.getId(), base.getId());
+
+        return reverseRate.map(exchangeRate -> BigDecimal.ONE.divide(exchangeRate.getRate(), 6, RoundingMode.HALF_UP))
+                .orElseGet(() -> findCrossRate(base, target));
+    }
+
+    private BigDecimal findCrossRate(Currency base, Currency target) {
+        Currency usd = getCurrency(CROSS_RATE_CURRENCY_CODE);
+
+        Optional<ExchangeRate> usdToBase = exchangeRateRepository.find(usd.getId(), base.getId());
+        Optional<ExchangeRate> usdToTarget = exchangeRateRepository.find(usd.getId(), target.getId());
+
+        if (usdToBase.isPresent() && usdToTarget.isPresent()) {
+            return usdToTarget.get().getRate()
+                    .divide(usdToBase.get().getRate(), 6, RoundingMode.HALF_UP);
+        }
+
+        throw new ExchangeRateNotFoundException(base.getCode(), target.getCode());
     }
 }
