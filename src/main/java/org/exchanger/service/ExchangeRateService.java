@@ -5,7 +5,6 @@ import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
-import org.exchanger.exception.DataAccessException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
@@ -85,7 +84,6 @@ public class ExchangeRateService extends AbstractCurrencyService {
         return toDto(base, target, exchangeRate, rate);
     }
 
-    // todo mapper?
     private UpdateExchangeRateResponse toDto(Currency base,
                                              Currency target,
                                              ExchangeRate exchangeRate,

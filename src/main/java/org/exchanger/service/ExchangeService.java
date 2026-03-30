@@ -62,10 +62,14 @@ public class ExchangeService extends AbstractCurrencyService {
     private BigDecimal findCrossRate(Currency base, Currency target) {
         Currency usd = getCurrency(CROSS_RATE_CURRENCY_CODE);
 
-        BigDecimal usdToBase = resolveUsdRate(usd, base);
-        BigDecimal usdToTarget = resolveUsdRate(usd, target);
+        try {
+            BigDecimal usdToBase = resolveUsdRate(usd, base);
+            BigDecimal usdToTarget = resolveUsdRate(usd, target);
 
-        return usdToTarget.divide(usdToBase, SCALE, RoundingMode.HALF_UP);
+            return usdToTarget.divide(usdToBase, SCALE, RoundingMode.HALF_UP);
+        } catch (ExchangeRateNotFoundException e) {
+            throw new ExchangeRateNotFoundException(base.getCode(), target.getCode());
+        }
     }
 
     private BigDecimal resolveUsdRate(Currency usd, Currency currency) {
