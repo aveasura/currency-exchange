@@ -1,12 +1,17 @@
 package org.exchanger.config;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import org.exchanger.dto.request.CurrencyRequest;
+import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.mapper.CurrencyMapper;
 import org.exchanger.mapper.ExchangeRateMapper;
+import org.exchanger.mapper.RequestMapper;
 import org.exchanger.mapper.ResponseMapper;
+import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
@@ -19,45 +24,53 @@ import tools.jackson.databind.ObjectMapper;
 public class ApplicationInitializer implements ServletContextListener {
 
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
-
-        CurrencyMapper currencyMapper = new CurrencyMapper();
-
-        ResponseMapper<ExchangeRate, ExchangeRateResponse> responseExchangeRateMapper
-                = new ExchangeRateMapper(currencyMapper);
+    public void contextInitialized(ServletContextEvent event) {
+        ServletContext context = event.getServletContext();
 
         ConnectionProvider connectionProvider = new ConnectionProvider();
         DataBaseManager dataBaseManager = new DataBaseManager(connectionProvider);
 
-        CurrencyRepository currencyRepository = new CurrencyRepository(connectionProvider);
-        sce.getServletContext().setAttribute("currencyRepository", currencyRepository);
-
-        CurrencyService currencyService = new CurrencyService(currencyRepository, currencyMapper, currencyMapper);
-        sce.getServletContext().setAttribute("currencyService", currencyService);
-
-        ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(connectionProvider);
-        sce.getServletContext().setAttribute("exchangeRateRepository", exchangeRateRepository);
-
-        ExchangeRateService exchangeRateService
-                = new ExchangeRateService(currencyRepository, exchangeRateRepository, responseExchangeRateMapper);
-        sce.getServletContext().setAttribute("exchangeRateService", exchangeRateService);
-
-        ExchangeService exchangeService = new ExchangeService(currencyRepository, exchangeRateRepository, currencyMapper);
-        sce.getServletContext().setAttribute("exchangeService", exchangeService);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        sce.getServletContext().setAttribute("objectMapper", objectMapper);
-
         try {
             dataBaseManager.initialize();
-            dataBaseManager.initialDatabase();
+            dataBaseManager.initializeDatabase();
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to initialize database", e);
         }
-    }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+        CurrencyMapper currencyMapper = new CurrencyMapper();
+        RequestMapper<CurrencyRequest, Currency> currencyRequestMapper = currencyMapper;
+        ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper = currencyMapper;
+        ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateResponseMapper
+                = new ExchangeRateMapper(currencyResponseMapper);
 
+        CurrencyRepository currencyRepository = new CurrencyRepository(connectionProvider);
+        ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(connectionProvider);
+
+        CurrencyService currencyService = new CurrencyService(
+                currencyRepository,
+                currencyRequestMapper,
+                currencyResponseMapper
+        );
+
+        ExchangeRateService exchangeRateService = new ExchangeRateService(
+                currencyRepository,
+                exchangeRateRepository,
+                exchangeRateResponseMapper
+        );
+
+        ExchangeService exchangeService = new ExchangeService(
+                currencyRepository,
+                exchangeRateRepository,
+                currencyResponseMapper
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        context.setAttribute("currencyRepository", currencyRepository);
+        context.setAttribute("currencyService", currencyService);
+        context.setAttribute("exchangeRateRepository", exchangeRateRepository);
+        context.setAttribute("exchangeRateService", exchangeRateService);
+        context.setAttribute("exchangeService", exchangeService);
+        context.setAttribute("objectMapper", objectMapper);
     }
 }
