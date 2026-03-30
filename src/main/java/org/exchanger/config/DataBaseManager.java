@@ -70,7 +70,7 @@ public final class DataBaseManager {
         Class.forName(SQLITE_DRIVER_CLASS);
     }
 
-    public void initialDatabase() {
+    public void initializeDatabase() {
         try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
 
