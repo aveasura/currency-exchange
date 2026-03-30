@@ -41,7 +41,7 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
 
         String number = rawNumber.trim();
         if (number.length() > MAX_NUMBER_LENGTH) {
-            throw new BadRequestException("Number is too large");
+            throw new BadRequestException("Number is too long");
         }
 
         if (!NUMBER_PATTERN.matcher(number).matches()) {
