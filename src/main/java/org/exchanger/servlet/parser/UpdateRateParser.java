@@ -31,7 +31,6 @@ public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRe
         try {
             body = request.getReader().readLine();
         } catch (IOException e) {
-            // todo
             throw new RequestProcessingException("Failed to read request body", e);
         }
         if (body == null || !body.startsWith(RATE_PREFIX)) {

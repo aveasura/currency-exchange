@@ -18,6 +18,11 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
     protected void validateCodesAndPositiveNumber(String base, String target, String rawNumber) {
         validateCode(base);
         validateCode(target);
+
+        if (base.equals(target)) {
+            throw new BadRequestException("Same currencies selected");
+        }
+
         validateNumericValue(rawNumber);
     }
 
@@ -41,6 +46,10 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         BigDecimal result = new BigDecimal(number);
         if (result.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Number must be greater than zero");
+        }
+
+        if (result.scale() > 6) {
+            throw new BadRequestException("Number scale exceeded. Max scale = 6. Example: 0.123456");
         }
     }
 }
