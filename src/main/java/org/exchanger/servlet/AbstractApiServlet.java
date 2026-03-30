@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.exception.AppException;
-import org.exchanger.exception.ResponseProcessingException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
