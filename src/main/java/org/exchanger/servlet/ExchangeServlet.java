@@ -12,7 +12,7 @@ import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.validator.ExchangeRequestValidator;
 import org.exchanger.validator.RequestValidator;
 
-@WebServlet("/exchange")
+@WebServlet({"/exchange", "/exchange/"})
 public class ExchangeServlet extends AbstractApiServlet {
 
     private ExchangeService exchangeService;

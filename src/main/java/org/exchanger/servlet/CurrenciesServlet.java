@@ -14,7 +14,7 @@ import org.exchanger.validator.RequestValidator;
 
 import java.util.List;
 
-@WebServlet("/currencies")
+@WebServlet({"/currencies", "/currencies/"})
 public class CurrenciesServlet extends AbstractApiServlet {
 
     private CurrencyService currencyService;
