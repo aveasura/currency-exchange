@@ -8,7 +8,6 @@ public class DataAccessException extends AppException {
     }
 
     public DataAccessException(String message, Throwable cause) {
-        super(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message);
-        initCause(cause);
+        super(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message, cause);
     }
 }

@@ -28,7 +28,7 @@ public class ApplicationInitializer implements ServletContextListener {
         ServletContext context = event.getServletContext();
 
         ConnectionProvider connectionProvider = new ConnectionProvider();
-        DataBaseManager dataBaseManager = new DataBaseManager(connectionProvider);
+        DatabaseManager dataBaseManager = new DatabaseManager(connectionProvider);
 
         try {
             dataBaseManager.initialize();
