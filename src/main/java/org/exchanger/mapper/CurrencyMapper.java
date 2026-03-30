@@ -18,11 +18,11 @@ public final class CurrencyMapper implements
     }
 
     @Override
-    public Currency toEntity(CurrencyRequest dto) {
+    public Currency toEntity(CurrencyRequest request) {
         return new Currency(
-                dto.name(),
-                dto.code(),
-                dto.sign()
+                request.name(),
+                request.code(),
+                request.sign()
         );
     }
 }
