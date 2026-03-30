@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractRequestValidator<T> implements RequestValidator<T> {
 
+    private static final int MAX_NUMBER_LENGTH = 30;
+
     private static final String CODE_PATTERN = "[A-Z]{3}";
 
     private static final Pattern NUMBER_PATTERN =
@@ -38,6 +40,9 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         }
 
         String number = rawNumber.trim();
+        if (number.length() > MAX_NUMBER_LENGTH) {
+            throw new BadRequestException("Number is too large");
+        }
 
         if (!NUMBER_PATTERN.matcher(number).matches()) {
             throw new BadRequestException("Invalid number format. Example: 0.86 or 1");
