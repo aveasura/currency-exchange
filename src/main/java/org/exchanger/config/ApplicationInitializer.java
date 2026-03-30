@@ -66,11 +66,11 @@ public class ApplicationInitializer implements ServletContextListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        context.setAttribute("currencyRepository", currencyRepository);
-        context.setAttribute("currencyService", currencyService);
-        context.setAttribute("exchangeRateRepository", exchangeRateRepository);
-        context.setAttribute("exchangeRateService", exchangeRateService);
-        context.setAttribute("exchangeService", exchangeService);
-        context.setAttribute("objectMapper", objectMapper);
+        context.setAttribute(ContextAttributes.CURRENCY_REPOSITORY, currencyRepository);
+        context.setAttribute(ContextAttributes.EXCHANGE_RATE_REPOSITORY, exchangeRateRepository);
+        context.setAttribute(ContextAttributes.CURRENCY_SERVICE, currencyService);
+        context.setAttribute(ContextAttributes.EXCHANGE_RATE_SERVICE, exchangeRateService);
+        context.setAttribute(ContextAttributes.EXCHANGE_SERVICE, exchangeService);
+        context.setAttribute(ContextAttributes.OBJECT_MAPPER, objectMapper);
     }
 }
