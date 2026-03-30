@@ -17,7 +17,7 @@ public class CurrencyRequestValidator extends AbstractRequestValidator<CurrencyR
         }
 
         if (name.length() > 50) {
-            throw new BadRequestException("Maximum 'name' size exceeded");
+            throw new BadRequestException("Maximum 'name' size exceeded. Maximum: 50");
         }
     }
 
@@ -26,8 +26,8 @@ public class CurrencyRequestValidator extends AbstractRequestValidator<CurrencyR
             throw new BadRequestException("Field 'sign' required");
         }
 
-        if (sign.length() > 10) {
-            throw new BadRequestException("Maximum 'sign' size exceeded");
+        if (sign.length() > 5) {
+            throw new BadRequestException("Maximum 'sign' size exceeded. Maximum: 5");
         }
     }
 }

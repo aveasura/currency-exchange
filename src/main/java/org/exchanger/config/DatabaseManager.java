@@ -18,7 +18,7 @@ public final class DatabaseManager {
                 ),
                 sign TEXT NOT NULL CHECK (
                     length(trim(sign)) > 0
-                    AND length(sign) <= 10
+                    AND length(sign) <= 5
                 )
             );
             """;
