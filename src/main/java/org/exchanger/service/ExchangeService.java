@@ -33,7 +33,7 @@ public class ExchangeService extends AbstractCurrencyService {
     public ExchangeResponse convert(ExchangeRequest request) {
         Currency base = getCurrency(request.from());
         Currency target = getCurrency(request.to());
-        BigDecimal amount = new BigDecimal(request.amount());
+        BigDecimal amount = request.amount();
 
         BigDecimal rate = resolveRate(base, target);
         BigDecimal convertedAmount = amount.multiply(rate);

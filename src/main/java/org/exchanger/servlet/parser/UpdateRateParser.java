@@ -1,0 +1,45 @@
+package org.exchanger.servlet.parser;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.exchanger.dto.request.UpdateExchangeRateRequest;
+import org.exchanger.exception.DataAccessException;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+
+public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRequest> {
+
+    private static final String RATE_PARAM = "rate";
+    private static final String RATE_PREFIX = RATE_PARAM + "=";
+
+    private final RequestParser<CurrencyPairRequest> codeParser;
+
+    public UpdateRateParser(RequestParser<CurrencyPairRequest> codeParser) {
+        this.codeParser = codeParser;
+    }
+
+    @Override
+    public UpdateExchangeRateRequest parse(HttpServletRequest request) {
+        CurrencyPairRequest codes = codeParser.parse(request);
+        String extractedRate = extractRate(request);
+        BigDecimal rate = parseBigDecimal(extractedRate, RATE_PARAM);
+
+        return new UpdateExchangeRateRequest(codes.base(), codes.target(), rate);
+    }
+
+    private String extractRate(HttpServletRequest request) {
+        String body = null;
+        try {
+            body = request.getReader().readLine();
+        } catch (IOException e) {
+            throw new DataAccessException("Fail read line when try extractRate");
+        }
+        if (body == null || !body.startsWith(RATE_PREFIX)) {
+            return null;
+        }
+        return java.net.URLDecoder.decode(
+                body.substring(RATE_PREFIX.length()),
+                java.nio.charset.StandardCharsets.UTF_8
+        );
+    }
+}

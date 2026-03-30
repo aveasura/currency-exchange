@@ -13,7 +13,6 @@ import org.exchanger.repository.ExchangeRateRepository;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.service.ExchangeService;
-import org.exchanger.servlet.parser.CodeParser;
 import tools.jackson.databind.ObjectMapper;
 
 @WebListener
@@ -21,8 +20,6 @@ public class ApplicationInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        CodeParser codeParser = new CodeParser();
-        sce.getServletContext().setAttribute("codeParser", codeParser);
 
         CurrencyMapper currencyMapper = new CurrencyMapper();
 

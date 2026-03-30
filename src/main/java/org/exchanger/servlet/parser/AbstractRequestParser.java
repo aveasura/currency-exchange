@@ -1,0 +1,42 @@
+package org.exchanger.servlet.parser;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.exchanger.exception.BadRequestException;
+
+import java.math.BigDecimal;
+
+public abstract class AbstractRequestParser<T> implements RequestParser<T> {
+
+    protected static final int CURRENCY_CODE_LENGTH = 3;
+
+    protected String getRequiredParameter(HttpServletRequest request, String name) {
+        String value = request.getParameter(name);
+
+        if (value == null || value.isBlank()) {
+            throw new BadRequestException("Field '" + name + "' required");
+        }
+
+        return value.trim();
+    }
+
+    protected String getCleanPath(HttpServletRequest request) {
+        String pathInfo = request.getPathInfo();
+        if (pathInfo == null || pathInfo.isBlank() || "/".equals(pathInfo)) {
+            throw new BadRequestException("Path variable is missing");
+        }
+
+        return pathInfo.substring(1).trim();
+    }
+
+    protected String normalizeCode(String code) {
+        return code.trim().toUpperCase();
+    }
+
+    protected BigDecimal parseBigDecimal(String rawValue, String fieldName) {
+        try {
+            return new BigDecimal(rawValue);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("Field '" + fieldName + "' should be numeric");
+        }
+    }
+}
