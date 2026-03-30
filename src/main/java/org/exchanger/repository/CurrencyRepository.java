@@ -1,10 +1,13 @@
 package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
+import org.exchanger.exception.CurrencyAlreadyExistsException;
 import org.exchanger.exception.CurrencyNotFoundException;
 import org.exchanger.exception.DataAccessException;
+import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.model.Currency;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -33,16 +36,23 @@ public class CurrencyRepository extends BaseJdbcRepository {
     }
 
     public Long create(String code, String fullName, String sign) {
-        return executeSingleResult(
-                INSERT_CURRENCY_SQL,
-                preparedStatement -> {
-                    preparedStatement.setString(1, code);
-                    preparedStatement.setString(2, fullName);
-                    preparedStatement.setString(3, sign);
-                },
-                resultSet -> resultSet.getLong("id"),
-                () -> new DataAccessException("Create currency error: failed to assign id")
-        );
+        try {
+            return executeSingleResult(
+                    INSERT_CURRENCY_SQL,
+                    preparedStatement -> {
+                        preparedStatement.setString(1, code);
+                        preparedStatement.setString(2, fullName);
+                        preparedStatement.setString(3, sign);
+                    },
+                    resultSet -> resultSet.getLong("id"),
+                    () -> new DataAccessException("Create currency error: failed to assign id")
+            );
+        } catch (DataAccessException e) {
+            if (isUniqueConstraintViolation(e)) {
+                throw new DuplicateEntityException("Currency already exists", e);
+            }
+            throw e;
+        }
     }
 
     public Currency findByCode(String code) {

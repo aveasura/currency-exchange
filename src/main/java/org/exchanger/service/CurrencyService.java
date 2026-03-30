@@ -2,6 +2,9 @@ package org.exchanger.service;
 
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.exception.CurrencyAlreadyExistsException;
+import org.exchanger.exception.DataAccessException;
+import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.mapper.RequestMapper;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
@@ -26,8 +29,12 @@ public class CurrencyService extends AbstractCurrencyService {
     public CurrencyResponse createCurrency(CurrencyRequest dto) {
         Currency currency = requestMapper.toEntity(dto);
 
-        Long id = currencyRepository.create(currency.getCode(), currency.getFullName(), currency.getSign());
-        currency.setId(id);
+        try {
+            Long id = currencyRepository.create(currency.getCode(), currency.getFullName(), currency.getSign());
+            currency.setId(id);
+        } catch (DuplicateEntityException e) {
+            throw new CurrencyAlreadyExistsException(currency.getCode());
+        }
 
         return responseMapper.toDto(currency);
     }

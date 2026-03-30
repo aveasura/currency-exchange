@@ -2,6 +2,8 @@ package org.exchanger.repository;
 
 import org.exchanger.config.ConnectionProvider;
 import org.exchanger.exception.DataAccessException;
+import org.sqlite.SQLiteErrorCode;
+import org.sqlite.SQLiteException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +19,13 @@ public abstract class BaseJdbcRepository {
 
     public BaseJdbcRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
+    }
+
+    protected boolean isUniqueConstraintViolation(Throwable throwable) {
+        Throwable cause = throwable.getCause();
+
+        return cause instanceof SQLiteException sqliteException
+               && sqliteException.getResultCode() == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE;
     }
 
     protected <T> T executeSingleResult(
