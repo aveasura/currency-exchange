@@ -5,9 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.ExchangeRequest;
-import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.dto.response.ExchangeResponse;
-import org.exchanger.exception.AppException;
 import org.exchanger.service.ExchangeService;
 import org.exchanger.servlet.parser.ExchangeRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
@@ -31,15 +29,10 @@ public class ExchangeServlet extends AbstractApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            ExchangeRequest requestDto = parser.parse(request);
-            validator.validate(requestDto);
+        ExchangeRequest requestDto = parser.parse(request);
+        validator.validate(requestDto);
+        ExchangeResponse responseDto = exchangeService.convert(requestDto);
 
-            ExchangeResponse responseDto = exchangeService.convert(requestDto);
-
-            sendResponse(response, responseDto, HttpServletResponse.SC_OK);
-        } catch (AppException e) {
-            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
-        }
+        sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }

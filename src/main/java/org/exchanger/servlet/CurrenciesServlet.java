@@ -6,8 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
-import org.exchanger.dto.response.ErrorResponse;
-import org.exchanger.exception.AppException;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.servlet.parser.CurrencyRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
@@ -33,24 +31,15 @@ public class CurrenciesServlet extends AbstractApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            List<CurrencyResponse> currencies = currencyService.getAll();
-            sendResponse(response, currencies, HttpServletResponse.SC_OK);
-        } catch (AppException e) {
-            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
-        }
+        List<CurrencyResponse> currencies = currencyService.getAll();
+        sendResponse(response, currencies, HttpServletResponse.SC_OK);
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            CurrencyRequest requestDto = parser.parse(request);
-            validator.validate(requestDto);
+        CurrencyRequest requestDto = parser.parse(request);
+        validator.validate(requestDto);
+        CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
 
-            CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
-
-            sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
-        } catch (AppException e) {
-            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
-        }
+        sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 }

@@ -5,10 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
-import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
-import org.exchanger.exception.AppException;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.servlet.parser.CurrencyPairParser;
 import org.exchanger.servlet.parser.CurrencyPairRequest;
@@ -36,27 +34,18 @@ public class ExchangeRateServlet extends AbstractApiServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            CurrencyPairRequest pair = codeParser.parse(request);
-            ExchangeRateResponse responseDto = exchangeRateService.get(pair.base(), pair.target());
+        CurrencyPairRequest pair = codeParser.parse(request);
+        ExchangeRateResponse responseDto = exchangeRateService.get(pair.base(), pair.target());
 
-            sendResponse(response, responseDto, HttpServletResponse.SC_OK);
-        } catch (AppException e) {
-            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
-        }
+        sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 
     @Override
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            UpdateExchangeRateRequest updateRequest = updateParser.parse(request);
-            validator.validate(updateRequest);
+        UpdateExchangeRateRequest updateRequest = updateParser.parse(request);
+        validator.validate(updateRequest);
+        UpdateExchangeRateResponse responseDto = exchangeRateService.patchExchangeRate(updateRequest);
 
-            UpdateExchangeRateResponse responseDto = exchangeRateService.patchExchangeRate(updateRequest);
-
-            sendResponse(response, responseDto, HttpServletResponse.SC_OK);
-        } catch (AppException e) {
-            sendResponse(response, new ErrorResponse(e.getMessage()), e.getStatus());
-        }
+        sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }
 }
