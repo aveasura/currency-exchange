@@ -2,6 +2,8 @@ package org.exchanger.servlet;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
+import org.exchanger.exception.RequestProcessingException;
+import org.exchanger.exception.ResponseProcessingException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -28,7 +30,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
 
             objectMapper.writeValue(response.getWriter(), body);
         } catch (IOException e) {
-            throw new RuntimeException("Error when try mapping JSON", e);
+            throw new ResponseProcessingException("Failed to write response body", e);
         }
     }
 

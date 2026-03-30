@@ -3,6 +3,7 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.exception.BadRequestException;
+import org.exchanger.exception.RequestProcessingException;
 
 import java.io.IOException;
 
@@ -26,12 +27,12 @@ public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRe
     }
 
     private String extractRate(HttpServletRequest request) {
-        String body = null;
+        String body;
         try {
             body = request.getReader().readLine();
         } catch (IOException e) {
             // todo
-            throw new BadRequestException("Failed to read request body");
+            throw new RequestProcessingException("Failed to read request body", e);
         }
         if (body == null || !body.startsWith(RATE_PREFIX)) {
             throw new BadRequestException("Field 'rate' required");
