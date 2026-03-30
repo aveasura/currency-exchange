@@ -52,12 +52,19 @@ public final class DatabaseManager {
             INSERT OR IGNORE INTO currencies(id, code, full_name, sign)
             VALUES (0, 'USD', 'United States dollar', '$'),
                    (1, 'EUR', 'Euro', '€'),
-                   (2, 'RUB', 'Russian ruble', '₽');
+                   (2, 'RUB', 'Russian ruble', '₽'),
+                   (3, 'GBP', 'British pound', '£'),
+                   (4, 'JPY', 'Japanese yen', '¥'),
+                   (5, 'CHF', 'Swiss franc', 'Fr.'),
+                   (6, 'CAD', 'Canadian dollar', 'C$');
             """;
 
     private static final String INSERT_DEFAULT_EXCHANGE_RATES_SQL = """
             INSERT OR IGNORE INTO exchange_rates(id, base_currency_id, target_currency_id, rate)
-            VALUES (0,0,1,0.86)
+            VALUES (0, 0, 1, 0.86),
+                   (1, 0, 2, 92.50),
+                   (2, 0, 3, 0.74),
+                   (3, 0, 4, 149.30);
             """;
 
     private final ConnectionProvider connectionProvider;
