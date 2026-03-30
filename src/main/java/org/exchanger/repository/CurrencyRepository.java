@@ -10,19 +10,19 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class CurrencyRepository extends BaseJdbcRepository {
-    private static final String INSERT_SQL = """
+    private static final String INSERT_CURRENCY_SQL = """
             INSERT INTO currencies (code, full_name, sign)
             VALUES (?, ?, ?)
             RETURNING id
             """;
 
-    private static final String SELECT_BY_CODE_SQL = """
+    private static final String SELECT_CURRENCY_BY_CODE_SQL = """
             SELECT id, code, full_name, sign
             FROM currencies
             WHERE code = ?
             """;
 
-    private static final String SELECT_ALL_SQL = """
+    private static final String SELECT_ALL_CURRENCIES_SQL = """
             SELECT id, code, full_name, sign
             FROM currencies
             ORDER BY id
@@ -32,12 +32,12 @@ public class CurrencyRepository extends BaseJdbcRepository {
         super(connectionProvider);
     }
 
-    public Long create(String code, String name, String sign) {
+    public Long create(String code, String fullName, String sign) {
         return executeSingleResult(
-                INSERT_SQL,
+                INSERT_CURRENCY_SQL,
                 preparedStatement -> {
                     preparedStatement.setString(1, code);
-                    preparedStatement.setString(2, name);
+                    preparedStatement.setString(2, fullName);
                     preparedStatement.setString(3, sign);
                 },
                 resultSet -> resultSet.getLong("id"),
@@ -47,14 +47,14 @@ public class CurrencyRepository extends BaseJdbcRepository {
 
     public Currency findByCode(String code) {
         return executeSingleResult(
-                SELECT_BY_CODE_SQL,
+                SELECT_CURRENCY_BY_CODE_SQL,
                 preparedStatement -> preparedStatement.setString(1, code),
                 this::mapCurrency,
                 () -> new CurrencyNotFoundException(code));
     }
 
     public List<Currency> findAll() {
-        return executeList(SELECT_ALL_SQL, this::mapCurrency);
+        return executeList(SELECT_ALL_CURRENCIES_SQL, this::mapCurrency);
     }
 
     private Currency mapCurrency(ResultSet resultSet) throws SQLException {
