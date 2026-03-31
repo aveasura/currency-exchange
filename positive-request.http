@@ -1,0 +1,44 @@
+@host = http://localhost:8080
+@app = /currency-exchange
+@baseUrl = {{host}}{{app}}
+
+### Получить все валюты
+GET {{baseUrl}}/currencies
+Accept: application/json
+
+### Получить валюту по коду
+GET {{baseUrl}}/currency/USD
+Accept: application/json
+
+### Добавить валюту
+POST {{baseUrl}}/currencies
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+name=Australian dollar&code=AUD&sign=A$
+
+### Получить все курсы
+GET {{baseUrl}}/exchangeRates
+Accept: application/json
+
+### Получить курс по паре
+GET {{baseUrl}}/exchangeRate/USDRUB
+Accept: application/json
+
+### Добавить курс
+POST {{baseUrl}}/exchangeRates
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+baseCurrencyCode=USD&targetCurrencyCode=AUD&rate=1.46
+
+### Обновить курс
+PATCH {{baseUrl}}/exchangeRate/USDAUD
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+rate=1.3234
+
+### Конвертация валюты
+GET {{baseUrl}}/exchange?from=USD&to=AUD&amount=10
+Accept: application/json

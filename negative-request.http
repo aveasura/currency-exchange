@@ -1,0 +1,40 @@
+@host = http://localhost:8080
+@app = /currency-exchange
+@baseUrl = {{host}}{{app}}
+
+### Валюта не найдена
+GET {{baseUrl}}/currency/ILN
+Accept: application/json
+
+### Невалидный код валюты
+GET {{baseUrl}}/currency/US
+Accept: application/json
+
+### Невалидная валютная пара
+GET {{baseUrl}}/exchangeRate/USDRU
+Accept: application/json
+
+### Добавить валюту без поля sign
+POST {{baseUrl}}/currencies
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+name=Test currency&code=TST
+
+### Курс не найден
+GET {{baseUrl}}/exchangeRate/UQKVWM
+Accept: application/json
+
+### Добавить курс с несуществующей валютой
+POST {{baseUrl}}/exchangeRates
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+baseCurrencyCode=UQK&targetCurrencyCode=VWM&rate=1.23
+
+### Обновить несуществующий курс
+PATCH {{baseUrl}}/exchangeRate/UQKVWM
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+rate=10
