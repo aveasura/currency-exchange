@@ -1,207 +1,361 @@
-$(document).ready(function() {
-    const host = "http://localhost:8080/currency-exchange"
+(() => {
+    const apiBase = `${window.location.origin}/currency-exchange`;
 
-    // Fetch the list of currencies and populate the select element
-    function requestCurrencies() {
-        $.ajax({
-            url: `${host}/currencies`,
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                const tbody = $('.currencies-table tbody');
-                tbody.empty();
-                $.each(data, function(index, currency) {
-                    const row = $('<tr></tr>');
-                    row.append($('<td></td>').text(currency.code));
-                    row.append($('<td></td>').text(currency.name));
-                    row.append($('<td></td>').text(currency.sign));
-                    tbody.append(row);
-                });
+    let apiToast = null;
+    let editModal = null;
+    let currentEditPair = null;
+    let cachedCurrencies = [];
 
-                const newRateBaseCurrency = $("#new-rate-base-currency");
-                newRateBaseCurrency.empty();
+    function init() {
+        console.log('App init');
+        console.log('API base:', apiBase);
 
-                // populate the base currency select element with the list of currencies
-                $.each(data, function (index, currency) {
-                    newRateBaseCurrency.append(`<option value="${currency.code}">${currency.code}</option>`);
-                });
+        const toastElement = document.getElementById('api-toast');
+        const modalElement = document.getElementById('edit-exchange-rate-modal');
 
-                const newRateTargetCurrency = $("#new-rate-target-currency");
-                newRateTargetCurrency.empty();
+        if (toastElement && window.bootstrap) {
+            apiToast = new bootstrap.Toast(toastElement, {delay: 3500});
+        }
 
-                // populate the target currency select element with the list of currencies
-                $.each(data, function (index, currency) {
-                    newRateTargetCurrency.append(`<option value="${currency.code}">${currency.code}</option>`);
-                });
+        if (modalElement && window.bootstrap) {
+            editModal = new bootstrap.Modal(modalElement);
+        }
 
-                const convertBaseCurrency = $("#convert-base-currency");
-                convertBaseCurrency.empty();
+        const apiBaseElement = document.getElementById('api-base');
+        if (apiBaseElement) {
+            apiBaseElement.textContent = apiBase;
+        }
 
-                // populate the base currency select element with the list of currencies
-                $.each(data, function (index, currency) {
-                    convertBaseCurrency.append(`<option value="${currency.code}">${currency.code}</option>`);
-                });
+        bindEvents();
+        loadInitialData();
+    }
 
-                const convertTargetCurrency = $("#convert-target-currency");
-                convertTargetCurrency.empty();
+    function bindEvents() {
+        document.getElementById('add-currency')?.addEventListener('submit', handleAddCurrency);
+        document.getElementById('add-exchange-rate')?.addEventListener('submit', handleAddExchangeRate);
+        document.getElementById('convert')?.addEventListener('submit', handleConvert);
+        document.getElementById('save-exchange-rate-btn')?.addEventListener('click', handleSaveExchangeRate);
 
-                // populate the base currency select element with the list of currencies
-                $.each(data, function (index, currency) {
-                    convertTargetCurrency.append(`<option value="${currency.code}">${currency.code}</option>`);
-                });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                const error = JSON.parse(jqXHR.responseText);
-                const toast = $('#api-error-toast');
+        document.querySelector('.exchange-rates-table tbody')?.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-edit-pair]');
+            if (!button) return;
 
-                $(toast).find('.toast-body').text(error.message);
-                toast.toast("show");
+            currentEditPair = button.dataset.editPair;
+            document.getElementById('edit-pair-label').textContent = currentEditPair;
+            document.getElementById('exchange-rate-input').value = button.dataset.editRate ?? '';
+            document.querySelector('#edit-exchange-rate-modal .modal-title').textContent = `Edit ${currentEditPair}`;
+
+            if (editModal) {
+                editModal.show();
             }
         });
     }
 
-    requestCurrencies();
+    async function loadInitialData() {
+        await Promise.all([
+            requestCurrencies(),
+            requestExchangeRates()
+        ]);
+    }
 
-    $("#add-currency").submit(function(e) {
-        e.preventDefault();
+    async function requestCurrencies() {
+        try {
+            const currencies = await requestJson(`${apiBase}/currencies`);
+            cachedCurrencies = Array.isArray(currencies) ? currencies : [];
 
-        $.ajax({
-            url: `${host}/currencies`,
-            type: "POST",
-            data: $("#add-currency").serialize(),
-            success: function(data) {
-                requestCurrencies();
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                const error = JSON.parse(jqXHR.responseText);
-                const toast = $('#api-error-toast');
+            renderCurrencies(cachedCurrencies);
+            populateCurrencySelects(cachedCurrencies);
+            updateCurrencyStats(cachedCurrencies.length);
+        } catch (error) {
+            console.error('Currencies load error:', error);
+            showError(error);
+            renderCurrencies([]);
+            updateCurrencyStats(0);
+        }
+    }
 
-                $(toast).find('.toast-body').text(error.message);
-                toast.toast("show");
-            }
+    async function requestExchangeRates() {
+        try {
+            const rates = await requestJson(`${apiBase}/exchangeRates`);
+            renderExchangeRates(Array.isArray(rates) ? rates : []);
+            updateRateStats(Array.isArray(rates) ? rates.length : 0);
+        } catch (error) {
+            console.error('Exchange rates load error:', error);
+            showError(error);
+            renderExchangeRates([]);
+            updateRateStats(0);
+        }
+    }
+
+    async function requestJson(url, options = {}) {
+        console.log('Fetching:', url, options.method || 'GET');
+
+        const response = await fetch(url, options);
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const payload = isJson ? await response.json() : await response.text();
+
+        if (!response.ok) {
+            const message = isJson && payload && payload.message
+                ? payload.message
+                : `Request failed with status ${response.status}`;
+            throw new Error(message);
+        }
+
+        return payload;
+    }
+
+    async function handleAddCurrency(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const code = form.elements.code?.value?.trim()?.toUpperCase() ?? '';
+        const name = form.elements.name?.value?.trim() ?? '';
+        const sign = form.elements.sign?.value?.trim() ?? '';
+
+        const body = new URLSearchParams({
+            code,
+            name,
+            sign
         });
 
-        return false;
-    });
+        try {
+            await requestJson(`${apiBase}/currencies`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body
+            });
 
-    function requestExchangeRates() {
-        $.ajax({
-            url: `${host}/exchangeRates`,
-            type: "GET",
-            dataType: "json",
-            success: function(response) {
-                const tbody = $('.exchange-rates-table tbody');
-                tbody.empty();
-                $.each(response, function(index, rate) {
-                    const row = $('<tr></tr>');
-                    const currency = rate.baseCurrency.code + rate.targetCurrency.code;
-                    const exchangeRate = rate.rate;
-                    row.append($('<td></td>').text(currency));
-                    row.append($('<td></td>').text(exchangeRate));
-                    row.append($('<td></td>').html(
-                        '<button class="btn btn-secondary btn-sm exchange-rate-edit"' +
-                        'data-bs-toggle="modal" data-bs-target="#edit-exchange-rate-modal">Edit</button>'
-                    ));
-                    tbody.append(row);
-                });
-            },
-            error: function() {
-                const error = JSON.parse(jqXHR.responseText);
-                const toast = $('#api-error-toast');
+            form.reset();
+            showToast('Currency added successfully', 'Success');
+            await requestCurrencies();
+        } catch (error) {
+            showError(error);
+        }
+    }
 
-                $(toast).find('.toast-body').text(error.message);
-                toast.toast("show");
+    async function handleAddExchangeRate(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const baseCurrencyCode = form.elements.baseCurrencyCode?.value ?? '';
+        const targetCurrencyCode = form.elements.targetCurrencyCode?.value ?? '';
+        const rate = form.elements.rate?.value?.trim() ?? '';
+
+        const body = new URLSearchParams({
+            baseCurrencyCode,
+            targetCurrencyCode,
+            rate
+        });
+
+        try {
+            await requestJson(`${apiBase}/exchangeRates`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body
+            });
+
+            form.reset();
+            populateCurrencySelects(cachedCurrencies);
+            showToast('Exchange rate added successfully', 'Success');
+            await requestExchangeRates();
+        } catch (error) {
+            showError(error);
+        }
+    }
+
+    async function handleConvert(event) {
+        event.preventDefault();
+
+        const from = document.getElementById('convert-base-currency')?.value ?? '';
+        const to = document.getElementById('convert-target-currency')?.value ?? '';
+        const amount = document.getElementById('convert-amount')?.value?.trim() ?? '';
+
+        try {
+            const result = await requestJson(
+                `${apiBase}/exchange?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}`
+            );
+
+            renderConversionResult(result);
+        } catch (error) {
+            showError(error);
+        }
+    }
+
+    async function handleSaveExchangeRate() {
+        const rate = document.getElementById('exchange-rate-input')?.value?.trim() ?? '';
+
+        if (!currentEditPair) {
+            showToast('No exchange rate selected', 'Error');
+            return;
+        }
+
+        const body = new URLSearchParams({rate});
+
+        try {
+            await requestJson(`${apiBase}/exchangeRate/${currentEditPair}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body
+            });
+
+            if (editModal) {
+                editModal.hide();
+            }
+
+            showToast('Exchange rate updated successfully', 'Success');
+            await requestExchangeRates();
+        } catch (error) {
+            showError(error);
+        }
+    }
+
+    function renderCurrencies(currencies) {
+        const tbody = document.querySelector('.currencies-table tbody');
+        const empty = document.getElementById('currencies-empty');
+        if (!tbody) return;
+
+        if (!currencies.length) {
+            tbody.innerHTML = '';
+            empty?.classList.remove('d-none');
+            return;
+        }
+
+        empty?.classList.add('d-none');
+
+        tbody.innerHTML = currencies.map(currency => `
+            <tr>
+                <td><strong>${escapeHtml(currency.code)}</strong></td>
+                <td>${escapeHtml(currency.name)}</td>
+                <td>${escapeHtml(currency.sign)}</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderExchangeRates(rates) {
+        const tbody = document.querySelector('.exchange-rates-table tbody');
+        const empty = document.getElementById('rates-empty');
+        if (!tbody) return;
+
+        if (!rates.length) {
+            tbody.innerHTML = '';
+            empty?.classList.remove('d-none');
+            return;
+        }
+
+        empty?.classList.add('d-none');
+
+        tbody.innerHTML = rates.map(rate => {
+            const pair = `${rate.baseCurrency.code}${rate.targetCurrency.code}`;
+            return `
+                <tr>
+                    <td><strong>${escapeHtml(pair)}</strong></td>
+                    <td>${escapeHtml(rate.baseCurrency.code)}</td>
+                    <td>${escapeHtml(rate.targetCurrency.code)}</td>
+                    <td>${escapeHtml(rate.rate)}</td>
+                    <td class="text-end">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            data-edit-pair="${escapeHtml(pair)}"
+                            data-edit-rate="${escapeHtml(rate.rate)}"
+                        >
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function populateCurrencySelects(currencies) {
+        const options = currencies.map(currency => `
+        <option
+            value="${escapeHtml(currency.code)}"
+            title="${escapeHtml(currency.name)}"
+        >
+            ${escapeHtml(currency.code)}
+        </option>
+    `).join('');
+
+        const ids = [
+            'new-rate-base-currency',
+            'new-rate-target-currency',
+            'convert-base-currency',
+            'convert-target-currency'
+        ];
+
+        ids.forEach((id) => {
+            const select = document.getElementById(id);
+            if (select) {
+                const currentValue = select.value;
+                select.innerHTML = options;
+
+                const hasCurrent = currencies.some(currency => currency.code === currentValue);
+                if (hasCurrent) {
+                    select.value = currentValue;
+                }
             }
         });
     }
 
-    requestExchangeRates();
+    function renderConversionResult(result) {
+        const amountEl = document.getElementById('convert-converted-amount');
+        const metaEl = document.getElementById('conversion-meta');
 
-    $(document).delegate('.exchange-rate-edit', 'click', function() {
-        // Get the currency and exchange rate from the row
-        const pair = $(this).closest('tr').find('td:first').text();
-        const exchangeRate = $(this).closest('tr').find('td:eq(1)').text();
+        if (!amountEl || !metaEl) return;
 
-        // insert values into the modal
-        $('#edit-exchange-rate-modal .modal-title').text(`Edit ${pair} Exchange Rate`);
-        $('#edit-exchange-rate-modal #exchange-rate-input').val(exchangeRate);
-    });
+        amountEl.textContent = `${result.convertedAmount} ${result.targetCurrency.code}`;
+        metaEl.textContent =
+            `${result.amount} ${result.baseCurrency.code} × ${result.rate} = ${result.convertedAmount} ${result.targetCurrency.code}`;
+    }
 
-    // add event handler for edit exchange rate modal "Save" button
-    $('#edit-exchange-rate-modal .btn-primary').click(function() {
-        // get the currency pair and exchange rate from the modal
-        const pair = $('#edit-exchange-rate-modal .modal-title').text().replace('Edit ', '').replace(' Exchange Rate', '');
-        const exchangeRate = $('#edit-exchange-rate-modal #exchange-rate-input').val();
+    function updateCurrencyStats(count) {
+        const countEl = document.getElementById('currencies-count');
+        const pillEl = document.getElementById('currencies-pill');
 
-        // send values to the server with a patch request
-        $.ajax({
-            url: `${host}/exchangeRate/${pair}`,
-            type: "PATCH",
-            contentType : "application/x-www-form-urlencoded",
-            data: `rate=${exchangeRate}`,
-            success: function() {
-                // set changed values to the table row
-                const row = $(`tr:contains(${pair})`);
-                row.find('td:eq(1)').text(exchangeRate);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                const error = JSON.parse(jqXHR.responseText);
-                const toast = $('#api-error-toast');
+        if (countEl) countEl.textContent = String(count);
+        if (pillEl) pillEl.textContent = `${count} loaded`;
+    }
 
-                $(toast).find('.toast-body').text(error.message);
-                toast.toast("show");
-            }
-        });
+    function updateRateStats(count) {
+        const countEl = document.getElementById('rates-count');
+        const pillEl = document.getElementById('rates-pill');
 
-        // close the modal
-        $('#edit-exchange-rate-modal').modal('hide');
-    });
+        if (countEl) countEl.textContent = String(count);
+        if (pillEl) pillEl.textContent = `${count} loaded`;
+    }
 
-    $("#add-exchange-rate").submit(function(e) {
-        e.preventDefault();
+    function showToast(message, title = 'Notice') {
+        const titleEl = document.getElementById('toast-title');
+        const messageEl = document.getElementById('toast-message');
 
-        $.ajax({
-            url: `${host}/exchangeRates`,
-            type: "POST",
-            data: $("#add-exchange-rate").serialize(),
-            success: function(data) {
-                requestExchangeRates();
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                const error = JSON.parse(jqXHR.responseText);
-                const toast = $('#api-error-toast');
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = message;
 
-                $(toast).find('.toast-body').text(error.message);
-                toast.toast("show");
-            }
-        });
+        if (apiToast) {
+            apiToast.show();
+        } else {
+            alert(`${title}: ${message}`);
+        }
+    }
 
-        return false;
-    });
+    function showError(error) {
+        showToast(error.message || 'Something went wrong.', 'Error');
+    }
 
-    $("#convert").submit(function(e) {
-        e.preventDefault();
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
 
-        const baseCurrency = $("#convert-base-currency").val();
-        const targetCurrency = $("#convert-target-currency").val();
-        const amount = $("#convert-amount").val();
-
-        $.ajax({
-            url: `${host}/exchange?from=${baseCurrency}&to=${targetCurrency}&amount=${amount}`,
-            type: "GET",
-            // data: "$("#add-exchange-rate").serialize()",
-            success: function(data) {
-                $("#convert-converted-amount").val(data.convertedAmount);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                const error = JSON.parse(jqXHR.responseText);
-                const toast = $('#api-error-toast');
-
-                $(toast).find('.toast-body').text(error.message);
-                toast.toast("show");
-            }
-        });
-
-        return false;
-    });
-});
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
