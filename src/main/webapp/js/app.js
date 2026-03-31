@@ -1,5 +1,6 @@
 (() => {
     const apiBase = `${window.location.origin}/currency-exchange`;
+    const THEME_STORAGE_KEY = 'currency-exchange-theme';
 
     let apiToast = null;
     let editModal = null;
@@ -7,27 +8,60 @@
     let cachedCurrencies = [];
 
     function init() {
-        console.log('App init');
-        console.log('API base:', apiBase);
-
-        const toastElement = document.getElementById('api-toast');
-        const modalElement = document.getElementById('edit-exchange-rate-modal');
-
-        if (toastElement && window.bootstrap) {
-            apiToast = new bootstrap.Toast(toastElement, {delay: 3500});
-        }
-
-        if (modalElement && window.bootstrap) {
-            editModal = new bootstrap.Modal(modalElement);
-        }
+        initBootstrap();
+        restoreTheme();
 
         const apiBaseElement = document.getElementById('api-base');
         if (apiBaseElement) {
             apiBaseElement.textContent = apiBase;
         }
 
+        bindThemeToggle();
         bindEvents();
         loadInitialData();
+    }
+
+    function initBootstrap() {
+        const modalElement = document.getElementById('edit-exchange-rate-modal');
+        if (modalElement && window.bootstrap) {
+            editModal = new bootstrap.Modal(modalElement);
+        }
+    }
+
+    function bindThemeToggle() {
+        const button = document.getElementById('theme-toggle-btn');
+        if (!button) return;
+
+        updateThemeButtonLabel();
+
+        button.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            persistTheme();
+            updateThemeButtonLabel();
+        });
+    }
+
+    function restoreTheme() {
+        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+        if (savedTheme === 'light') {
+            document.body.classList.remove('dark-theme');
+        } else {
+            document.body.classList.add('dark-theme');
+        }
+    }
+
+    function persistTheme() {
+        const isDark = document.body.classList.contains('dark-theme');
+        localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+    }
+
+    function updateThemeButtonLabel() {
+        const button = document.getElementById('theme-toggle-btn');
+        if (!button) return;
+
+        const isDark = document.body.classList.contains('dark-theme');
+        button.textContent = isDark ? '☀️ Light mode' : '🌙 Dark mode';
     }
 
     function bindEvents() {
@@ -45,9 +79,7 @@
             document.getElementById('exchange-rate-input').value = button.dataset.editRate ?? '';
             document.querySelector('#edit-exchange-rate-modal .modal-title').textContent = `Edit ${currentEditPair}`;
 
-            if (editModal) {
-                editModal.show();
-            }
+            editModal?.show();
         });
     }
 
@@ -67,7 +99,6 @@
             populateCurrencySelects(cachedCurrencies);
             updateCurrencyStats(cachedCurrencies.length);
         } catch (error) {
-            console.error('Currencies load error:', error);
             showError(error);
             renderCurrencies([]);
             updateCurrencyStats(0);
@@ -80,7 +111,6 @@
             renderExchangeRates(Array.isArray(rates) ? rates : []);
             updateRateStats(Array.isArray(rates) ? rates.length : 0);
         } catch (error) {
-            console.error('Exchange rates load error:', error);
             showError(error);
             renderExchangeRates([]);
             updateRateStats(0);
@@ -88,8 +118,6 @@
     }
 
     async function requestJson(url, options = {}) {
-        console.log('Fetching:', url, options.method || 'GET');
-
         const response = await fetch(url, options);
         const contentType = response.headers.get('content-type') || '';
         const isJson = contentType.includes('application/json');
@@ -127,7 +155,7 @@
             });
 
             form.reset();
-            showToast('Currency added successfully', 'Success');
+            showToast('Currency added successfully', 'Success', 'success');
             await requestCurrencies();
         } catch (error) {
             showError(error);
@@ -157,7 +185,7 @@
 
             form.reset();
             populateCurrencySelects(cachedCurrencies);
-            showToast('Exchange rate added successfully', 'Success');
+            showToast('Exchange rate added successfully', 'Success', 'success');
             await requestExchangeRates();
         } catch (error) {
             showError(error);
@@ -186,7 +214,7 @@
         const rate = document.getElementById('exchange-rate-input')?.value?.trim() ?? '';
 
         if (!currentEditPair) {
-            showToast('No exchange rate selected', 'Error');
+            showToast('No exchange rate selected', 'Error', 'error');
             return;
         }
 
@@ -199,11 +227,8 @@
                 body
             });
 
-            if (editModal) {
-                editModal.hide();
-            }
-
-            showToast('Exchange rate updated successfully', 'Success');
+            editModal?.hide();
+            showToast('Exchange rate updated successfully', 'Success', 'success');
             await requestExchangeRates();
         } catch (error) {
             showError(error);
@@ -247,6 +272,7 @@
 
         tbody.innerHTML = rates.map(rate => {
             const pair = `${rate.baseCurrency.code}${rate.targetCurrency.code}`;
+
             return `
                 <tr>
                     <td><strong>${escapeHtml(pair)}</strong></td>
@@ -270,13 +296,10 @@
 
     function populateCurrencySelects(currencies) {
         const options = currencies.map(currency => `
-        <option
-            value="${escapeHtml(currency.code)}"
-            title="${escapeHtml(currency.name)}"
-        >
-            ${escapeHtml(currency.code)}
-        </option>
-    `).join('');
+            <option value="${escapeHtml(currency.code)}" title="${escapeHtml(currency.name)}">
+                ${escapeHtml(currency.code)}
+            </option>
+        `).join('');
 
         const ids = [
             'new-rate-base-currency',
@@ -287,14 +310,14 @@
 
         ids.forEach((id) => {
             const select = document.getElementById(id);
-            if (select) {
-                const currentValue = select.value;
-                select.innerHTML = options;
+            if (!select) return;
 
-                const hasCurrent = currencies.some(currency => currency.code === currentValue);
-                if (hasCurrent) {
-                    select.value = currentValue;
-                }
+            const currentValue = select.value;
+            select.innerHTML = options;
+
+            const hasCurrent = currencies.some(currency => currency.code === currentValue);
+            if (hasCurrent) {
+                select.value = currentValue;
             }
         });
     }
@@ -326,14 +349,30 @@
         if (pillEl) pillEl.textContent = `${count} loaded`;
     }
 
-    function showToast(message, title = 'Notice') {
+    function showToast(message, title = 'Notice', type = 'info') {
         const titleEl = document.getElementById('toast-title');
         const messageEl = document.getElementById('toast-message');
+        const toastEl = document.getElementById('api-toast');
 
         if (titleEl) titleEl.textContent = title;
         if (messageEl) messageEl.textContent = message;
+        if (!toastEl) return;
 
-        if (apiToast) {
+        toastEl.classList.remove('toast-success', 'toast-error', 'toast-info');
+
+        if (type === 'success') {
+            toastEl.classList.add('toast-success');
+        } else if (type === 'error') {
+            toastEl.classList.add('toast-error');
+        } else {
+            toastEl.classList.add('toast-info');
+        }
+
+        if (window.bootstrap) {
+            apiToast?.dispose();
+            apiToast = new bootstrap.Toast(toastEl, {
+                delay: type === 'error' ? 5500 : 2600
+            });
             apiToast.show();
         } else {
             alert(`${title}: ${message}`);
@@ -341,7 +380,7 @@
     }
 
     function showError(error) {
-        showToast(error.message || 'Something went wrong.', 'Error');
+        showToast(error.message || 'Something went wrong.', 'Error', 'error');
     }
 
     function escapeHtml(value) {
