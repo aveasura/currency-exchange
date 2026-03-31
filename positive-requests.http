@@ -30,15 +30,15 @@ POST {{baseUrl}}/exchangeRates
 Content-Type: application/x-www-form-urlencoded
 Accept: application/json
 
-baseCurrencyCode=USD&targetCurrencyCode=AUD&rate=1.46
+baseCurrencyCode=JPY&targetCurrencyCode=EUR&rate=0.1234
 
 ### Обновить курс
-PATCH {{baseUrl}}/exchangeRate/USDAUD
+PATCH {{baseUrl}}/exchangeRate/USDRUB
 Content-Type: application/x-www-form-urlencoded
 Accept: application/json
 
-rate=1.3234
+rate=1.234
 
 ### Конвертация валюты
-GET {{baseUrl}}/exchange?from=USD&to=AUD&amount=10
+GET {{baseUrl}}/exchange?from=USD&to=EUR&amount=10
 Accept: application/json
