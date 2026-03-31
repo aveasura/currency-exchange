@@ -3,12 +3,22 @@
 
 REST API для работы с валютами и обменными курсами.
 
+Для быстрого тестирования API в проект добавлены файлы:
+- [`positive-requests.http`](./positive-requests.http) - проверка позитивных сценариев
+- [`negative-requests.http`](./negative-requests.http) - проверка негативных сценариев
+
 ## Стек
 - Java 21
 - Jakarta Servlet API
 - JDBC
 - SQLite
 - Maven
+- HTML
+- 
+## Интерфейс
+- HTML
+- CSS
+- JavaScript
 
 ## Функциональность
 - получение списка валют
