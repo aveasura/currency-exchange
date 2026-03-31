@@ -18,7 +18,8 @@ public class ExchangeService extends AbstractCurrencyService {
 
     // According to specification, cross-rate is calculated only through USD.
     private static final String CROSS_RATE_CURRENCY_CODE = "USD";
-    private static final int SCALE = 6;
+    private static final int AMOUNT_SCALE = 2;
+    private static final int EXCHANGE_RATE_SCALE = 6;
 
     private final ExchangeRateRepository exchangeRateRepository;
     private final ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper;
@@ -37,7 +38,7 @@ public class ExchangeService extends AbstractCurrencyService {
         BigDecimal amount = new BigDecimal(request.amount());
 
         BigDecimal rate = resolveRate(base, target);
-        BigDecimal convertedAmount = amount.multiply(rate);
+        BigDecimal convertedAmount = amount.multiply(rate).setScale(AMOUNT_SCALE, RoundingMode.HALF_UP);
 
         CurrencyResponse baseCurrencyDto = currencyResponseMapper.toDto(base);
         CurrencyResponse targetCurrencyDto = currencyResponseMapper.toDto(target);
@@ -66,7 +67,7 @@ public class ExchangeService extends AbstractCurrencyService {
             BigDecimal usdToBase = resolveUsdRate(usd, base);
             BigDecimal usdToTarget = resolveUsdRate(usd, target);
 
-            return usdToTarget.divide(usdToBase, SCALE, RoundingMode.HALF_UP);
+            return usdToTarget.divide(usdToBase, EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP);
         } catch (ExchangeRateNotFoundException e) {
             throw new ExchangeRateNotFoundException(base.getCode(), target.getCode());
         }
@@ -93,6 +94,6 @@ public class ExchangeService extends AbstractCurrencyService {
                 exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(target.getId(), base.getId());
 
         return reverse.map(rate ->
-                BigDecimal.ONE.divide(rate.getRate(), SCALE, RoundingMode.HALF_UP));
+                BigDecimal.ONE.divide(rate.getRate(), EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP));
     }
 }
