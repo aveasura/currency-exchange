@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public final class DatabaseManager {
+public final class DatabaseInitializer {
 
     private static final String SQLITE_DRIVER_CLASS = "org.sqlite.JDBC";
 
@@ -69,7 +69,7 @@ public final class DatabaseManager {
 
     private final ConnectionProvider connectionProvider;
 
-    public DatabaseManager(ConnectionProvider connectionProvider) {
+    public DatabaseInitializer(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
     }
 

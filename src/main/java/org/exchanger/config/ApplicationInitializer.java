@@ -28,11 +28,11 @@ public class ApplicationInitializer implements ServletContextListener {
         ServletContext context = event.getServletContext();
 
         ConnectionProvider connectionProvider = new ConnectionProvider();
-        DatabaseManager dataBaseManager = new DatabaseManager(connectionProvider);
+        DatabaseInitializer dataBaseInitializer = new DatabaseInitializer(connectionProvider);
 
         try {
-            dataBaseManager.initialize();
-            dataBaseManager.initializeDatabase();
+            dataBaseInitializer.initialize();
+            dataBaseInitializer.initializeDatabase();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("Failed to initialize database", e);
         }
@@ -72,5 +72,10 @@ public class ApplicationInitializer implements ServletContextListener {
         context.setAttribute(ContextAttributes.EXCHANGE_RATE_SERVICE, exchangeRateService);
         context.setAttribute(ContextAttributes.EXCHANGE_SERVICE, exchangeService);
         context.setAttribute(ContextAttributes.OBJECT_MAPPER, objectMapper);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+
     }
 }
