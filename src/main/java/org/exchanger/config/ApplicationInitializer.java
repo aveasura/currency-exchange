@@ -1,7 +1,6 @@
 package org.exchanger.config;
 
 import com.zaxxer.hikari.HikariDataSource;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -34,22 +33,51 @@ public class ApplicationInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        ServletContext context = event.getServletContext();
+        HikariDataSource dataSource = createDataSource();
+        ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
 
+        initialDatabase(dataSource, connectionProvider);
+
+        AppComponents components = createComponents(dataSource, connectionProvider);
+        event.getServletContext().setAttribute(AppComponents.class.getName(), components);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {
+        AppComponents components =
+                (AppComponents) event.getServletContext().getAttribute(AppComponents.class.getName());
+
+        closeDataSource(components);
+    }
+
+    private void closeDataSource(AppComponents components) {
+        if (components == null) {
+            return;
+        }
+
+        HikariDataSource dataSource = components.dataSource();
+        if (dataSource != null) {
+            dataSource.close();
+        }
+    }
+
+    private HikariDataSource createDataSource() {
         DatabaseConfig config = new DatabaseConfigResolver().resolve();
         HikariDataSourceFactory factory = new HikariDataSourceFactory(config);
-        HikariDataSource dataSource = factory.create();
+        return factory.create();
+    }
 
-        ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
+    private void initialDatabase(HikariDataSource dataSource, ConnectionProvider connectionProvider) {
         DatabaseInitializer databaseInitializer = new DatabaseInitializer(connectionProvider);
-
         try {
             databaseInitializer.initializeDatabase();
         } catch (DataAccessException e) {
             dataSource.close();
             throw new RuntimeException("Failed to initialize database", e);
         }
+    }
 
+    private AppComponents createComponents(HikariDataSource dataSource, ConnectionProvider connectionProvider) {
         CurrencyMapper currencyMapper = new CurrencyMapper();
         ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateResponseMapper
                 = new ExchangeRateMapper(currencyMapper);
@@ -79,25 +107,12 @@ public class ApplicationInitializer implements ServletContextListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        AppComponents components = new AppComponents(
+        return new AppComponents(
                 dataSource,
                 currencyService,
                 exchangeRateService,
                 exchangeService,
                 objectMapper
         );
-
-        context.setAttribute(AppComponents.class.getName(), components);
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent event) {
-        AppComponents components
-                = (AppComponents) event.getServletContext().getAttribute(AppComponents.class.getName());
-
-        HikariDataSource dataSource = components.dataSource();
-        if (dataSource != null) {
-            dataSource.close();
-        }
     }
 }
