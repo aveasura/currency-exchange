@@ -5,7 +5,7 @@ import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
-import org.exchanger.exception.DuplicateEntityException;
+import org.exchanger.exception.DataAccessException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
@@ -67,8 +67,8 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
         try {
             Long createdId = exchangeRateRepository.create(base.getId(), target.getId(), rate);
             exchangeRate.setId(createdId);
-        } catch (DuplicateEntityException e) {
-            throw new ExchangeRateAlreadyExistsException(base.getCode(), target.getCode());
+        } catch (DataAccessException e) {
+            throw new ExchangeRateAlreadyExistsException(base.getCode(), target.getCode(), e);
         }
 
         return responseMapper.toDto(exchangeRate);

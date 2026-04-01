@@ -34,7 +34,7 @@ public final class DefaultCurrencyService extends AbstractCurrencyLookupService 
             Long id = currencyRepository.create(currency.getCode(), currency.getFullName(), currency.getSign());
             currency.setId(id);
         } catch (DuplicateEntityException e) {
-            throw new CurrencyAlreadyExistsException(currency.getCode());
+            throw new CurrencyAlreadyExistsException(currency.getCode(), e);
         }
 
         return responseMapper.toDto(currency);
