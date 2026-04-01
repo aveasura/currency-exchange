@@ -49,6 +49,7 @@ public final class DatabaseInitializer {
             ON exchange_rates(base_currency_id, target_currency_id);
             """;
 
+    // ID стартуют с 0 намеренно. Последующие вставки SQLite нумерует корректно с учетом уже существующих записей.
     private static final String INSERT_DEFAULT_CURRENCIES_SQL = """
             INSERT OR IGNORE INTO currencies(id, code, full_name, sign)
             VALUES (0, 'USD', 'United States dollar', '$'),
