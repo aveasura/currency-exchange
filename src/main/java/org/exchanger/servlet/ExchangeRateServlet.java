@@ -8,7 +8,6 @@ import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
-import org.exchanger.service.impl.DefaultExchangeRateService;
 import org.exchanger.servlet.parser.CurrencyPairParser;
 import org.exchanger.servlet.parser.CurrencyPairRequest;
 import org.exchanger.servlet.parser.RequestParser;
@@ -27,7 +26,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, DefaultExchangeRateService.class);
+        exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, ExchangeRateService.class);
         this.codeParser = new CurrencyPairParser();
         this.updateParser = new UpdateRateParser(codeParser);
         this.validator = new UpdateExchangeRateValidator();

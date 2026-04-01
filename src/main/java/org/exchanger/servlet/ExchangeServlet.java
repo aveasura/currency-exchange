@@ -7,7 +7,6 @@ import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.service.ExchangeService;
-import org.exchanger.service.impl.DefaultExchangeService;
 import org.exchanger.servlet.parser.ExchangeRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.validator.ExchangeRequestValidator;
@@ -23,7 +22,7 @@ public class ExchangeServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        exchangeService = getService(ContextAttributes.EXCHANGE_SERVICE, DefaultExchangeService.class);
+        exchangeService = getService(ContextAttributes.EXCHANGE_SERVICE, ExchangeService.class);
         this.parser = new ExchangeRequestParser();
         this.validator = new ExchangeRequestValidator();
     }

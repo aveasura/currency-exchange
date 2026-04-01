@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
-import org.exchanger.service.impl.DefaultCurrencyService;
 import org.exchanger.servlet.parser.CurrencyCodeParser;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.validator.CurrencyCodeValidator;
@@ -22,13 +21,13 @@ public class CurrencyServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        currencyService = getService(ContextAttributes.CURRENCY_SERVICE, DefaultCurrencyService.class);
+        currencyService = getService(ContextAttributes.CURRENCY_SERVICE, CurrencyService.class);
         this.parser = new CurrencyCodeParser();
         this.validator = new CurrencyCodeValidator();
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         String code = parser.parse(request);
         validator.validate(code);
         CurrencyResponse responseDto = currencyService.getByCurrencyCode(code);
