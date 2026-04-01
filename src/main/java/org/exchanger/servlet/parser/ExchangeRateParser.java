@@ -3,7 +3,7 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.ExchangeRateRequest;
 
-public class ExchangeRateParser extends AbstractRequestParser<ExchangeRateRequest> {
+public final class ExchangeRateParser extends AbstractRequestParser<ExchangeRateRequest> {
 
     private static final String BASE_CURRENCY_CODE_PARAM = "baseCurrencyCode";
     private static final String TARGET_CURRENCY_CODE_PARAM = "targetCurrencyCode";

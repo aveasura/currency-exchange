@@ -3,7 +3,7 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.exception.BadRequestException;
 
-public class CurrencyPairParser extends AbstractRequestParser<CurrencyPairRequest> {
+public final class CurrencyPairParser extends AbstractRequestParser<CurrencyPairRequest> {
 
     private static final String CURRENCY_PAIR_PATTERN = "[A-Z]{6}";
 

@@ -3,7 +3,7 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.ExchangeRequest;
 
-public class ExchangeRequestParser extends AbstractRequestParser<ExchangeRequest> {
+public final class ExchangeRequestParser extends AbstractRequestParser<ExchangeRequest> {
 
     private static final String FROM_PARAM = "from";
     private static final String TO_PARAM = "to";

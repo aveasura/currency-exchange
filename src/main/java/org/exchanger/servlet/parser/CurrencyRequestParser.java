@@ -3,7 +3,7 @@ package org.exchanger.servlet.parser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.exchanger.dto.request.CurrencyRequest;
 
-public class CurrencyRequestParser extends AbstractRequestParser<CurrencyRequest> {
+public final class CurrencyRequestParser extends AbstractRequestParser<CurrencyRequest> {
 
     private static final String NAME_PARAM = "name";
     private static final String CODE_PARAM = "code";
