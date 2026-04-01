@@ -12,7 +12,7 @@ import java.util.Map;
 
 public final class FormUrlEncodedBodyParser {
 
-    public Map<String, String> parse(HttpServletRequest request) {
+    public FormUrlEncodedBody parse(HttpServletRequest request) {
         String body = readBody(request);
 
         if (body.isBlank()) {
@@ -30,18 +30,16 @@ public final class FormUrlEncodedBodyParser {
             params.put(key, value);
         }
 
-        return params;
+        return new FormUrlEncodedBody(params);
     }
 
     private String readBody(HttpServletRequest request) {
         try {
             StringBuilder body = new StringBuilder();
             String line;
-
             while ((line = request.getReader().readLine()) != null) {
                 body.append(line);
             }
-
             return body.toString();
         } catch (IOException e) {
             throw new RequestProcessingException("Failed to read request body", e);
