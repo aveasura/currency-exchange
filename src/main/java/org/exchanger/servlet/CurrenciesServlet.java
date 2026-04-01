@@ -7,6 +7,7 @@ import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
+import org.exchanger.service.impl.DefaultCurrencyService;
 import org.exchanger.servlet.parser.CurrencyRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.validator.CurrencyRequestValidator;
@@ -24,7 +25,7 @@ public class CurrenciesServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        currencyService = getService(ContextAttributes.CURRENCY_SERVICE, CurrencyService.class);
+        currencyService = getService(ContextAttributes.CURRENCY_SERVICE, DefaultCurrencyService.class);
         this.parser = new CurrencyRequestParser();
         this.validator = new CurrencyRequestValidator();
     }
@@ -38,7 +39,7 @@ public class CurrenciesServlet extends AbstractApiServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         CurrencyRequest requestDto = parser.parse(request);
         validator.validate(requestDto);
-        CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
+        CurrencyResponse responseDto = currencyService.create(requestDto);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }

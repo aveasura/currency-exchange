@@ -7,6 +7,7 @@ import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
+import org.exchanger.service.impl.DefaultExchangeRateService;
 import org.exchanger.servlet.parser.ExchangeRateParser;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.validator.ExchangeRateRequestValidator;
@@ -24,7 +25,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, ExchangeRateService.class);
+        exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, DefaultExchangeRateService.class);
         this.parser = new ExchangeRateParser();
         this.validator = new ExchangeRateRequestValidator();
     }
@@ -39,7 +40,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ExchangeRateRequest requestDto = parser.parse(request);
         validator.validate(requestDto);
-        ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
+        ExchangeRateResponse responseDto = exchangeRateService.create(requestDto);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }

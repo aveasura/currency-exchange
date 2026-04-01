@@ -21,6 +21,9 @@ import org.exchanger.repository.jdbc.JdbcExchangeRateRepository;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.service.ExchangeService;
+import org.exchanger.service.impl.DefaultCurrencyService;
+import org.exchanger.service.impl.DefaultExchangeRateService;
+import org.exchanger.service.impl.DefaultExchangeService;
 import tools.jackson.databind.ObjectMapper;
 
 @WebListener
@@ -50,19 +53,19 @@ public class ApplicationInitializer implements ServletContextListener {
         CurrencyRepository currencyRepository = new JdbcCurrencyRepository(connectionProvider);
         ExchangeRateRepository exchangeRateRepository = new JdbcExchangeRateRepository(connectionProvider);
 
-        CurrencyService currencyService = new CurrencyService(
+        CurrencyService currencyService = new DefaultCurrencyService(
                 currencyRepository,
                 currencyMapper,
                 currencyMapper
         );
 
-        ExchangeRateService exchangeRateService = new ExchangeRateService(
+        ExchangeRateService exchangeRateService = new DefaultExchangeRateService(
                 currencyRepository,
                 exchangeRateRepository,
                 exchangeRateResponseMapper
         );
 
-        ExchangeService exchangeService = new ExchangeService(
+        ExchangeService exchangeService = new DefaultExchangeService(
                 currencyRepository,
                 exchangeRateRepository,
                 currencyMapper
