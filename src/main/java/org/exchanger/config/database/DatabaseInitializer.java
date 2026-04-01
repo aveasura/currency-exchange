@@ -1,4 +1,4 @@
-package org.exchanger.config;
+package org.exchanger.config.database;
 
 import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.exception.DataAccessException;
