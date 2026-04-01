@@ -1,9 +1,7 @@
 package org.exchanger.exception;
 
-import jakarta.servlet.http.HttpServletResponse;
-
-public class CurrencyAlreadyExistsException extends AppException {
-    public CurrencyAlreadyExistsException(String code) {
-        super(HttpServletResponse.SC_CONFLICT, "Currency with code '%s' already exists".formatted(code));
+public final class CurrencyAlreadyExistsException extends DuplicateEntityException {
+    public CurrencyAlreadyExistsException(String code, Throwable cause) {
+        super("Currency with code '%s' already exists".formatted(code), cause);
     }
 }

@@ -35,10 +35,11 @@ public class CurrenciesServlet extends AbstractApiServlet {
         sendResponse(response, currencies, HttpServletResponse.SC_OK);
     }
 
-    public void doPost(HttpServletRequest request, HttpServletResponse response) {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         CurrencyRequest requestDto = parser.parse(request);
         validator.validate(requestDto);
-        CurrencyResponse responseDto = currencyService.createCurrency(requestDto);
+        CurrencyResponse responseDto = currencyService.create(requestDto);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }

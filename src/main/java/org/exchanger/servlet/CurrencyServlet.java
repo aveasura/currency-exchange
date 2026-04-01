@@ -27,10 +27,10 @@ public class CurrencyServlet extends AbstractApiServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         String code = parser.parse(request);
         validator.validate(code);
-        CurrencyResponse responseDto = currencyService.get(code);
+        CurrencyResponse responseDto = currencyService.getByCurrencyCode(code);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }

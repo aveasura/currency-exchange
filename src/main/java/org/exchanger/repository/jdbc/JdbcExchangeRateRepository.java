@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-public class JdbcExchangeRateRepository extends AbstractJdbcRepository implements ExchangeRateRepository {
+public final class JdbcExchangeRateRepository extends AbstractJdbcRepository implements ExchangeRateRepository {
     private static final String BASE_SELECT_SQL = """
             SELECT er.id AS id,
                     er.rate AS rate,

@@ -39,7 +39,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ExchangeRateRequest requestDto = parser.parse(request);
         validator.validate(requestDto);
-        ExchangeRateResponse responseDto = exchangeRateService.addExchangeRate(requestDto);
+        ExchangeRateResponse responseDto = exchangeRateService.create(requestDto);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }

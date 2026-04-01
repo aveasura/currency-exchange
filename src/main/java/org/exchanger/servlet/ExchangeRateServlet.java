@@ -44,7 +44,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) {
         UpdateExchangeRateRequest updateRequest = updateParser.parse(request);
         validator.validate(updateRequest);
-        UpdateExchangeRateResponse responseDto = exchangeRateService.patchExchangeRate(updateRequest);
+        UpdateExchangeRateResponse responseDto = exchangeRateService.updateExchangeRate(updateRequest);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }

@@ -7,7 +7,7 @@ import org.exchanger.exception.RequestProcessingException;
 
 import java.io.IOException;
 
-public class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRequest> {
+public final class UpdateRateParser extends AbstractRequestParser<UpdateExchangeRateRequest> {
 
     private static final String RATE_PARAM = "rate";
     private static final String RATE_PREFIX = RATE_PARAM + "=";

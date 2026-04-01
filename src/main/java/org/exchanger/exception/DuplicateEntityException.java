@@ -1,7 +1,9 @@
 package org.exchanger.exception;
 
-public class DuplicateEntityException extends RuntimeException {
+import jakarta.servlet.http.HttpServletResponse;
+
+public class DuplicateEntityException extends AppException {
     public DuplicateEntityException(String message, Throwable cause) {
-        super(message, cause);
+        super(HttpServletResponse.SC_CONFLICT, message, cause);
     }
 }

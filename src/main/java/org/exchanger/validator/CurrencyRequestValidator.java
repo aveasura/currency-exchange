@@ -3,7 +3,7 @@ package org.exchanger.validator;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.exception.BadRequestException;
 
-public class CurrencyRequestValidator extends AbstractRequestValidator<CurrencyRequest> {
+public final class CurrencyRequestValidator extends AbstractRequestValidator<CurrencyRequest> {
     @Override
     public void validate(CurrencyRequest request) {
         validateName(request.name());
