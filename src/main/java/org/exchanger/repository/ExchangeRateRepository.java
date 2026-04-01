@@ -10,5 +10,5 @@ public interface ExchangeRateRepository extends Repository<ExchangeRate> {
 
     Optional<ExchangeRate> findByBaseCurrencyIdAndTargetCurrencyId(Long baseCurrencyId, Long targetCurrencyId);
 
-    void updateRateById(Long baseCurrencyId, BigDecimal rate);
+    void updateRateById(Long exchangeRateId, BigDecimal rate);
 }
