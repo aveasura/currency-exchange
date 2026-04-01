@@ -36,7 +36,7 @@ public class ApplicationInitializer implements ServletContextListener {
         HikariDataSource dataSource = createDataSource();
         ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
 
-        initialDatabase(dataSource, connectionProvider);
+        initializeDatabase(dataSource, connectionProvider);
 
         AppComponents components = createComponents(dataSource, connectionProvider);
         event.getServletContext().setAttribute(AppComponents.class.getName(), components);
@@ -67,7 +67,7 @@ public class ApplicationInitializer implements ServletContextListener {
         return factory.create();
     }
 
-    private void initialDatabase(HikariDataSource dataSource, ConnectionProvider connectionProvider) {
+    private void initializeDatabase(HikariDataSource dataSource, ConnectionProvider connectionProvider) {
         DatabaseInitializer databaseInitializer = new DatabaseInitializer(connectionProvider);
         try {
             databaseInitializer.initializeDatabase();
