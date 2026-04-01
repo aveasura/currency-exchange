@@ -9,10 +9,12 @@ import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.config.connection.HikariDataSourceFactory;
 import org.exchanger.config.connection.SqliteConnectionProvider;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.exception.DataAccessException;
 import org.exchanger.mapper.CurrencyMapper;
 import org.exchanger.mapper.ExchangeRateMapper;
 import org.exchanger.mapper.ResponseMapper;
+import org.exchanger.mapper.UpdateExchangeRateMapper;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
@@ -49,6 +51,8 @@ public class ApplicationInitializer implements ServletContextListener {
         CurrencyMapper currencyMapper = new CurrencyMapper();
         ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateResponseMapper
                 = new ExchangeRateMapper(currencyMapper);
+        ResponseMapper<ExchangeRate, UpdateExchangeRateResponse> updateExchangeRateResponseMapper
+                = new UpdateExchangeRateMapper(exchangeRateResponseMapper);
 
         CurrencyRepository currencyRepository = new JdbcCurrencyRepository(connectionProvider);
         ExchangeRateRepository exchangeRateRepository = new JdbcExchangeRateRepository(connectionProvider);
@@ -61,7 +65,8 @@ public class ApplicationInitializer implements ServletContextListener {
         ExchangeRateService exchangeRateService = new DefaultExchangeRateService(
                 currencyRepository,
                 exchangeRateRepository,
-                exchangeRateResponseMapper
+                exchangeRateResponseMapper,
+                updateExchangeRateResponseMapper
         );
 
         ExchangeService exchangeService = new DefaultExchangeService(

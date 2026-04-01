@@ -2,10 +2,8 @@ package org.exchanger.service.impl;
 
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
-import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
-import org.exchanger.exception.DataAccessException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
@@ -23,14 +21,17 @@ import java.util.List;
 public final class DefaultExchangeRateService extends AbstractCurrencyLookupService implements ExchangeRateService {
 
     private final ExchangeRateRepository exchangeRateRepository;
-    private final ResponseMapper<ExchangeRate, ExchangeRateResponse> responseMapper;
+    private final ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateMapper;
+    private final ResponseMapper<ExchangeRate, UpdateExchangeRateResponse> updateExchangeRateMapper;
 
     public DefaultExchangeRateService(CurrencyRepository currencyRepository,
                                       ExchangeRateRepository exchangeRateRepository,
-                                      ResponseMapper<ExchangeRate, ExchangeRateResponse> responseMapper) {
+                                      ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateMapper,
+                                      ResponseMapper<ExchangeRate, UpdateExchangeRateResponse> updateExchangeRateMapper) {
         super(currencyRepository);
         this.exchangeRateRepository = exchangeRateRepository;
-        this.responseMapper = responseMapper;
+        this.exchangeRateMapper = exchangeRateMapper;
+        this.updateExchangeRateMapper = updateExchangeRateMapper;
     }
 
     @Override
@@ -39,7 +40,7 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
 
         List<ExchangeRateResponse> response = new ArrayList<>(exchangeRates.size());
         for (ExchangeRate rate : exchangeRates) {
-            ExchangeRateResponse dto = responseMapper.toDto(rate);
+            ExchangeRateResponse dto = exchangeRateMapper.toDto(rate);
             response.add(dto);
         }
 
@@ -54,7 +55,7 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
         ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
                 .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
 
-        return responseMapper.toDto(exchangeRate);
+        return exchangeRateMapper.toDto(exchangeRate);
     }
 
     @Override
@@ -66,7 +67,8 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
         try {
             Long id = exchangeRateRepository.create(base.id(), target.id(), rate);
             ExchangeRate savedExchangeRate = new ExchangeRate(id, base, target, rate);
-            return responseMapper.toDto(savedExchangeRate);
+
+            return exchangeRateMapper.toDto(savedExchangeRate);
         } catch (DuplicateEntityException e) {
             throw new ExchangeRateAlreadyExistsException(base.code(), target.code(), e);
         }
@@ -84,29 +86,6 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
         exchangeRateRepository.updateRateById(exchangeRate.id(), newRate);
         ExchangeRate updatedExchangeRate = new ExchangeRate(exchangeRate.id(), base, target, newRate);
 
-        return toDto(updatedExchangeRate);
-    }
-
-    private UpdateExchangeRateResponse toDto(ExchangeRate updated) {
-        CurrencyResponse baseDto = new CurrencyResponse(
-                updated.baseCurrency().id(),
-                updated.baseCurrency().fullName(),
-                updated.baseCurrency().code(),
-                updated.baseCurrency().sign()
-        );
-
-        CurrencyResponse targetDto = new CurrencyResponse(
-                updated.targetCurrency().id(),
-                updated.targetCurrency().fullName(),
-                updated.targetCurrency().code(),
-                updated.targetCurrency().sign()
-        );
-
-        return new UpdateExchangeRateResponse(
-                updated.id(),
-                baseDto,
-                targetDto,
-                updated.rate()
-        );
+        return updateExchangeRateMapper.toDto(updatedExchangeRate);
     }
 }
