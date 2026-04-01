@@ -14,8 +14,11 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
     private static final Pattern NUMBER_PATTERN =
             Pattern.compile("^(0|[1-9]\\d*)(\\.\\d+)?$");
 
+    private static final int MAX_DECIMAL_SCALE = 6;
+
     private static final String INVALID_CODE_MESSAGE =
             "Currency code should contain exactly 3 latin letters. Example: EUR";
+
 
     protected void validateCodesAndPositiveNumber(String base, String target, String rawNumber) {
         validateCode(base);
@@ -53,7 +56,7 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
             throw new BadRequestException("Number must be greater than zero");
         }
 
-        if (result.scale() > 6) {
+        if (result.scale() > MAX_DECIMAL_SCALE) {
             throw new BadRequestException("Number scale exceeded. Max scale = 6. Example: 0.123456");
         }
     }
