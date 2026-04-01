@@ -8,7 +8,7 @@ import java.util.Locale;
 public abstract class AbstractCurrencyLookupService {
     protected final CurrencyRepository currencyRepository;
 
-    public AbstractCurrencyLookupService(CurrencyRepository currencyRepository) {
+    protected AbstractCurrencyLookupService(CurrencyRepository currencyRepository) {
         this.currencyRepository = currencyRepository;
     }
 
