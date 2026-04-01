@@ -16,6 +16,8 @@ import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
+import org.exchanger.repository.jdbc.JdbcCurrencyRepository;
+import org.exchanger.repository.jdbc.JdbcExchangeRateRepository;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.service.ExchangeService;
@@ -30,7 +32,6 @@ public class ApplicationInitializer implements ServletContextListener {
 
         HikariDataSourceFactory factory = new HikariDataSourceFactory();
         HikariDataSource dataSource = factory.create();
-        context.setAttribute(ContextAttributes.DATA_SOURCE, dataSource);
 
         ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
         DatabaseInitializer databaseInitializer = new DatabaseInitializer(connectionProvider);
@@ -46,8 +47,8 @@ public class ApplicationInitializer implements ServletContextListener {
         ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateResponseMapper
                 = new ExchangeRateMapper(currencyMapper);
 
-        CurrencyRepository currencyRepository = new CurrencyRepository(connectionProvider);
-        ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(connectionProvider);
+        CurrencyRepository currencyRepository = new JdbcCurrencyRepository(connectionProvider);
+        ExchangeRateRepository exchangeRateRepository = new JdbcExchangeRateRepository(connectionProvider);
 
         CurrencyService currencyService = new CurrencyService(
                 currencyRepository,
@@ -69,6 +70,7 @@ public class ApplicationInitializer implements ServletContextListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
+        context.setAttribute(ContextAttributes.DATA_SOURCE, dataSource);
         context.setAttribute(ContextAttributes.CURRENCY_REPOSITORY, currencyRepository);
         context.setAttribute(ContextAttributes.EXCHANGE_RATE_REPOSITORY, exchangeRateRepository);
         context.setAttribute(ContextAttributes.CURRENCY_SERVICE, currencyService);
