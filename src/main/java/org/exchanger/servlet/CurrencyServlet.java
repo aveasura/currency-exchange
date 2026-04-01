@@ -3,7 +3,6 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.servlet.parser.CurrencyCodeParser;
@@ -21,7 +20,7 @@ public class CurrencyServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        currencyService = getService(ContextAttributes.CURRENCY_SERVICE, CurrencyService.class);
+        currencyService = components.currencyService();
         this.parser = new CurrencyCodeParser();
         this.validator = new CurrencyCodeValidator();
     }

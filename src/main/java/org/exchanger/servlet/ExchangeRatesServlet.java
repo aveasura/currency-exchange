@@ -3,7 +3,6 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
@@ -24,7 +23,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        exchangeRateService = getService(ContextAttributes.EXCHANGE_RATE_SERVICE, ExchangeRateService.class);
+        exchangeRateService = components.exchangeRateService();
         this.parser = new ExchangeRateParser();
         this.validator = new ExchangeRateRequestValidator();
     }

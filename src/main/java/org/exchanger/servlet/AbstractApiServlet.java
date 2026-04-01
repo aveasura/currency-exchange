@@ -3,7 +3,7 @@ package org.exchanger.servlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.config.ContextAttributes;
+import org.exchanger.config.AppComponents;
 import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.exception.AppException;
 import tools.jackson.databind.ObjectMapper;
@@ -16,11 +16,15 @@ public abstract class AbstractApiServlet extends HttpServlet {
     private static final String CHARACTER_ENCODING = "UTF-8";
     private static final String INTERNAL_ERROR_MESSAGE = "Internal server error";
 
+    protected AppComponents components;
     protected ObjectMapper objectMapper;
 
     @Override
     public void init() {
-        this.objectMapper = (ObjectMapper) getServletContext().getAttribute(ContextAttributes.OBJECT_MAPPER);
+        components = (AppComponents) getServletContext()
+                .getAttribute(AppComponents.class.getName());
+
+        this.objectMapper = components.objectMapper();
     }
 
     @Override
@@ -33,10 +37,6 @@ public abstract class AbstractApiServlet extends HttpServlet {
             log("Unexpected server error", e);
             writeErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE);
         }
-    }
-
-    protected <T> T getService(String attribute, Class<T> serviceClass) {
-        return serviceClass.cast(getServletContext().getAttribute(attribute));
     }
 
     protected void sendResponse(HttpServletResponse response, Object body, int status) {

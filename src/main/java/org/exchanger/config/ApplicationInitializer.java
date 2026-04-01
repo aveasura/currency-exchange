@@ -79,20 +79,23 @@ public class ApplicationInitializer implements ServletContextListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        context.setAttribute(ContextAttributes.DATA_SOURCE, dataSource);
-        context.setAttribute(ContextAttributes.CURRENCY_REPOSITORY, currencyRepository);
-        context.setAttribute(ContextAttributes.EXCHANGE_RATE_REPOSITORY, exchangeRateRepository);
-        context.setAttribute(ContextAttributes.CURRENCY_SERVICE, currencyService);
-        context.setAttribute(ContextAttributes.EXCHANGE_RATE_SERVICE, exchangeRateService);
-        context.setAttribute(ContextAttributes.EXCHANGE_SERVICE, exchangeService);
-        context.setAttribute(ContextAttributes.OBJECT_MAPPER, objectMapper);
+        AppComponents components = new AppComponents(
+                dataSource,
+                currencyService,
+                exchangeRateService,
+                exchangeService,
+                objectMapper
+        );
+
+        context.setAttribute(AppComponents.class.getName(), components);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent event) {
-        HikariDataSource dataSource =
-                (HikariDataSource) event.getServletContext().getAttribute(ContextAttributes.DATA_SOURCE);
+        AppComponents components
+                = (AppComponents) event.getServletContext().getAttribute(AppComponents.class.getName());
 
+        HikariDataSource dataSource = components.dataSource();
         if (dataSource != null) {
             dataSource.close();
         }

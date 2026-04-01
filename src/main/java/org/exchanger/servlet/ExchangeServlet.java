@@ -3,7 +3,6 @@ package org.exchanger.servlet;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.exchanger.config.ContextAttributes;
 import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.service.ExchangeService;
@@ -22,7 +21,7 @@ public class ExchangeServlet extends AbstractApiServlet {
     @Override
     public void init() {
         super.init();
-        exchangeService = getService(ContextAttributes.EXCHANGE_SERVICE, ExchangeService.class);
+        exchangeService = components.exchangeService();
         this.parser = new ExchangeRequestParser();
         this.validator = new ExchangeRequestValidator();
     }
