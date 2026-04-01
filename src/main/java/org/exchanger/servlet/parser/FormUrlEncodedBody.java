@@ -20,12 +20,4 @@ public final class FormUrlEncodedBody {
         }
         return value;
     }
-
-    public Optional<String> getOptional(String name) {
-        String value = params.get(name);
-        if (value == null || value.isBlank()) {
-            return Optional.empty();
-        }
-        return Optional.of(value);
-    }
 }
