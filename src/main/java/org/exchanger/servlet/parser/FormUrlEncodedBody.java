@@ -3,7 +3,6 @@ package org.exchanger.servlet.parser;
 import org.exchanger.exception.BadRequestException;
 
 import java.util.Map;
-import java.util.Optional;
 
 public final class FormUrlEncodedBody {
 
