@@ -7,6 +7,7 @@ public final class ContextAttributes {
     public static final String EXCHANGE_RATE_SERVICE = "exchangeRateService";
     public static final String EXCHANGE_SERVICE = "exchangeService";
     public static final String OBJECT_MAPPER = "objectMapper";
+    public static final String DATA_SOURCE = "dataSource";
 
-    private ContextAttributes(){}
+    private ContextAttributes() {}
 }

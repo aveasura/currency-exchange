@@ -1,6 +1,6 @@
 package org.exchanger.repository;
 
-import org.exchanger.config.ConnectionProvider;
+import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.exception.DataAccessException;
 import org.sqlite.SQLiteErrorCode;
 import org.sqlite.SQLiteException;
@@ -28,6 +28,7 @@ public abstract class BaseJdbcRepository {
                && sqliteException.getResultCode() == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE;
     }
 
+    @SuppressWarnings("SqlSourceToSinkFlow")
     protected <T> T executeSingleResult(
             String sql,
             PreparedStatementSetter statementSetter,
@@ -54,6 +55,7 @@ public abstract class BaseJdbcRepository {
         }
     }
 
+    @SuppressWarnings("SqlSourceToSinkFlow")
     protected <T> List<T> executeList(
             String sql,
             PreparedStatementSetter statementSetter,

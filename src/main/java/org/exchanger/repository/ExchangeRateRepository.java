@@ -1,6 +1,6 @@
 package org.exchanger.repository;
 
-import org.exchanger.config.ConnectionProvider;
+import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.exception.DataAccessException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.model.Currency;

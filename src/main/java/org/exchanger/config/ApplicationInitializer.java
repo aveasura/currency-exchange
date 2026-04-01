@@ -1,17 +1,18 @@
 package org.exchanger.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
-import org.exchanger.dto.request.CurrencyRequest;
-import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.config.connection.ConnectionProvider;
+import org.exchanger.config.connection.HikariDataSourceFactory;
+import org.exchanger.config.connection.SqliteConnectionProvider;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.exception.DataAccessException;
 import org.exchanger.mapper.CurrencyMapper;
 import org.exchanger.mapper.ExchangeRateMapper;
-import org.exchanger.mapper.RequestMapper;
 import org.exchanger.mapper.ResponseMapper;
-import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
@@ -27,29 +28,31 @@ public class ApplicationInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
 
-        ConnectionProvider connectionProvider = new ConnectionProvider();
-        DatabaseManager dataBaseManager = new DatabaseManager(connectionProvider);
+        HikariDataSourceFactory factory = new HikariDataSourceFactory();
+        HikariDataSource dataSource = factory.create();
+        context.setAttribute(ContextAttributes.DATA_SOURCE, dataSource);
+
+        ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
+        DatabaseInitializer databaseInitializer = new DatabaseInitializer(connectionProvider);
 
         try {
-            dataBaseManager.initialize();
-            dataBaseManager.initializeDatabase();
-        } catch (ClassNotFoundException e) {
+            databaseInitializer.initializeDatabase();
+        } catch (DataAccessException e) {
+            dataSource.close();
             throw new RuntimeException("Failed to initialize database", e);
         }
 
         CurrencyMapper currencyMapper = new CurrencyMapper();
-        RequestMapper<CurrencyRequest, Currency> currencyRequestMapper = currencyMapper;
-        ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper = currencyMapper;
         ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateResponseMapper
-                = new ExchangeRateMapper(currencyResponseMapper);
+                = new ExchangeRateMapper(currencyMapper);
 
         CurrencyRepository currencyRepository = new CurrencyRepository(connectionProvider);
         ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(connectionProvider);
 
         CurrencyService currencyService = new CurrencyService(
                 currencyRepository,
-                currencyRequestMapper,
-                currencyResponseMapper
+                currencyMapper,
+                currencyMapper
         );
 
         ExchangeRateService exchangeRateService = new ExchangeRateService(
@@ -61,7 +64,7 @@ public class ApplicationInitializer implements ServletContextListener {
         ExchangeService exchangeService = new ExchangeService(
                 currencyRepository,
                 exchangeRateRepository,
-                currencyResponseMapper
+                currencyMapper
         );
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -72,5 +75,15 @@ public class ApplicationInitializer implements ServletContextListener {
         context.setAttribute(ContextAttributes.EXCHANGE_RATE_SERVICE, exchangeRateService);
         context.setAttribute(ContextAttributes.EXCHANGE_SERVICE, exchangeService);
         context.setAttribute(ContextAttributes.OBJECT_MAPPER, objectMapper);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {
+        HikariDataSource dataSource =
+                (HikariDataSource) event.getServletContext().getAttribute(ContextAttributes.DATA_SOURCE);
+
+        if (dataSource != null) {
+            dataSource.close();
+        }
     }
 }

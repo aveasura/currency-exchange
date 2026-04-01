@@ -1,13 +1,11 @@
 package org.exchanger.repository;
 
-import org.exchanger.config.ConnectionProvider;
-import org.exchanger.exception.CurrencyAlreadyExistsException;
+import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.exception.CurrencyNotFoundException;
 import org.exchanger.exception.DataAccessException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.model.Currency;
 
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;

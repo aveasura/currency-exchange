@@ -3,7 +3,6 @@ package org.exchanger.service;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.exception.CurrencyAlreadyExistsException;
-import org.exchanger.exception.DataAccessException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.mapper.RequestMapper;
 import org.exchanger.mapper.ResponseMapper;
