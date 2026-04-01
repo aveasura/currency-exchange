@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebListener;
 import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.config.connection.HikariDataSourceFactory;
 import org.exchanger.config.connection.SqliteConnectionProvider;
+import org.exchanger.config.database.DatabaseInitializer;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.exception.DataAccessException;
@@ -35,7 +36,8 @@ public class ApplicationInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
 
-        HikariDataSourceFactory factory = new HikariDataSourceFactory();
+        DatabaseConfig config = new DatabaseConfigResolver().resolve();
+        HikariDataSourceFactory factory = new HikariDataSourceFactory(config);
         HikariDataSource dataSource = factory.create();
 
         ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
