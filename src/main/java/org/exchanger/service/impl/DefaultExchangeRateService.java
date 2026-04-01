@@ -6,6 +6,7 @@ import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.exception.DataAccessException;
+import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
@@ -36,7 +37,7 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
     public List<ExchangeRateResponse> getAll() {
         List<ExchangeRate> exchangeRates = exchangeRateRepository.findAll();
 
-        List<ExchangeRateResponse> response = new ArrayList<>();
+        List<ExchangeRateResponse> response = new ArrayList<>(exchangeRates.size());
         for (ExchangeRate rate : exchangeRates) {
             ExchangeRateResponse dto = responseMapper.toDto(rate);
             response.add(dto);
@@ -50,8 +51,8 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
         Currency base = getCurrency(baseCurrencyCode);
         Currency target = getCurrency(targetCurrencyCode);
 
-        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.getId(), target.getId())
-                .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
+        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
+                .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
 
         return responseMapper.toDto(exchangeRate);
     }
@@ -62,56 +63,50 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
         Currency target = getCurrency(request.targetCurrencyCode());
         BigDecimal rate = new BigDecimal(request.rate());
 
-        ExchangeRate exchangeRate = new ExchangeRate(base, target, rate);
-
         try {
-            Long createdId = exchangeRateRepository.create(base.getId(), target.getId(), rate);
-            exchangeRate.setId(createdId);
-        } catch (DataAccessException e) {
-            throw new ExchangeRateAlreadyExistsException(base.getCode(), target.getCode(), e);
+            Long id = exchangeRateRepository.create(base.id(), target.id(), rate);
+            ExchangeRate savedExchangeRate = new ExchangeRate(id, base, target, rate);
+            return responseMapper.toDto(savedExchangeRate);
+        } catch (DuplicateEntityException e) {
+            throw new ExchangeRateAlreadyExistsException(base.code(), target.code(), e);
         }
-
-        return responseMapper.toDto(exchangeRate);
     }
 
     @Override
     public UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateRequest request) {
         Currency base = getCurrency(request.baseCurrencyCode());
         Currency target = getCurrency(request.targetCurrencyCode());
-        BigDecimal rate = new BigDecimal(request.rate());
+        BigDecimal newRate = new BigDecimal(request.rate());
 
-        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.getId(), target.getId())
-                .orElseThrow(() -> new ExchangeRateNotFoundException(base.getCode(), target.getCode()));
+        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
+                .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
 
-        exchangeRateRepository.updateRateById(exchangeRate.getId(), rate);
-        exchangeRate.setRate(rate);
+        exchangeRateRepository.updateRateById(exchangeRate.id(), newRate);
+        ExchangeRate updatedExchangeRate = new ExchangeRate(exchangeRate.id(), base, target, newRate);
 
-        return toDto(base, target, exchangeRate, rate);
+        return toDto(updatedExchangeRate);
     }
 
-    private UpdateExchangeRateResponse toDto(Currency base,
-                                             Currency target,
-                                             ExchangeRate exchangeRate,
-                                             BigDecimal rate) {
+    private UpdateExchangeRateResponse toDto(ExchangeRate updated) {
         CurrencyResponse baseDto = new CurrencyResponse(
-                base.getId(),
-                base.getFullName(),
-                base.getCode(),
-                base.getSign()
+                updated.baseCurrency().id(),
+                updated.baseCurrency().fullName(),
+                updated.baseCurrency().code(),
+                updated.baseCurrency().sign()
         );
 
         CurrencyResponse targetDto = new CurrencyResponse(
-                target.getId(),
-                target.getFullName(),
-                target.getCode(),
-                target.getSign()
+                updated.targetCurrency().id(),
+                updated.targetCurrency().fullName(),
+                updated.targetCurrency().code(),
+                updated.targetCurrency().sign()
         );
 
         return new UpdateExchangeRateResponse(
-                exchangeRate.getId(),
+                updated.id(),
                 baseDto,
                 targetDto,
-                rate
+                updated.rate()
         );
     }
 }

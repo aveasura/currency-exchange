@@ -55,7 +55,6 @@ public class ApplicationInitializer implements ServletContextListener {
 
         CurrencyService currencyService = new DefaultCurrencyService(
                 currencyRepository,
-                currencyMapper,
                 currencyMapper
         );
 

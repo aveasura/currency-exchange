@@ -54,7 +54,7 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
     }
 
     private BigDecimal resolveRate(Currency base, Currency target) {
-        if (base.getCode().equals(target.getCode())) {
+        if (base.code().equals(target.code())) {
             return BigDecimal.ONE;
         }
 
@@ -71,31 +71,31 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
 
             return usdToTarget.divide(usdToBase, EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP);
         } catch (ExchangeRateNotFoundException e) {
-            throw new ExchangeRateNotFoundException(base.getCode(), target.getCode());
+            throw new ExchangeRateNotFoundException(base.code(), target.code());
         }
     }
 
     private BigDecimal resolveUsdRate(Currency usd, Currency currency) {
-        if (usd.getCode().equals(currency.getCode())) {
+        if (usd.code().equals(currency.code())) {
             return BigDecimal.ONE;
         }
 
         return findDirectOrReverseRate(usd, currency)
-                .orElseThrow(() -> new ExchangeRateNotFoundException(usd.getCode(), currency.getCode()));
+                .orElseThrow(() -> new ExchangeRateNotFoundException(usd.code(), currency.code()));
     }
 
     private Optional<BigDecimal> findDirectOrReverseRate(Currency base, Currency target) {
         Optional<ExchangeRate> direct =
-                exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.getId(), target.getId());
+                exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id());
 
         if (direct.isPresent()) {
-            return direct.map(ExchangeRate::getRate);
+            return direct.map(ExchangeRate::rate);
         }
 
         Optional<ExchangeRate> reverse =
-                exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(target.getId(), base.getId());
+                exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(target.id(), base.id());
 
         return reverse.map(rate ->
-                BigDecimal.ONE.divide(rate.getRate(), EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP));
+                BigDecimal.ONE.divide(rate.rate(), EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP));
     }
 }

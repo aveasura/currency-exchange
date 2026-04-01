@@ -15,14 +15,14 @@ public final class ExchangeRateMapper implements ResponseMapper<ExchangeRate, Ex
 
     @Override
     public ExchangeRateResponse toDto(ExchangeRate exchangeRate) {
-        CurrencyResponse baseCurrency = currencyMapper.toDto(exchangeRate.getBaseCurrency());
-        CurrencyResponse targetCurrency = currencyMapper.toDto(exchangeRate.getTargetCurrency());
+        CurrencyResponse baseCurrency = currencyMapper.toDto(exchangeRate.baseCurrency());
+        CurrencyResponse targetCurrency = currencyMapper.toDto(exchangeRate.targetCurrency());
 
         return new ExchangeRateResponse(
-                exchangeRate.getId(),
+                exchangeRate.id(),
                 baseCurrency,
                 targetCurrency,
-                exchangeRate.getRate()
+                exchangeRate.rate()
         );
     }
 }
