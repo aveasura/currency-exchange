@@ -3,6 +3,7 @@ package org.exchanger.service.impl;
 import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeResponse;
+import org.exchanger.exception.InvalidExchangeRequestException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
@@ -55,7 +56,7 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
 
     private BigDecimal resolveRate(Currency base, Currency target) {
         if (base.code().equals(target.code())) {
-            return BigDecimal.ONE;
+            throw new InvalidExchangeRequestException("Same currencies selected");
         }
 
         return findDirectOrReverseRate(base, target)
