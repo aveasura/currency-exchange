@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class JdbcCurrencyRepository extends AbstractJdbcRepository implements CurrencyRepository {
+public final class JdbcCurrencyRepository extends AbstractJdbcRepository implements CurrencyRepository {
     private static final String INSERT_CURRENCY_SQL = """
             INSERT INTO currencies (code, full_name, sign)
             VALUES (?, ?, ?)
