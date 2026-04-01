@@ -47,18 +47,16 @@ public class ApplicationInitializer implements ServletContextListener {
         }
 
         CurrencyMapper currencyMapper = new CurrencyMapper();
-        RequestMapper<CurrencyRequest, Currency> currencyRequestMapper = currencyMapper;
-        ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper = currencyMapper;
         ResponseMapper<ExchangeRate, ExchangeRateResponse> exchangeRateResponseMapper
-                = new ExchangeRateMapper(currencyResponseMapper);
+                = new ExchangeRateMapper(currencyMapper);
 
         CurrencyRepository currencyRepository = new CurrencyRepository(connectionProvider);
         ExchangeRateRepository exchangeRateRepository = new ExchangeRateRepository(connectionProvider);
 
         CurrencyService currencyService = new CurrencyService(
                 currencyRepository,
-                currencyRequestMapper,
-                currencyResponseMapper
+                currencyMapper,
+                currencyMapper
         );
 
         ExchangeRateService exchangeRateService = new ExchangeRateService(
@@ -70,7 +68,7 @@ public class ApplicationInitializer implements ServletContextListener {
         ExchangeService exchangeService = new ExchangeService(
                 currencyRepository,
                 exchangeRateRepository,
-                currencyResponseMapper
+                currencyMapper
         );
 
         ObjectMapper objectMapper = new ObjectMapper();
