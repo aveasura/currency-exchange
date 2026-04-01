@@ -1,6 +1,6 @@
 package org.exchanger.mapper;
 
-public interface ResponseMapper<S, T>{
+public interface ResponseMapper<FROM, TO> {
 
-    T toDto(S source);
+    TO toDto(FROM source);
 }

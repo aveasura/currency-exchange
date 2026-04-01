@@ -1,6 +1,6 @@
 package org.exchanger.mapper;
 
-public interface RequestMapper <S, T>{
+public interface RequestMapper<FROM, TO> {
 
-    T toEntity(S source);
+    TO toEntity(FROM source);
 }

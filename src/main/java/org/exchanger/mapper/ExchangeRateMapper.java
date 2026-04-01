@@ -5,18 +5,18 @@ import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 
-public class ExchangeRateMapper implements ResponseMapper<ExchangeRate, ExchangeRateResponse> {
+public final class ExchangeRateMapper implements ResponseMapper<ExchangeRate, ExchangeRateResponse> {
 
-    private final ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper;
+    private final ResponseMapper<Currency, CurrencyResponse> currencyMapper;
 
-    public ExchangeRateMapper(ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper) {
-        this.currencyResponseMapper = currencyResponseMapper;
+    public ExchangeRateMapper(ResponseMapper<Currency, CurrencyResponse> currencyMapper) {
+        this.currencyMapper = currencyMapper;
     }
 
     @Override
     public ExchangeRateResponse toDto(ExchangeRate exchangeRate) {
-        CurrencyResponse baseCurrency = currencyResponseMapper.toDto(exchangeRate.getBaseCurrency());
-        CurrencyResponse targetCurrency = currencyResponseMapper.toDto(exchangeRate.getTargetCurrency());
+        CurrencyResponse baseCurrency = currencyMapper.toDto(exchangeRate.getBaseCurrency());
+        CurrencyResponse targetCurrency = currencyMapper.toDto(exchangeRate.getTargetCurrency());
 
         return new ExchangeRateResponse(
                 exchangeRate.getId(),
