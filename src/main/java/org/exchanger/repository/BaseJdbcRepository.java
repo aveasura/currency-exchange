@@ -28,6 +28,7 @@ public abstract class BaseJdbcRepository {
                && sqliteException.getResultCode() == SQLiteErrorCode.SQLITE_CONSTRAINT_UNIQUE;
     }
 
+    @SuppressWarnings("SqlSourceToSinkFlow")
     protected <T> T executeSingleResult(
             String sql,
             PreparedStatementSetter statementSetter,
@@ -54,6 +55,7 @@ public abstract class BaseJdbcRepository {
         }
     }
 
+    @SuppressWarnings("SqlSourceToSinkFlow")
     protected <T> List<T> executeList(
             String sql,
             PreparedStatementSetter statementSetter,
