@@ -17,7 +17,7 @@ public abstract class AbstractJdbcRepository {
 
     protected final ConnectionProvider connectionProvider;
 
-    public AbstractJdbcRepository(ConnectionProvider connectionProvider) {
+    protected AbstractJdbcRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
     }
 
