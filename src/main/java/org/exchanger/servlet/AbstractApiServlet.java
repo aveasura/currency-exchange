@@ -25,8 +25,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
     }
 
     @Override
-    public void service(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public void service(HttpServletRequest request, HttpServletResponse response) {
         try {
             super.service(request, response);
         } catch (AppException e) {
