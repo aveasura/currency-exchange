@@ -1,12 +1,13 @@
 package org.exchanger.config;
 
+import org.exchanger.config.connection.ConnectionProvider;
+import org.exchanger.exception.DataAccessException;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public final class DatabaseInitializer {
-
-    private static final String SQLITE_DRIVER_CLASS = "org.sqlite.JDBC";
 
     private static final String CREATE_CURRENCIES_SQL = """
             CREATE TABLE IF NOT EXISTS currencies (
@@ -73,10 +74,6 @@ public final class DatabaseInitializer {
         this.connectionProvider = connectionProvider;
     }
 
-    public void initialize() throws ClassNotFoundException {
-        Class.forName(SQLITE_DRIVER_CLASS);
-    }
-
     public void initializeDatabase() {
         try (Connection connection = connectionProvider.getConnection();
              Statement statement = connection.createStatement()) {
@@ -90,7 +87,7 @@ public final class DatabaseInitializer {
             statement.execute(INSERT_DEFAULT_CURRENCIES_SQL);
             statement.execute(INSERT_DEFAULT_EXCHANGE_RATES_SQL);
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create initial tables", e);
+            throw new DataAccessException("Failed to create initial tables", e);
         }
     }
 }

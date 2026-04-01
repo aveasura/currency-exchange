@@ -1,12 +1,17 @@
 package org.exchanger.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
+import org.exchanger.config.connection.ConnectionProvider;
+import org.exchanger.config.connection.HikariDataSourceFactory;
+import org.exchanger.config.connection.SqliteConnectionProvider;
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
+import org.exchanger.exception.DataAccessException;
 import org.exchanger.mapper.CurrencyMapper;
 import org.exchanger.mapper.ExchangeRateMapper;
 import org.exchanger.mapper.RequestMapper;
@@ -27,13 +32,17 @@ public class ApplicationInitializer implements ServletContextListener {
     public void contextInitialized(ServletContextEvent event) {
         ServletContext context = event.getServletContext();
 
-        ConnectionProvider connectionProvider = new ConnectionProvider();
-        DatabaseInitializer dataBaseInitializer = new DatabaseInitializer(connectionProvider);
+        HikariDataSourceFactory factory = new HikariDataSourceFactory();
+        HikariDataSource dataSource = factory.create();
+        context.setAttribute(ContextAttributes.DATA_SOURCE, dataSource);
+
+        ConnectionProvider connectionProvider = new SqliteConnectionProvider(dataSource);
+        DatabaseInitializer databaseInitializer = new DatabaseInitializer(connectionProvider);
 
         try {
-            dataBaseInitializer.initialize();
-            dataBaseInitializer.initializeDatabase();
-        } catch (ClassNotFoundException e) {
+            databaseInitializer.initializeDatabase();
+        } catch (DataAccessException e) {
+            dataSource.close();
             throw new RuntimeException("Failed to initialize database", e);
         }
 
@@ -75,7 +84,12 @@ public class ApplicationInitializer implements ServletContextListener {
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent sce) {
+    public void contextDestroyed(ServletContextEvent event) {
+        HikariDataSource dataSource =
+                (HikariDataSource) event.getServletContext().getAttribute(ContextAttributes.DATA_SOURCE);
 
+        if (dataSource != null) {
+            dataSource.close();
+        }
     }
 }
