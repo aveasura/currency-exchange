@@ -1,4 +1,4 @@
-package org.exchanger.repository;
+package org.exchanger.repository.jdbc;
 
 import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.exception.DataAccessException;
@@ -13,11 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public abstract class BaseJdbcRepository {
+public abstract class AbstractJdbcRepository {
 
     protected final ConnectionProvider connectionProvider;
 
-    public BaseJdbcRepository(ConnectionProvider connectionProvider) {
+    public AbstractJdbcRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
     }
 
