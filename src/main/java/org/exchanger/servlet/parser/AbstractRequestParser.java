@@ -7,6 +7,8 @@ import java.util.Locale;
 
 public abstract class AbstractRequestParser<T> implements RequestParser<T> {
 
+    private static final String SINGLE_PATH_SEGMENT_PATTERN = "/[^/]+";
+
     protected static final int CURRENCY_CODE_LENGTH = 3;
 
     protected String getRequiredParameter(HttpServletRequest request, String name) {
@@ -28,7 +30,7 @@ public abstract class AbstractRequestParser<T> implements RequestParser<T> {
 
         String cleanPath = pathInfo.trim();
 
-        if (!cleanPath.matches("/[^/]+")) {
+        if (!cleanPath.matches(SINGLE_PATH_SEGMENT_PATTERN)) {
             throw new BadRequestException("Invalid path");
         }
 
