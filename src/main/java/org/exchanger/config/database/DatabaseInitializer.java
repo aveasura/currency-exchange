@@ -75,19 +75,30 @@ public final class DatabaseInitializer {
     }
 
     public void initializeDatabase() {
-        try (Connection connection = connectionProvider.getConnection();
-             Statement statement = connection.createStatement()) {
+        try (Connection connection = connectionProvider.getConnection()) {
+            connection.setAutoCommit(false);
 
-            statement.execute(CREATE_CURRENCIES_SQL);
-            statement.execute(CREATE_CURRENCIES_CODE_INDEX_SQL);
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(CREATE_CURRENCIES_SQL);
+                statement.execute(CREATE_CURRENCIES_CODE_INDEX_SQL);
 
-            statement.execute(CREATE_EXCHANGE_RATES_SQL);
-            statement.execute(CREATE_EXCHANGE_RATES_PAIR_INDEX_SQL);
+                statement.execute(CREATE_EXCHANGE_RATES_SQL);
+                statement.execute(CREATE_EXCHANGE_RATES_PAIR_INDEX_SQL);
 
-            statement.execute(INSERT_DEFAULT_CURRENCIES_SQL);
-            statement.execute(INSERT_DEFAULT_EXCHANGE_RATES_SQL);
+                statement.execute(INSERT_DEFAULT_CURRENCIES_SQL);
+                statement.execute(INSERT_DEFAULT_EXCHANGE_RATES_SQL);
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackEx) {
+                    e.addSuppressed(rollbackEx);
+                }
+                throw e;
+            }
+
+            connection.commit();
         } catch (SQLException e) {
-            throw new DataAccessException("Failed to create initial tables", e);
+            throw new DataAccessException("Failed to initialize database", e);
         }
     }
 }
