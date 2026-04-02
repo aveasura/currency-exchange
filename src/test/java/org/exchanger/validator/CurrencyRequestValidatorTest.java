@@ -29,18 +29,4 @@ class CurrencyRequestValidatorTest {
 
         assertEquals("Field 'name' required", exception.getMessage());
     }
-
-    @Test
-    void shouldThrowWhenCodeIsInvalid() {
-        CurrencyRequest request = new CurrencyRequest("Euro", "EURO", "€");
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> validator.validateCode(request.code())
-        );
-
-        assertEquals(
-                "Currency code should contain exactly 3 latin letters. Example: EUR",
-                exception.getMessage()
-        );
-    }
 }

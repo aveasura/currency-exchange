@@ -58,6 +58,6 @@ class CurrencyPairParserTest {
                 () -> parser.parse(request)
         );
 
-        assertEquals("Currency pair should contain exactly 6 latin letters",  exception.getMessage());
+        assertEquals("Currency pair should contain exactly 6 latin letters", exception.getMessage());
     }
 }
