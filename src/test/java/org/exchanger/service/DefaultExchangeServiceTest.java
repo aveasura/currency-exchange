@@ -2,7 +2,6 @@ package org.exchanger.service;
 
 import org.exchanger.dto.request.ExchangeRequest;
 import org.exchanger.dto.response.CurrencyResponse;
-import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.exception.InvalidExchangeRequestException;
 import org.exchanger.mapper.CurrencyMapper;
