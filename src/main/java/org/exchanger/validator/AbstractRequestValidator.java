@@ -8,8 +8,9 @@ import java.util.regex.Pattern;
 public abstract class AbstractRequestValidator<T> implements RequestValidator<T> {
 
     private static final int MAX_NUMBER_LENGTH = 30;
-
     private static final int MAX_DECIMAL_SCALE = 6;
+
+    private static final BigDecimal MAX_RATE = new BigDecimal("999999.999999");
 
     private static final String CODE_PATTERN = "[A-Z]{3}";
 
@@ -22,10 +23,13 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
     private static final String SCALE_EXCEEDED_MESSAGE =
             "Number scale exceeded. Max scale = 6. Example: 0.123456";
 
+    private static final String RATE_TOO_LARGE_MESSAGE =
+            "Exchange rate should not exceed 999999.999999";
+
     private static final Pattern NUMBER_PATTERN =
             Pattern.compile("^\\d+(\\.\\d+)?$");
 
-    protected void validateCodesAndPositiveNumber(String base, String target, String rawNumber) {
+    protected void validateCodesAndRate(String base, String target, String rawRate) {
         validateCode(base);
         validateCode(target);
 
@@ -33,7 +37,18 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
             throw new BadRequestException("Same currencies selected");
         }
 
-        validateNumericValue(rawNumber);
+        validateRate(rawRate);
+    }
+
+    protected void validateCodesAndAmount(String base, String target, String rawAmount) {
+        validateCode(base);
+        validateCode(target);
+
+        if (base.equals(target)) {
+            throw new BadRequestException("Same currencies selected");
+        }
+
+        validateAmount(rawAmount);
     }
 
     protected void validateCode(String code) {
@@ -42,7 +57,19 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         }
     }
 
-    protected void validateNumericValue(String rawNumber) {
+    protected void validateRate(String rawRate) {
+        BigDecimal rate = validatePositiveNumber(rawRate);
+
+        if (rate.compareTo(MAX_RATE) > 0) {
+            throw new BadRequestException(RATE_TOO_LARGE_MESSAGE);
+        }
+    }
+
+    protected void validateAmount(String rawAmount) {
+        validatePositiveNumber(rawAmount);
+    }
+
+    private BigDecimal validatePositiveNumber(String rawNumber) {
         if (rawNumber == null || rawNumber.isBlank()) {
             throw new BadRequestException("Number is missing");
         }
@@ -63,6 +90,8 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         if (result.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Number must be greater than zero");
         }
+
+        return result;
     }
 
     private void validateFraction(String number) {
