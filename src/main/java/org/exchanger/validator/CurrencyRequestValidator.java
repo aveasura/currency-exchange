@@ -4,11 +4,15 @@ import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.exception.BadRequestException;
 
 public final class CurrencyRequestValidator extends AbstractRequestValidator<CurrencyRequest> {
+
+    private static final int MAX_NAME_LENGTH = 50;
+    private static final int MAX_SIGN_LENGTH = 5;
+
     @Override
     public void validate(CurrencyRequest request) {
         validateName(request.name());
+        validateCurrencyCode(request.code());
         validateSign(request.sign());
-        validateCode(request.code());
     }
 
     private void validateName(String name) {
@@ -16,9 +20,17 @@ public final class CurrencyRequestValidator extends AbstractRequestValidator<Cur
             throw new BadRequestException("Field 'name' required");
         }
 
-        if (name.length() > 50) {
-            throw new BadRequestException("Maximum 'name' size exceeded. Maximum: 50");
+        if (name.trim().length() > MAX_NAME_LENGTH) {
+            throw new BadRequestException("Currency name should not exceed 50 characters");
         }
+    }
+
+    private void validateCurrencyCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new BadRequestException("Field 'code' required");
+        }
+
+        validateCode(code.trim().toUpperCase());
     }
 
     private void validateSign(String sign) {
@@ -26,8 +38,8 @@ public final class CurrencyRequestValidator extends AbstractRequestValidator<Cur
             throw new BadRequestException("Field 'sign' required");
         }
 
-        if (sign.length() > 5) {
-            throw new BadRequestException("Maximum 'sign' size exceeded. Maximum: 5");
+        if (sign.trim().length() > MAX_SIGN_LENGTH) {
+            throw new BadRequestException("Currency sign should not exceed 5 characters");
         }
     }
 }
