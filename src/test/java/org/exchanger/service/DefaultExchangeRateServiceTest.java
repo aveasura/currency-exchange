@@ -5,6 +5,7 @@ import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
+import org.exchanger.exception.CurrencyNotFoundException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
@@ -208,5 +209,18 @@ class DefaultExchangeRateServiceTest {
 
         assertEquals("Exchange rate for USD -> EUR not found", exception.getMessage());
         verify(exchangeRateRepository, never()).updateRateById(any(), any());
+    }
+
+    @Test
+    void shouldThrowExchangeRateNotFoundWhenBaseCurrencyDoesNotExist() {
+        when(currencyRepository.findByCode("UQK"))
+                .thenThrow(new CurrencyNotFoundException("UQK"));
+
+        ExchangeRateNotFoundException exception = assertThrows(
+                ExchangeRateNotFoundException.class,
+                () -> service.get("UQK", "VWM")
+        );
+
+        assertEquals("Exchange rate for UQK -> VWM not found", exception.getMessage());
     }
 }

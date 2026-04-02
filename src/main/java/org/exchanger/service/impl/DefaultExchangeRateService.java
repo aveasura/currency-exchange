@@ -4,6 +4,7 @@ import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
+import org.exchanger.exception.CurrencyNotFoundException;
 import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
@@ -17,6 +18,7 @@ import org.exchanger.service.ExchangeRateService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public final class DefaultExchangeRateService extends AbstractCurrencyLookupService implements ExchangeRateService {
 
@@ -49,13 +51,21 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
 
     @Override
     public ExchangeRateResponse get(String baseCurrencyCode, String targetCurrencyCode) {
-        Currency base = getCurrency(baseCurrencyCode);
-        Currency target = getCurrency(targetCurrencyCode);
+        String normalizedBaseCode = normalizeCode(baseCurrencyCode);
+        String normalizedTargetCode = normalizeCode(targetCurrencyCode);
 
-        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
-                .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
+        try {
+            Currency base = getCurrency(normalizedBaseCode);
+            Currency target = getCurrency(normalizedTargetCode);
 
-        return exchangeRateMapper.toDto(exchangeRate);
+            ExchangeRate exchangeRate = exchangeRateRepository
+                    .findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
+                    .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
+
+            return exchangeRateMapper.toDto(exchangeRate);
+        } catch (CurrencyNotFoundException e) {
+            throw new ExchangeRateNotFoundException(normalizedBaseCode, normalizedTargetCode);
+        }
     }
 
     @Override
@@ -76,16 +86,28 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
 
     @Override
     public UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateRequest request) {
-        Currency base = getCurrency(request.baseCurrencyCode());
-        Currency target = getCurrency(request.targetCurrencyCode());
+        String normalizedBaseCode = normalizeCode(request.baseCurrencyCode());
+        String normalizedTargetCode = normalizeCode(request.targetCurrencyCode());
         BigDecimal newRate = new BigDecimal(request.rate());
 
-        ExchangeRate exchangeRate = exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
-                .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
+        try {
+            Currency base = getCurrency(normalizedBaseCode);
+            Currency target = getCurrency(normalizedTargetCode);
 
-        exchangeRateRepository.updateRateById(exchangeRate.id(), newRate);
-        ExchangeRate updatedExchangeRate = new ExchangeRate(exchangeRate.id(), base, target, newRate);
+            ExchangeRate exchangeRate = exchangeRateRepository
+                    .findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
+                    .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
 
-        return updateExchangeRateMapper.toDto(updatedExchangeRate);
+            exchangeRateRepository.updateRateById(exchangeRate.id(), newRate);
+            ExchangeRate updatedExchangeRate = new ExchangeRate(exchangeRate.id(), base, target, newRate);
+
+            return updateExchangeRateMapper.toDto(updatedExchangeRate);
+        } catch (CurrencyNotFoundException e) {
+            throw new ExchangeRateNotFoundException(normalizedBaseCode, normalizedTargetCode);
+        }
+    }
+
+    private String normalizeCode(String code) {
+        return code.trim().toUpperCase(Locale.ROOT);
     }
 }
