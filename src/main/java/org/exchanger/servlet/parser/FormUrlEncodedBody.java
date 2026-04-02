@@ -17,6 +17,6 @@ public final class FormUrlEncodedBody {
         if (value == null || value.isBlank()) {
             throw new BadRequestException("Field '%s' required".formatted(name));
         }
-        return value;
+        return value.trim();
     }
 }
