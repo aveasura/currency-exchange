@@ -30,6 +30,10 @@ public abstract class AbstractRequestParser<T> implements RequestParser<T> {
 
         String cleanPath = pathInfo.trim();
 
+        if (cleanPath.equals("/")) {
+            throw new BadRequestException("Path variable is missing");
+        }
+
         if (!cleanPath.matches(SINGLE_PATH_SEGMENT_PATTERN)) {
             throw new BadRequestException("Invalid path");
         }
