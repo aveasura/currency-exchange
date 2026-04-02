@@ -60,7 +60,7 @@ class DefaultExchangeServiceTest {
         assertAll(
                 () -> assertEquals("USD", result.baseCurrency().code()),
                 () -> assertEquals("EUR", result.targetCurrency().code()),
-                () -> assertEquals(new BigDecimal("0.86"), result.rate()),
+                () -> assertEquals(new BigDecimal("0.860000"), result.rate()),
                 () -> assertEquals(new BigDecimal("10"), result.amount()),
                 () -> assertEquals(new BigDecimal("8.60"), result.convertedAmount())
         );
