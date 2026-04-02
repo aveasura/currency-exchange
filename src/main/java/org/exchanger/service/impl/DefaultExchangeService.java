@@ -18,10 +18,11 @@ import java.util.Optional;
 
 public final class DefaultExchangeService extends AbstractCurrencyLookupService implements ExchangeService {
 
-    // According to specification, cross-rate is calculated only through USD.
     private static final String CROSS_RATE_CURRENCY_CODE = "USD";
     private static final int AMOUNT_SCALE = 2;
-    private static final int EXCHANGE_RATE_SCALE = 6;
+    private static final int RESPONSE_RATE_SCALE = 6;
+
+    private static final int INTERNAL_RATE_SCALE = 30;
 
     private final ExchangeRateRepository exchangeRateRepository;
     private final ResponseMapper<Currency, CurrencyResponse> currencyResponseMapper;
@@ -40,8 +41,10 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
         Currency target = getCurrency(request.to());
         BigDecimal amount = new BigDecimal(request.amount());
 
-        BigDecimal rate = resolveRate(base, target);
-        BigDecimal convertedAmount = amount.multiply(rate).setScale(AMOUNT_SCALE, RoundingMode.HALF_UP);
+        BigDecimal calculatedRate = resolveRate(base, target);
+        BigDecimal responseRate = calculatedRate.setScale(RESPONSE_RATE_SCALE, RoundingMode.HALF_UP);
+        BigDecimal convertedAmount = amount.multiply(calculatedRate)
+                .setScale(AMOUNT_SCALE, RoundingMode.HALF_UP);
 
         CurrencyResponse baseCurrencyDto = currencyResponseMapper.toDto(base);
         CurrencyResponse targetCurrencyDto = currencyResponseMapper.toDto(target);
@@ -49,9 +52,10 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
         return new ExchangeResponse(
                 baseCurrencyDto,
                 targetCurrencyDto,
-                rate,
+                responseRate,
                 amount,
-                convertedAmount);
+                convertedAmount
+        );
     }
 
     private BigDecimal resolveRate(Currency base, Currency target) {
@@ -70,7 +74,11 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
             BigDecimal usdToBase = resolveUsdRate(usd, base);
             BigDecimal usdToTarget = resolveUsdRate(usd, target);
 
-            return usdToTarget.divide(usdToBase, EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP);
+            if (usdToBase.compareTo(BigDecimal.ZERO) == 0) {
+                throw new InvalidExchangeRequestException("Exchange rate is too small to calculate");
+            }
+
+            return usdToTarget.divide(usdToBase, INTERNAL_RATE_SCALE, RoundingMode.HALF_UP);
         } catch (ExchangeRateNotFoundException e) {
             throw new ExchangeRateNotFoundException(base.code(), target.code());
         }
@@ -97,6 +105,6 @@ public final class DefaultExchangeService extends AbstractCurrencyLookupService 
                 exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(target.id(), base.id());
 
         return reverse.map(rate ->
-                BigDecimal.ONE.divide(rate.rate(), EXCHANGE_RATE_SCALE, RoundingMode.HALF_UP));
+                BigDecimal.ONE.divide(rate.rate(), INTERNAL_RATE_SCALE, RoundingMode.HALF_UP));
     }
 }
