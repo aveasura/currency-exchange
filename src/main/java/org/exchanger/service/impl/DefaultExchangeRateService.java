@@ -72,7 +72,7 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
     public ExchangeRateResponse create(ExchangeRateRequest request) {
         Currency base = getCurrency(request.baseCurrencyCode());
         Currency target = getCurrency(request.targetCurrencyCode());
-        BigDecimal rate = new BigDecimal(request.rate());
+        BigDecimal rate = parseDecimal(request.rate());
 
         try {
             Long id = exchangeRateRepository.create(base.id(), target.id(), rate);
@@ -88,7 +88,7 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
     public UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateRequest request) {
         String normalizedBaseCode = normalizeCode(request.baseCurrencyCode());
         String normalizedTargetCode = normalizeCode(request.targetCurrencyCode());
-        BigDecimal newRate = new BigDecimal(request.rate());
+        BigDecimal newRate = parseDecimal(request.rate());
 
         try {
             Currency base = getCurrency(normalizedBaseCode);
@@ -109,5 +109,9 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
 
     private String normalizeCode(String code) {
         return code.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private BigDecimal parseDecimal(String value) {
+        return new BigDecimal(value.trim());
     }
 }
