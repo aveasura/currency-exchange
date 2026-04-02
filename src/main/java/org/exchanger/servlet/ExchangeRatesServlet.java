@@ -6,6 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.dto.request.ExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
+import org.exchanger.service.command.CreateExchangeRateCommand;
+import org.exchanger.mapper.ExchangeRateCommandMapper;
 import org.exchanger.servlet.parser.ExchangeRateParser;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.validator.ExchangeRateRequestValidator;
@@ -19,6 +21,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     private ExchangeRateService exchangeRateService;
     private RequestParser<ExchangeRateRequest> parser;
     private RequestValidator<ExchangeRateRequest> validator;
+    private ExchangeRateCommandMapper exchangeRateCommandMapper;
 
     @Override
     public void init() {
@@ -26,6 +29,7 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
         exchangeRateService = components.exchangeRateService();
         this.parser = new ExchangeRateParser();
         this.validator = new ExchangeRateRequestValidator();
+        this.exchangeRateCommandMapper  = new ExchangeRateCommandMapper();
     }
 
     @Override
@@ -38,7 +42,9 @@ public class ExchangeRatesServlet extends AbstractApiServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         ExchangeRateRequest requestDto = parser.parse(request);
         validator.validate(requestDto);
-        ExchangeRateResponse responseDto = exchangeRateService.create(requestDto);
+
+        CreateExchangeRateCommand command = exchangeRateCommandMapper.toCreateCommand(requestDto);
+        ExchangeRateResponse responseDto = exchangeRateService.create(command);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }

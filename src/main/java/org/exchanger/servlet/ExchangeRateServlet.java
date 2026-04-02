@@ -7,6 +7,8 @@ import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.service.ExchangeRateService;
+import org.exchanger.mapper.ExchangeRateCommandMapper;
+import org.exchanger.service.command.UpdateExchangeRateCommand;
 import org.exchanger.servlet.parser.CurrencyPairParser;
 import org.exchanger.servlet.parser.CurrencyPairRequest;
 import org.exchanger.servlet.parser.RequestParser;
@@ -21,6 +23,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
     private RequestParser<CurrencyPairRequest> codeParser;
     private RequestParser<UpdateExchangeRateRequest> updateParser;
     private RequestValidator<UpdateExchangeRateRequest> validator;
+    private ExchangeRateCommandMapper exchangeRateCommandMapper;
 
     @Override
     public void init() {
@@ -29,6 +32,7 @@ public class ExchangeRateServlet extends AbstractApiServlet {
         this.codeParser = new CurrencyPairParser();
         this.updateParser = new UpdateRateParser(codeParser);
         this.validator = new UpdateExchangeRateValidator();
+        this.exchangeRateCommandMapper = new ExchangeRateCommandMapper();
     }
 
     @Override
@@ -43,7 +47,9 @@ public class ExchangeRateServlet extends AbstractApiServlet {
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) {
         UpdateExchangeRateRequest updateRequest = updateParser.parse(request);
         validator.validate(updateRequest);
-        UpdateExchangeRateResponse responseDto = exchangeRateService.updateExchangeRate(updateRequest);
+
+        UpdateExchangeRateCommand command = exchangeRateCommandMapper.toUpdateCommand(updateRequest);
+        UpdateExchangeRateResponse responseDto = exchangeRateService.updateExchangeRate(command);
 
         sendResponse(response, responseDto, HttpServletResponse.SC_OK);
     }

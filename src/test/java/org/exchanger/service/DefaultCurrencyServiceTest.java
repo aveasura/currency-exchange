@@ -78,7 +78,7 @@ class DefaultCurrencyServiceTest {
     void shouldReturnCurrencyByCode() {
         when(currencyRepository.findByCode("USD")).thenReturn(usd);
 
-        CurrencyResponse result = service.getByCurrencyCode(" usd ");
+        CurrencyResponse result = service.getByCurrencyCode("USD");
 
         assertAll(
                 () -> assertEquals(0L, result.id()),
@@ -97,7 +97,7 @@ class DefaultCurrencyServiceTest {
 
         CurrencyNotFoundException exception = assertThrows(
                 CurrencyNotFoundException.class,
-                () -> service.getByCurrencyCode(" gbp ")
+                () -> service.getByCurrencyCode("GBP")
         );
 
         assertEquals("Currency with code 'GBP' not found", exception.getMessage());

@@ -13,7 +13,7 @@ GET {{baseUrl}}/currency/US
 Accept: application/json
 
 ### Невалидная валютная пара
-GET {{baseUrl}}/exchangeRate/USDRU
+GET {{baseUrl}}/exchangeRate/USDNNN
 Accept: application/json
 
 ### Добавить валюту без поля sign

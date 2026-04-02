@@ -1,7 +1,5 @@
 package org.exchanger.service;
 
-import org.exchanger.dto.request.ExchangeRateRequest;
-import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
@@ -17,6 +15,8 @@ import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
+import org.exchanger.service.command.CreateExchangeRateCommand;
+import org.exchanger.service.command.UpdateExchangeRateCommand;
 import org.exchanger.service.impl.DefaultExchangeRateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -104,7 +104,7 @@ class DefaultExchangeRateServiceTest {
         when(exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(0L, 1L))
                 .thenReturn(Optional.of(exchangeRate));
 
-        ExchangeRateResponse result = service.get(" usd ", " eur ");
+        ExchangeRateResponse result = service.get("USD", "EUR");
 
         assertAll(
                 () -> assertEquals(0L, result.id()),
@@ -134,14 +134,15 @@ class DefaultExchangeRateServiceTest {
 
     @Test
     void shouldCreateExchangeRate() {
-        ExchangeRateRequest request = new ExchangeRateRequest("usd", "eur", "0.86");
+        CreateExchangeRateCommand command =
+                new CreateExchangeRateCommand("USD", "EUR", new BigDecimal("0.86"));
 
         when(currencyRepository.findByCode("USD")).thenReturn(usd);
         when(currencyRepository.findByCode("EUR")).thenReturn(eur);
         when(exchangeRateRepository.create(0L, 1L, new BigDecimal("0.86")))
                 .thenReturn(10L);
 
-        ExchangeRateResponse result = service.create(request);
+        ExchangeRateResponse result = service.create(command);
 
         assertAll(
                 () -> assertEquals(10L, result.id()),
@@ -153,7 +154,8 @@ class DefaultExchangeRateServiceTest {
 
     @Test
     void shouldThrowWhenExchangeRateAlreadyExists() {
-        ExchangeRateRequest request = new ExchangeRateRequest("USD", "EUR", "0.86");
+        CreateExchangeRateCommand command =
+                new CreateExchangeRateCommand("USD", "EUR", new BigDecimal("0.86"));
 
         when(currencyRepository.findByCode("USD")).thenReturn(usd);
         when(currencyRepository.findByCode("EUR")).thenReturn(eur);
@@ -162,7 +164,7 @@ class DefaultExchangeRateServiceTest {
 
         ExchangeRateAlreadyExistsException exception = assertThrows(
                 ExchangeRateAlreadyExistsException.class,
-                () -> service.create(request)
+                () -> service.create(command)
         );
 
         assertEquals(
@@ -173,7 +175,8 @@ class DefaultExchangeRateServiceTest {
 
     @Test
     void shouldUpdateExchangeRate() {
-        UpdateExchangeRateRequest request = new UpdateExchangeRateRequest(" usd ", " eur ", "0.91");
+        UpdateExchangeRateCommand command =
+                new UpdateExchangeRateCommand("USD", "EUR", new BigDecimal("0.91"));
         ExchangeRate existingExchangeRate = new ExchangeRate(7L, usd, eur, new BigDecimal("0.86"));
 
         when(currencyRepository.findByCode("USD")).thenReturn(usd);
@@ -181,7 +184,7 @@ class DefaultExchangeRateServiceTest {
         when(exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(0L, 1L))
                 .thenReturn(Optional.of(existingExchangeRate));
 
-        UpdateExchangeRateResponse result = service.updateExchangeRate(request);
+        UpdateExchangeRateResponse result = service.updateExchangeRate(command);
 
         verify(exchangeRateRepository).updateRateById(7L, new BigDecimal("0.91"));
 
@@ -195,7 +198,8 @@ class DefaultExchangeRateServiceTest {
 
     @Test
     void shouldThrowWhenUpdatingMissingExchangeRate() {
-        UpdateExchangeRateRequest request = new UpdateExchangeRateRequest("USD", "EUR", "0.91");
+        UpdateExchangeRateCommand command =
+                new UpdateExchangeRateCommand("USD", "EUR", new BigDecimal("0.91"));
 
         when(currencyRepository.findByCode("USD")).thenReturn(usd);
         when(currencyRepository.findByCode("EUR")).thenReturn(eur);
@@ -204,7 +208,7 @@ class DefaultExchangeRateServiceTest {
 
         ExchangeRateNotFoundException exception = assertThrows(
                 ExchangeRateNotFoundException.class,
-                () -> service.updateExchangeRate(request)
+                () -> service.updateExchangeRate(command)
         );
 
         assertEquals("Exchange rate for USD -> EUR not found", exception.getMessage());

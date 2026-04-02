@@ -9,16 +9,21 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
 
     private static final int MAX_NUMBER_LENGTH = 30;
 
-    private static final String CODE_PATTERN = "[A-Z]{3}";
-
-    private static final Pattern NUMBER_PATTERN =
-            Pattern.compile("^(0|[1-9]\\d*)(\\.\\d+)?$");
-
     private static final int MAX_DECIMAL_SCALE = 6;
+
+    private static final String CODE_PATTERN = "[A-Z]{3}";
 
     private static final String INVALID_CODE_MESSAGE =
             "Currency code should contain exactly 3 latin letters. Example: EUR";
 
+    private static final String INVALID_NUMBER_MESSAGE =
+            "Invalid number format. Example: 0.86 or 1";
+
+    private static final String SCALE_EXCEEDED_MESSAGE =
+            "Number scale exceeded. Max scale = 6. Example: 0.123456";
+
+    private static final Pattern NUMBER_PATTERN =
+            Pattern.compile("^\\d+(\\.\\d+)?$");
 
     protected void validateCodesAndPositiveNumber(String base, String target, String rawNumber) {
         validateCode(base);
@@ -43,21 +48,41 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         }
 
         String number = rawNumber.trim();
+
         if (number.length() > MAX_NUMBER_LENGTH) {
             throw new BadRequestException("Number is too long");
         }
 
         if (!NUMBER_PATTERN.matcher(number).matches()) {
-            throw new BadRequestException("Invalid number format. Example: 0.86 or 1");
+            throw new BadRequestException(INVALID_NUMBER_MESSAGE);
         }
+
+        validateFraction(number);
 
         BigDecimal result = new BigDecimal(number);
         if (result.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BadRequestException("Number must be greater than zero");
         }
+    }
 
-        if (result.scale() > MAX_DECIMAL_SCALE) {
-            throw new BadRequestException("Number scale exceeded. Max scale = 6. Example: 0.123456");
+    private void validateFraction(String number) {
+        int dotIndex = number.indexOf('.');
+        if (dotIndex < 0) {
+            return;
         }
+
+        String fraction = number.substring(dotIndex + 1);
+        if (fraction.length() <= MAX_DECIMAL_SCALE) {
+            return;
+        }
+
+        String extraFraction = fraction.substring(MAX_DECIMAL_SCALE);
+        boolean onlyZerosAfterScale = extraFraction.chars().allMatch(ch -> ch == '0');
+
+        if (onlyZerosAfterScale) {
+            throw new BadRequestException(INVALID_NUMBER_MESSAGE);
+        }
+
+        throw new BadRequestException(SCALE_EXCEEDED_MESSAGE);
     }
 }

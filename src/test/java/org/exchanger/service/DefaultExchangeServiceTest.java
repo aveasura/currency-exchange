@@ -55,7 +55,7 @@ class DefaultExchangeServiceTest {
         when(exchangeRateRepository.findByBaseCurrencyIdAndTargetCurrencyId(0L, 1L))
                 .thenReturn(Optional.of(new ExchangeRate(100L, usd, eur, new BigDecimal("0.86"))));
 
-        ExchangeResponse result = service.convert(new ExchangeRequest("usd", "eur", "10"));
+        ExchangeResponse result = service.convert(new ExchangeRequest("USD", "EUR", "10"));
 
         assertAll(
                 () -> assertEquals("USD", result.baseCurrency().code()),

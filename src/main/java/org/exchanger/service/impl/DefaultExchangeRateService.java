@@ -1,7 +1,5 @@
 package org.exchanger.service.impl;
 
-import org.exchanger.dto.request.ExchangeRateRequest;
-import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
 import org.exchanger.exception.CurrencyNotFoundException;
@@ -14,11 +12,11 @@ import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.CurrencyRepository;
 import org.exchanger.repository.ExchangeRateRepository;
 import org.exchanger.service.ExchangeRateService;
+import org.exchanger.service.command.CreateExchangeRateCommand;
+import org.exchanger.service.command.UpdateExchangeRateCommand;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public final class DefaultExchangeRateService extends AbstractCurrencyLookupService implements ExchangeRateService {
 
@@ -51,12 +49,9 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
 
     @Override
     public ExchangeRateResponse get(String baseCurrencyCode, String targetCurrencyCode) {
-        String normalizedBaseCode = normalizeCode(baseCurrencyCode);
-        String normalizedTargetCode = normalizeCode(targetCurrencyCode);
-
         try {
-            Currency base = getCurrency(normalizedBaseCode);
-            Currency target = getCurrency(normalizedTargetCode);
+            Currency base = getCurrency(baseCurrencyCode);
+            Currency target = getCurrency(targetCurrencyCode);
 
             ExchangeRate exchangeRate = exchangeRateRepository
                     .findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
@@ -64,19 +59,18 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
 
             return exchangeRateMapper.toDto(exchangeRate);
         } catch (CurrencyNotFoundException e) {
-            throw new ExchangeRateNotFoundException(normalizedBaseCode, normalizedTargetCode);
+            throw new ExchangeRateNotFoundException(baseCurrencyCode, targetCurrencyCode);
         }
     }
 
     @Override
-    public ExchangeRateResponse create(ExchangeRateRequest request) {
-        Currency base = getCurrency(request.baseCurrencyCode());
-        Currency target = getCurrency(request.targetCurrencyCode());
-        BigDecimal rate = new BigDecimal(request.rate());
+    public ExchangeRateResponse create(CreateExchangeRateCommand command) {
+        Currency base = getCurrency(command.baseCurrencyCode());
+        Currency target = getCurrency(command.targetCurrencyCode());
 
         try {
-            Long id = exchangeRateRepository.create(base.id(), target.id(), rate);
-            ExchangeRate savedExchangeRate = new ExchangeRate(id, base, target, rate);
+            Long id = exchangeRateRepository.create(base.id(), target.id(), command.rate());
+            ExchangeRate savedExchangeRate = new ExchangeRate(id, base, target, command.rate());
 
             return exchangeRateMapper.toDto(savedExchangeRate);
         } catch (DuplicateEntityException e) {
@@ -85,29 +79,21 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
     }
 
     @Override
-    public UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateRequest request) {
-        String normalizedBaseCode = normalizeCode(request.baseCurrencyCode());
-        String normalizedTargetCode = normalizeCode(request.targetCurrencyCode());
-        BigDecimal newRate = new BigDecimal(request.rate());
-
+    public UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateCommand command) {
         try {
-            Currency base = getCurrency(normalizedBaseCode);
-            Currency target = getCurrency(normalizedTargetCode);
+            Currency base = getCurrency(command.baseCurrencyCode());
+            Currency target = getCurrency(command.targetCurrencyCode());
 
             ExchangeRate exchangeRate = exchangeRateRepository
                     .findByBaseCurrencyIdAndTargetCurrencyId(base.id(), target.id())
                     .orElseThrow(() -> new ExchangeRateNotFoundException(base.code(), target.code()));
 
-            exchangeRateRepository.updateRateById(exchangeRate.id(), newRate);
-            ExchangeRate updatedExchangeRate = new ExchangeRate(exchangeRate.id(), base, target, newRate);
+            exchangeRateRepository.updateRateById(exchangeRate.id(), command.rate());
+            ExchangeRate updatedExchangeRate = new ExchangeRate(exchangeRate.id(), base, target, command.rate());
 
             return updateExchangeRateMapper.toDto(updatedExchangeRate);
         } catch (CurrencyNotFoundException e) {
-            throw new ExchangeRateNotFoundException(normalizedBaseCode, normalizedTargetCode);
+            throw new ExchangeRateNotFoundException(command.baseCurrencyCode(), command.targetCurrencyCode());
         }
-    }
-
-    private String normalizeCode(String code) {
-        return code.trim().toUpperCase(Locale.ROOT);
     }
 }
