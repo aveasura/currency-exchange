@@ -1,4 +1,4 @@
-package org.exchanger.validator;
+package org.exchanger.validator.impl;
 
 import org.exchanger.dto.request.UpdateExchangeRateRequest;
 

@@ -2,6 +2,7 @@ package org.exchanger.validator;
 
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.exception.BadRequestException;
+import org.exchanger.validator.impl.CurrencyRequestValidator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

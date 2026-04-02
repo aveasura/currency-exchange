@@ -8,7 +8,7 @@ import org.exchanger.dto.response.ExchangeResponse;
 import org.exchanger.service.ExchangeService;
 import org.exchanger.servlet.parser.ExchangeRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
-import org.exchanger.validator.ExchangeRequestValidator;
+import org.exchanger.validator.impl.ExchangeRequestValidator;
 import org.exchanger.validator.RequestValidator;
 
 @WebServlet({"/exchange", "/exchange/"})

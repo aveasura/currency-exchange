@@ -1,4 +1,4 @@
-package org.exchanger.validator;
+package org.exchanger.validator.impl;
 
 public final class CurrencyCodeValidator extends AbstractRequestValidator<String> {
     @Override

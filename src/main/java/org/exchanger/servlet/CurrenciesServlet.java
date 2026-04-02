@@ -8,7 +8,7 @@ import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.servlet.parser.CurrencyRequestParser;
 import org.exchanger.servlet.parser.RequestParser;
-import org.exchanger.validator.CurrencyRequestValidator;
+import org.exchanger.validator.impl.CurrencyRequestValidator;
 import org.exchanger.validator.RequestValidator;
 
 import java.util.List;

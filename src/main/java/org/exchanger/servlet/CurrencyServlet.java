@@ -7,7 +7,7 @@ import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.servlet.parser.CurrencyCodeParser;
 import org.exchanger.servlet.parser.RequestParser;
-import org.exchanger.validator.CurrencyCodeValidator;
+import org.exchanger.validator.impl.CurrencyCodeValidator;
 import org.exchanger.validator.RequestValidator;
 
 @WebServlet("/currency/*")

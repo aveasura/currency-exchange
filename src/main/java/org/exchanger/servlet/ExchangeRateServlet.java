@@ -14,7 +14,7 @@ import org.exchanger.servlet.parser.CurrencyPairRequest;
 import org.exchanger.servlet.parser.RequestParser;
 import org.exchanger.servlet.parser.UpdateRateParser;
 import org.exchanger.validator.RequestValidator;
-import org.exchanger.validator.UpdateExchangeRateValidator;
+import org.exchanger.validator.impl.UpdateExchangeRateValidator;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends AbstractApiServlet {

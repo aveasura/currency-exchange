@@ -10,7 +10,7 @@ import org.exchanger.service.command.CreateExchangeRateCommand;
 import org.exchanger.mapper.ExchangeRateCommandMapper;
 import org.exchanger.servlet.parser.ExchangeRateParser;
 import org.exchanger.servlet.parser.RequestParser;
-import org.exchanger.validator.ExchangeRateRequestValidator;
+import org.exchanger.validator.impl.ExchangeRateRequestValidator;
 import org.exchanger.validator.RequestValidator;
 
 import java.util.List;

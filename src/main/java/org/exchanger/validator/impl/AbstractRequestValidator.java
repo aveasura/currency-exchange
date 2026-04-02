@@ -1,6 +1,7 @@
-package org.exchanger.validator;
+package org.exchanger.validator.impl;
 
 import org.exchanger.exception.BadRequestException;
+import org.exchanger.validator.RequestValidator;
 
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
