@@ -1,12 +1,10 @@
-package org.exchanger.repository;
+package org.exchanger.repository.jdbc;
 
 import org.exchanger.config.connection.ConnectionProvider;
 import org.exchanger.config.connection.SqliteConnectionProvider;
 import org.exchanger.config.database.DatabaseInitializer;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
-import org.exchanger.repository.jdbc.JdbcCurrencyRepository;
-import org.exchanger.repository.jdbc.JdbcExchangeRateRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
