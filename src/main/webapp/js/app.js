@@ -414,7 +414,7 @@
             return '< 0.000001';
         }
 
-        return numericRate.toFixed(6);
+        return numericRate.toFixed(6).replace(/\.?0+$/, '');
     }
 
     function formatConvertedAmountForDisplay(rawValue, currencyCode) {
