@@ -54,15 +54,15 @@ class JdbcCurrencyRepositoryTest {
 
     @Test
     void shouldCreateCurrency() {
-        Long id = repository.create("AUD", "Australian dollar", "A$");
+        Long id = repository.create("XCC", "Test currency C", "C");
 
-        Currency saved = repository.findByCode("AUD");
+        Currency saved = repository.findByCode("XCC");
 
         assertAll(
                 () -> assertEquals(id, saved.id()),
-                () -> assertEquals("AUD", saved.code()),
-                () -> assertEquals("Australian dollar", saved.fullName()),
-                () -> assertEquals("A$", saved.sign())
+                () -> assertEquals("XCC", saved.code()),
+                () -> assertEquals("Test currency C", saved.fullName()),
+                () -> assertEquals("C", saved.sign())
         );
     }
 }
