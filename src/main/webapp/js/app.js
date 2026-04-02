@@ -279,7 +279,7 @@
                     <td><strong>${escapeHtml(pair)}</strong></td>
                     <td>${escapeHtml(rate.baseCurrency.code)}</td>
                     <td>${escapeHtml(rate.targetCurrency.code)}</td>
-                    <td>${escapeHtml(rate.rate)}</td>
+                    <td>${escapeHtml(formatRateForDisplay(rate.rate))}</td>
                     <td class="text-end">
                         <button
                             type="button"
@@ -329,9 +329,19 @@
 
         if (!amountEl || !metaEl) return;
 
-        amountEl.textContent = `${result.convertedAmount} ${result.targetCurrency.code}`;
-        metaEl.textContent =
-            `${result.amount} ${result.baseCurrency.code} × ${result.rate} = ${result.convertedAmount} ${result.targetCurrency.code}`;
+        const rate = Number(result.rate);
+        const amount = Number(result.amount);
+        const preciseConvertedAmount = rate * amount;
+
+        const displayRate = formatRateForDisplay(result.rate);
+        const displayAmount = formatAmountForDisplay(result.amount, result.baseCurrency.code);
+        const displayConvertedAmount = formatConvertedAmountForDisplay(
+            preciseConvertedAmount,
+            result.targetCurrency.code
+        );
+
+        amountEl.textContent = displayConvertedAmount;
+        metaEl.textContent = `${displayAmount} × ${displayRate} = ${displayConvertedAmount}`;
     }
 
     function updateCurrencyStats(count) {
@@ -391,6 +401,44 @@
             .replaceAll('>', '&gt;')
             .replaceAll('"', '&quot;')
             .replaceAll("'", '&#039;');
+    }
+
+    function formatRateForDisplay(rate) {
+        const numericRate = Number(rate);
+
+        if (Number.isNaN(numericRate)) {
+            return String(rate);
+        }
+
+        if (numericRate > 0 && numericRate < 0.000001) {
+            return '< 0.000001';
+        }
+
+        return numericRate.toFixed(6);
+    }
+
+    function formatConvertedAmountForDisplay(rawValue, currencyCode) {
+        const numericValue = Number(rawValue);
+
+        if (Number.isNaN(numericValue)) {
+            return `${rawValue} ${currencyCode}`;
+        }
+
+        if (numericValue > 0 && numericValue < 0.01) {
+            return `< 0.01 ${currencyCode}`;
+        }
+
+        return `${numericValue.toFixed(2)} ${currencyCode}`;
+    }
+
+    function formatAmountForDisplay(amount, currencyCode) {
+        const numericAmount = Number(amount);
+
+        if (Number.isNaN(numericAmount)) {
+            return `${amount} ${currencyCode}`;
+        }
+
+        return `${numericAmount} ${currencyCode}`;
     }
 
     if (document.readyState === 'loading') {
