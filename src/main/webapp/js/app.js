@@ -1,5 +1,6 @@
 (() => {
-    const apiBase = `${window.location.origin}/currency-exchange`;
+    const appRootUrl = new URL('..', document.currentScript.src);
+    const apiBase = appRootUrl.pathname.replace(/\/$/, '');
     const THEME_STORAGE_KEY = 'currency-exchange-theme';
 
     let apiToast = null;
