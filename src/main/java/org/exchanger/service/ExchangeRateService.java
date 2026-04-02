@@ -1,15 +1,15 @@
 package org.exchanger.service;
 
-import org.exchanger.dto.request.ExchangeRateRequest;
-import org.exchanger.dto.request.UpdateExchangeRateRequest;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
+import org.exchanger.service.command.CreateExchangeRateCommand;
+import org.exchanger.service.command.UpdateExchangeRateCommand;
 
 public interface ExchangeRateService
-        extends CreateService<ExchangeRateRequest, ExchangeRateResponse>,
-                GetAllService<ExchangeRateResponse> {
+        extends CreateService<CreateExchangeRateCommand, ExchangeRateResponse>,
+        GetAllService<ExchangeRateResponse> {
 
     ExchangeRateResponse get(String baseCurrencyCode, String targetCurrencyCode);
 
-    UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateRequest request);
+    UpdateExchangeRateResponse updateExchangeRate(UpdateExchangeRateCommand command);
 }
