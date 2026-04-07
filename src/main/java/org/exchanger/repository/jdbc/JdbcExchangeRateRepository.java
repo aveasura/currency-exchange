@@ -1,8 +1,8 @@
 package org.exchanger.repository.jdbc;
 
 import org.exchanger.config.connection.ConnectionProvider;
+import org.exchanger.exception.ConflictException;
 import org.exchanger.exception.DataAccessException;
-import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.model.Currency;
 import org.exchanger.model.ExchangeRate;
 import org.exchanger.repository.ExchangeRateRepository;
@@ -70,7 +70,7 @@ public final class JdbcExchangeRateRepository extends AbstractJdbcRepository imp
                     () -> new DataAccessException("Create exchange rate error: failed to assign id"));
         } catch (DataAccessException e) {
             if (isUniqueConstraintViolation(e)) {
-                throw new DuplicateEntityException("Exchange rate already exists", e);
+                throw new ConflictException("Exchange rate already exists", e);
             }
             throw e;
         }

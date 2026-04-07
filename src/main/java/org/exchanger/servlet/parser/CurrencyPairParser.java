@@ -1,7 +1,7 @@
 package org.exchanger.servlet.parser;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.exchanger.exception.BadRequestException;
+import org.exchanger.exception.ValidationException;
 
 public final class CurrencyPairParser extends AbstractRequestParser<CurrencyPairRequest> {
 
@@ -13,7 +13,7 @@ public final class CurrencyPairParser extends AbstractRequestParser<CurrencyPair
         String pair = normalizeCode(rawPair);
 
         if (!pair.matches(CURRENCY_PAIR_PATTERN)) {
-            throw new BadRequestException("Currency pair should contain exactly 6 latin letters");
+            throw new ValidationException("Currency pair should contain exactly 6 latin letters");
         }
 
         String base = pair.substring(0, CURRENCY_CODE_LENGTH);

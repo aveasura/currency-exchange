@@ -1,7 +1,7 @@
 package org.exchanger.servlet.parser;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.exchanger.exception.BadRequestException;
+import org.exchanger.exception.ValidationException;
 
 import java.util.Locale;
 
@@ -15,7 +15,7 @@ public abstract class AbstractRequestParser<T> implements RequestParser<T> {
         String value = request.getParameter(name);
 
         if (value == null || value.isBlank()) {
-            throw new BadRequestException("Field '" + name + "' required");
+            throw new ValidationException("Field '" + name + "' required");
         }
 
         return value.trim();
@@ -25,17 +25,17 @@ public abstract class AbstractRequestParser<T> implements RequestParser<T> {
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null || pathInfo.isBlank()) {
-            throw new BadRequestException("Path variable is missing");
+            throw new ValidationException("Path variable is missing");
         }
 
         String cleanPath = pathInfo.trim();
 
         if (cleanPath.equals("/")) {
-            throw new BadRequestException("Path variable is missing");
+            throw new ValidationException("Path variable is missing");
         }
 
         if (!cleanPath.matches(SINGLE_PATH_SEGMENT_PATTERN)) {
-            throw new BadRequestException("Invalid path");
+            throw new ValidationException("Invalid path");
         }
 
         return cleanPath.substring(1);

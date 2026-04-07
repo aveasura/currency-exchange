@@ -1,7 +1,7 @@
 package org.exchanger.servlet.parser;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.exchanger.exception.BadRequestException;
+import org.exchanger.exception.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,8 +42,8 @@ class CurrencyPairParserTest {
     void shouldThrowWhenPathIsMissing() {
         when(request.getPathInfo()).thenReturn(null);
 
-        BadRequestException exception = assertThrows(
-                BadRequestException.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> parser.parse(request)
         );
 
@@ -54,7 +54,7 @@ class CurrencyPairParserTest {
     void shouldThrowWhenCurrencyPairFormatIsInvalid() {
         when(request.getPathInfo()).thenReturn("/USD12R");
 
-        BadRequestException exception = assertThrows(BadRequestException.class,
+        ValidationException exception = assertThrows(ValidationException.class,
                 () -> parser.parse(request)
         );
 

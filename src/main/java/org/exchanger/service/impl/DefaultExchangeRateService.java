@@ -2,8 +2,8 @@ package org.exchanger.service.impl;
 
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
+import org.exchanger.exception.ConflictException;
 import org.exchanger.exception.CurrencyNotFoundException;
-import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.ResponseMapper;
@@ -73,7 +73,7 @@ public final class DefaultExchangeRateService extends AbstractCurrencyLookupServ
             ExchangeRate savedExchangeRate = new ExchangeRate(id, base, target, command.rate());
 
             return exchangeRateMapper.toDto(savedExchangeRate);
-        } catch (DuplicateEntityException e) {
+        } catch (ConflictException e) {
             throw new ExchangeRateAlreadyExistsException(base.code(), target.code(), e);
         }
     }
