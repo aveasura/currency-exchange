@@ -2,8 +2,8 @@ package org.exchanger.service.impl;
 
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.exception.ConflictException;
 import org.exchanger.exception.CurrencyAlreadyExistsException;
-import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
 import org.exchanger.repository.CurrencyRepository;
@@ -29,7 +29,7 @@ public final class DefaultCurrencyService extends AbstractCurrencyLookupService 
             Currency savedCurrency = new Currency(id, dto.name(), dto.code(), dto.sign());
 
             return responseMapper.toDto(savedCurrency);
-        } catch (DuplicateEntityException e) {
+        } catch (ConflictException e) {
             throw new CurrencyAlreadyExistsException(dto.code(), e);
         }
     }

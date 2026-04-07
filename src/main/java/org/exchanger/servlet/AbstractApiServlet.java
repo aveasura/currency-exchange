@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.exchanger.config.AppComponents;
-import org.exchanger.dto.response.ErrorResponse;
 import org.exchanger.exception.AppException;
+import org.exchanger.servlet.error.ApiExceptionHandler;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -14,10 +14,10 @@ public abstract class AbstractApiServlet extends HttpServlet {
 
     private static final String CONTENT_TYPE = "application/json";
     private static final String CHARACTER_ENCODING = "UTF-8";
-    private static final String INTERNAL_ERROR_MESSAGE = "Internal server error";
 
     protected AppComponents components;
     protected ObjectMapper objectMapper;
+    private ApiExceptionHandler apiExceptionHandler;
 
     @Override
     public void init() {
@@ -25,6 +25,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
                 .getAttribute(AppComponents.class.getName());
 
         this.objectMapper = components.objectMapper();
+        this.apiExceptionHandler = new ApiExceptionHandler(objectMapper);
     }
 
     @Override
@@ -32,19 +33,15 @@ public abstract class AbstractApiServlet extends HttpServlet {
         try {
             super.service(request, response);
         } catch (AppException e) {
-            writeErrorResponse(response, e.getStatus(), e.getMessage());
+            apiExceptionHandler.handle(response, e);
         } catch (Exception e) {
             log("Unexpected server error", e);
-            writeErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE);
+            apiExceptionHandler.handleUnexpected(response);
         }
     }
 
     protected void sendResponse(HttpServletResponse response, Object body, int status) {
         writeJsonResponse(response, body, status);
-    }
-
-    private void writeErrorResponse(HttpServletResponse response, int status, String message) {
-        writeJsonResponse(response, new ErrorResponse(message), status);
     }
 
     private void writeJsonResponse(HttpServletResponse response, Object body, int status) {

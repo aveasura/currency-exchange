@@ -1,8 +1,8 @@
 package org.exchanger.servlet.parser;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.exchanger.exception.BadRequestException;
-import org.exchanger.exception.RequestProcessingException;
+import org.exchanger.exception.RequestReadException;
+import org.exchanger.exception.ValidationException;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -16,7 +16,7 @@ public final class FormUrlEncodedBodyParser {
         String body = readBody(request);
 
         if (body.isBlank()) {
-            throw new BadRequestException("Request body is empty");
+            throw new ValidationException("Request body is empty");
         }
 
         Map<String, String> params = new HashMap<>();
@@ -42,7 +42,7 @@ public final class FormUrlEncodedBodyParser {
             }
             return body.toString();
         } catch (IOException e) {
-            throw new RequestProcessingException("Failed to read request body", e);
+            throw new RequestReadException("Failed to read request body", e);
         }
     }
 

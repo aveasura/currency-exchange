@@ -3,8 +3,8 @@ package org.exchanger.service;
 import org.exchanger.dto.response.CurrencyResponse;
 import org.exchanger.dto.response.ExchangeRateResponse;
 import org.exchanger.dto.response.UpdateExchangeRateResponse;
+import org.exchanger.exception.ConflictException;
 import org.exchanger.exception.CurrencyNotFoundException;
-import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.exception.ExchangeRateAlreadyExistsException;
 import org.exchanger.exception.ExchangeRateNotFoundException;
 import org.exchanger.mapper.CurrencyMapper;
@@ -160,7 +160,7 @@ class DefaultExchangeRateServiceTest {
         when(currencyRepository.findByCode("USD")).thenReturn(usd);
         when(currencyRepository.findByCode("EUR")).thenReturn(eur);
         when(exchangeRateRepository.create(0L, 1L, new BigDecimal("0.86")))
-                .thenThrow(new DuplicateEntityException("duplicate", null));
+                .thenThrow(new ConflictException("duplicate", null));
 
         ExchangeRateAlreadyExistsException exception = assertThrows(
                 ExchangeRateAlreadyExistsException.class,

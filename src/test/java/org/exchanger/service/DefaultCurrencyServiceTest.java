@@ -2,9 +2,9 @@ package org.exchanger.service;
 
 import org.exchanger.dto.request.CurrencyRequest;
 import org.exchanger.dto.response.CurrencyResponse;
+import org.exchanger.exception.ConflictException;
 import org.exchanger.exception.CurrencyAlreadyExistsException;
 import org.exchanger.exception.CurrencyNotFoundException;
-import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.mapper.CurrencyMapper;
 import org.exchanger.mapper.ResponseMapper;
 import org.exchanger.model.Currency;
@@ -64,7 +64,7 @@ class DefaultCurrencyServiceTest {
         CurrencyRequest request = new CurrencyRequest("Australian dollar", "AUD", "A$");
 
         when(currencyRepository.create("AUD", "Australian dollar", "A$"))
-                .thenThrow(new DuplicateEntityException("duplicate", null));
+                .thenThrow(new ConflictException("duplicate", null));
 
         CurrencyAlreadyExistsException exception = assertThrows(
                 CurrencyAlreadyExistsException.class,

@@ -1,6 +1,6 @@
 package org.exchanger.validator.impl;
 
-import org.exchanger.exception.BadRequestException;
+import org.exchanger.exception.ValidationException;
 import org.exchanger.validator.RequestValidator;
 
 import java.math.BigDecimal;
@@ -35,7 +35,7 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         validateCode(target);
 
         if (base.equals(target)) {
-            throw new BadRequestException("Same currencies selected");
+            throw new ValidationException("Same currencies selected");
         }
 
         validateRate(rawRate);
@@ -46,7 +46,7 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         validateCode(target);
 
         if (base.equals(target)) {
-            throw new BadRequestException("Same currencies selected");
+            throw new ValidationException("Same currencies selected");
         }
 
         validateAmount(rawAmount);
@@ -54,7 +54,7 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
 
     protected void validateCode(String code) {
         if (code == null || !code.matches(CODE_PATTERN)) {
-            throw new BadRequestException(INVALID_CODE_MESSAGE);
+            throw new ValidationException(INVALID_CODE_MESSAGE);
         }
     }
 
@@ -62,7 +62,7 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         BigDecimal rate = validatePositiveNumber(rawRate);
 
         if (rate.compareTo(MAX_RATE) > 0) {
-            throw new BadRequestException(RATE_TOO_LARGE_MESSAGE);
+            throw new ValidationException(RATE_TOO_LARGE_MESSAGE);
         }
     }
 
@@ -72,24 +72,24 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
 
     private BigDecimal validatePositiveNumber(String rawNumber) {
         if (rawNumber == null || rawNumber.isBlank()) {
-            throw new BadRequestException("Number is missing");
+            throw new ValidationException("Number is missing");
         }
 
         String number = rawNumber.trim();
 
         if (number.length() > MAX_NUMBER_LENGTH) {
-            throw new BadRequestException("Number is too long");
+            throw new ValidationException("Number is too long");
         }
 
         if (!NUMBER_PATTERN.matcher(number).matches()) {
-            throw new BadRequestException(INVALID_NUMBER_MESSAGE);
+            throw new ValidationException(INVALID_NUMBER_MESSAGE);
         }
 
         validateFraction(number);
 
         BigDecimal result = new BigDecimal(number);
         if (result.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BadRequestException("Number must be greater than zero");
+            throw new ValidationException("Number must be greater than zero");
         }
 
         return result;
@@ -110,9 +110,9 @@ public abstract class AbstractRequestValidator<T> implements RequestValidator<T>
         boolean onlyZerosAfterScale = extraFraction.chars().allMatch(ch -> ch == '0');
 
         if (onlyZerosAfterScale) {
-            throw new BadRequestException(INVALID_NUMBER_MESSAGE);
+            throw new ValidationException(INVALID_NUMBER_MESSAGE);
         }
 
-        throw new BadRequestException(SCALE_EXCEEDED_MESSAGE);
+        throw new ValidationException(SCALE_EXCEEDED_MESSAGE);
     }
 }

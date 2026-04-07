@@ -1,7 +1,7 @@
 package org.exchanger.validator;
 
 import org.exchanger.dto.request.CurrencyRequest;
-import org.exchanger.exception.BadRequestException;
+import org.exchanger.exception.ValidationException;
 import org.exchanger.validator.impl.CurrencyRequestValidator;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ class CurrencyRequestValidatorTest {
     void shouldThrowWhenNameIsBlank() {
         CurrencyRequest request = new CurrencyRequest("     ", "EUR", "€");
 
-        BadRequestException exception = assertThrows(BadRequestException.class,
+        ValidationException exception = assertThrows(ValidationException.class,
                 () -> validator.validate(request)
         );
 

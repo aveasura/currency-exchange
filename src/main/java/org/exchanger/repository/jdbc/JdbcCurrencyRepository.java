@@ -1,9 +1,9 @@
 package org.exchanger.repository.jdbc;
 
 import org.exchanger.config.connection.ConnectionProvider;
+import org.exchanger.exception.ConflictException;
 import org.exchanger.exception.CurrencyNotFoundException;
 import org.exchanger.exception.DataAccessException;
-import org.exchanger.exception.DuplicateEntityException;
 import org.exchanger.model.Currency;
 import org.exchanger.repository.CurrencyRepository;
 
@@ -49,7 +49,7 @@ public final class JdbcCurrencyRepository extends AbstractJdbcRepository impleme
             );
         } catch (DataAccessException e) {
             if (isUniqueConstraintViolation(e)) {
-                throw new DuplicateEntityException("Currency already exists", e);
+                throw new ConflictException("Currency already exists", e);
             }
             throw e;
         }
