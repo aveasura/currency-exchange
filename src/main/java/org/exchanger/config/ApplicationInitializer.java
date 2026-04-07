@@ -26,6 +26,7 @@ import org.exchanger.service.ExchangeService;
 import org.exchanger.service.impl.DefaultCurrencyService;
 import org.exchanger.service.impl.DefaultExchangeRateService;
 import org.exchanger.service.impl.DefaultExchangeService;
+import org.exchanger.servlet.error.ApiExceptionHandler;
 import tools.jackson.databind.ObjectMapper;
 
 @WebListener
@@ -107,12 +108,15 @@ public class ApplicationInitializer implements ServletContextListener {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
+        ApiExceptionHandler apiExceptionHandler = new ApiExceptionHandler(objectMapper);
+
         return new AppComponents(
                 dataSource,
                 currencyService,
                 exchangeRateService,
                 exchangeService,
-                objectMapper
+                objectMapper,
+                apiExceptionHandler
         );
     }
 }
