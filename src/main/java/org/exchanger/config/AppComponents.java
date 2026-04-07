@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.exchanger.service.CurrencyService;
 import org.exchanger.service.ExchangeRateService;
 import org.exchanger.service.ExchangeService;
+import org.exchanger.servlet.error.ApiExceptionHandler;
 import tools.jackson.databind.ObjectMapper;
 
 public record AppComponents(
@@ -11,5 +12,7 @@ public record AppComponents(
         CurrencyService currencyService,
         ExchangeRateService exchangeRateService,
         ExchangeService exchangeService,
-        ObjectMapper objectMapper) {
+        ObjectMapper objectMapper,
+        ApiExceptionHandler apiExceptionHandler
+) {
 }

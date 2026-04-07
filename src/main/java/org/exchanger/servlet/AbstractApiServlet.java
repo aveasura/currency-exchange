@@ -16,7 +16,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
     private static final String CHARACTER_ENCODING = "UTF-8";
 
     protected AppComponents components;
-    protected ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
     private ApiExceptionHandler apiExceptionHandler;
 
     @Override
@@ -25,7 +25,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
                 .getAttribute(AppComponents.class.getName());
 
         this.objectMapper = components.objectMapper();
-        this.apiExceptionHandler = new ApiExceptionHandler(objectMapper);
+        this.apiExceptionHandler = components.apiExceptionHandler();
     }
 
     @Override
