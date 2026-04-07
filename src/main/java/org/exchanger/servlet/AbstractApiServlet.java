@@ -36,7 +36,7 @@ public abstract class AbstractApiServlet extends HttpServlet {
             apiExceptionHandler.handle(response, e);
         } catch (Exception e) {
             log("Unexpected server error", e);
-            apiExceptionHandler.handleUnexpected(response, e);
+            apiExceptionHandler.handleUnexpected(response);
         }
     }
 

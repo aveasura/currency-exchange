@@ -9,8 +9,13 @@ import org.exchanger.exception.ValidationException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ApiExceptionHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(ApiExceptionHandler.class.getName());
+
     private static final String CONTENT_TYPE = "application/json";
     private static final String CHARACTER_ENCODING = "UTF-8";
     private static final String INTERNAL_ERROR_MESSAGE = "Internal server error";
@@ -22,12 +27,20 @@ public class ApiExceptionHandler {
     }
 
     public void handle(HttpServletResponse response, AppException exception) {
-        int status = resolveStatus(exception);
-        writeErrorResponse(response, status, exception.getMessage());
+        writeIfPossible(response, resolveStatus(exception), exception.getMessage());
     }
 
-    public void handleUnexpected(HttpServletResponse response, Exception unexpected) {
-        writeErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE);
+    public void handleUnexpected(HttpServletResponse response) {
+        writeIfPossible(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, INTERNAL_ERROR_MESSAGE);
+    }
+
+    private void writeIfPossible(HttpServletResponse response, int status, String message) {
+        if (response.isCommitted()) {
+            return;
+        }
+
+        response.resetBuffer();
+        writeErrorResponse(response, status, message);
     }
 
     private int resolveStatus(AppException exception) {
@@ -45,11 +58,16 @@ public class ApiExceptionHandler {
 
     private void writeErrorResponse(HttpServletResponse response, int status, String message) {
         try {
-            response.setContentType(CONTENT_TYPE);
-            response.setCharacterEncoding(CHARACTER_ENCODING);
-            response.setStatus(status);
+            configureResponse(response, status);
             objectMapper.writeValue(response.getWriter(), new ErrorResponse(message));
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to write error response", e);
         }
+    }
+
+    private void configureResponse(HttpServletResponse response, int status) {
+        response.setContentType(CONTENT_TYPE);
+        response.setCharacterEncoding(CHARACTER_ENCODING);
+        response.setStatus(status);
     }
 }
