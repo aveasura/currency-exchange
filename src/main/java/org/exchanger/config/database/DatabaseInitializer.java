@@ -19,7 +19,7 @@ public final class DatabaseInitializer {
                 ),
                 sign TEXT NOT NULL CHECK (
                     length(trim(sign)) > 0
-                    AND length(sign) <= 5
+                    AND length(trim(sign)) <= 3
                 )
             );
             """;

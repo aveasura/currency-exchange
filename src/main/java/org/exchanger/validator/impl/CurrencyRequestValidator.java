@@ -6,7 +6,7 @@ import org.exchanger.exception.BadRequestException;
 public final class CurrencyRequestValidator extends AbstractRequestValidator<CurrencyRequest> {
 
     private static final int MAX_NAME_LENGTH = 50;
-    private static final int MAX_SIGN_LENGTH = 5;
+    private static final int MAX_SIGN_LENGTH = 3;
 
     @Override
     public void validate(CurrencyRequest request) {
@@ -38,8 +38,11 @@ public final class CurrencyRequestValidator extends AbstractRequestValidator<Cur
             throw new BadRequestException("Field 'sign' required");
         }
 
-        if (sign.trim().length() > MAX_SIGN_LENGTH) {
-            throw new BadRequestException("Currency sign should not exceed 5 characters");
+        String trimmedSign = sign.trim();
+        if (trimmedSign.length() > MAX_SIGN_LENGTH) {
+            throw new BadRequestException(
+                    "Currency sign should not exceed " + MAX_SIGN_LENGTH + " characters"
+            );
         }
     }
 }
